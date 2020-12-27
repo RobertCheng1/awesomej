@@ -1,5 +1,7 @@
 package com.company;
 
+import java.util.Arrays;
+
 public class EntryLevel {
 
     public void varPoc(){
@@ -144,6 +146,7 @@ public class EntryLevel {
     public void overflowInt(){
         // 重点3：
         // 表面上看，上面的while循环是一个死循环，但是，Java的int类型有最大值，达到最大值后，再加1会变成负数，结果，意外退出了while循环。
+        System.out.println("In the overflowInt");
         int sum = 0;
         int n = 1;
         while (n > 0) {
@@ -155,7 +158,8 @@ public class EntryLevel {
     }
 
     public void forCircle(){
-        int[] ns = { 1, 4, 9, 16, 25 };
+        System.out.println("In the forCircle");
+        int[] ns = { 1, 4, 9, 16, 25};
         for (int i=0; i<ns.length; i++) {
             System.out.println(ns[i]);
         }
@@ -164,6 +168,13 @@ public class EntryLevel {
         for (int n : ns) {
             System.out.println(n);
         }
+        // 直接打印数组变量，得到的是数组在JVM中的引用地址 from: Java 快速入门--遍历数组
+        System.out.println(ns);
+        // 使用for each循环打印也很麻烦。幸好Java标准库提供了Arrays.toString()，可以快速打印数组内容
+        System.out.println(Arrays.toString(ns));
+        int[] nss = { 1, 14, 9, 16, 25 };
+        Arrays.sort(nss);
+
     }
 
 }
