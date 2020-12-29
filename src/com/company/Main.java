@@ -26,5 +26,11 @@ public class Main {
         // 测试覆写 Override
         Person perstu = new Student("rob", 12, 98);
         perstu.run();
+
+        // 测试抽象类和接口
+        // Animal ani = new Animal()  编译报错：'Animal' is abstract; cannot be instantiated
+        Cat miao = new Cat(10, "yellow");
+        miao.eat();
+        System.out.println(miao.getWeight());
     }
 }
