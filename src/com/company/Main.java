@@ -10,6 +10,13 @@ public class Main {
      *
      * Java程序的入口是main方法，而main方法可以接受一个命令行参数，它是一个String[]数组。
      * 命令行参数由JVM接收用户输入并传给main方法； from： Java快速入门--数组操作--命令行参数
+     *
+     * https://www.liaoxuefeng.com/wiki/1252599548343744/1260467032946976
+     * 编写class的时候，编译器会自动帮我们做两个 import 动作：
+     *     默认自动 import 当前 package 的其他class；
+     *     默认自动import java.lang.*。
+     * 注意：自动导入的是 java.lang 包，但类似 java.lang.reflect 这些包仍需要手动导入。
+     *
      * @param args
      */
     public static void main(String[] args) {
@@ -32,5 +39,18 @@ public class Main {
         Cat miao = new Cat(10, "yellow");
         miao.eat();
         System.out.println(miao.getWeight());
+
+        // 测试内部类或者说嵌套类:
+        // 要实例化一个 Inner，我们必须首先创建一个 Outer 的实例，然后，调用Outer实例的 new 来创建Inner实例,
+        // 这是因为Inner Class除了有一个this指向它自己，还隐含地持有一个Outer Class实例，可以用Outer.this访问这个实例。
+        // 所以，实例化一个Inner Class不能脱离Outer实例。
+        Outer outer = new Outer("BeiJingYiZhuang"); // 实例化一个Outer
+        Outer.Inner inner = outer.new Inner(); // 实例化一个Inner
+        inner.moha();
+        outer.asyncHello();
+        // 用 static 修饰的内部类和Inner Class有很大的不同，它不再依附于Outer的实例，而是一个完全独立的类，因此无法引用 Outer.this
+        Outer.StaticNested sn = new Outer.StaticNested();
+        sn.homeland();
+
     }
 }

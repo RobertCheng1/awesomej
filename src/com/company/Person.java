@@ -5,7 +5,7 @@ package com.company;
    而instance是对象实例，instance是根据class创建的实例，可以创建多个instance，每个instance类型相同，但各自属性可能不相同。
 
    进阶：
-   1. 阻止继承：
+   1. 阻止继承（from：继承和多态）：
         正常情况下，只要某个 class 没有 final 修饰符，那么任何类都可以从该class继承。
         从Java 15开始，允许使用sealed修饰class，并通过permits明确写出能够从该class继承的子类名称。
             例如，定义一个Shape类：
@@ -20,6 +20,12 @@ package com.company;
             final修饰的class可以阻止被继承；
             final修饰的field必须在创建对象时初始化，随后不可修改。
  */
+
+
+// 面向对象编程--面向对象基础--包和作用域:
+// 1. 当把 public class Person ---> class Person 仍然可以在 Main.java 中访问 class Person：因为包作用域。
+//    包作用域是指一个类允许访问同一个package的没有public、private修饰的class，以及没有public、protected、private修饰的字段和方法。
+// 2. 一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和public类的名字相同。
 public class Person {
     private String name;
     private int age;
