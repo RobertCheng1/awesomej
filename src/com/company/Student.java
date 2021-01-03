@@ -41,7 +41,7 @@ public class Student extends Person {
     }
 }
 
-// 面向对象编程--面向对象基础--包和作用域:
+// 面向对象编程--面向对象基础--包和作用域两章:
 // 一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和public类的名字相同。
 class Teacher extends Person{
     public void teach(){

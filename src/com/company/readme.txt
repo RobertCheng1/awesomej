@@ -31,7 +31,7 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
     使用javac可以将.java源码编译成.class字节码；
     使用java可以运行一个已编译的Java程序，参数是类名。
 
-面向对象编程--面向对象基础--包和作用域:
+面向对象编程--面向对象基础--包和作用域两章:
     https://www.liaoxuefeng.com/wiki/1252599548343744/1260467032946976
     https://www.liaoxuefeng.com/wiki/1252599548343744/1260466215676512
     在 Java中，我们使用package来解决名字冲突:
@@ -52,6 +52,49 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
     注意：自动导入的是java.lang包，但类似 java.lang.reflect 这些包仍需要手动导入。
 
     一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和 public 类的名字相同。
+
+面向对象编程--面向对象基础--模块:
+    把一堆 class 封装为jar仅仅是一个打包的过程，而把一堆class封装为模块则不但需要打包，还需要写入依赖关系，并且还可以包含二进制代码（通常是JNI扩展）。
+    此外，模块支持多版本，即在同一个模块中可以为不同的JVM提供不同的版本。
+    jar --help: 如果模块描述符 'module-info.class' 位于指定目录的根目录中, 或者位于 jar 档案本身的根目录中, 则该档案是一个模块化 jar。
+
+    JDK提供的命令行工具来编译并创建模块:
+    1. 把工作目录切换到oop-module，在当前目录下编译所有的.java文件，并存放到bin目录下:
+        $ javac -d bin src/module-info.java src/com/itranswarp/sample/*.java
+        oop-module
+        ├── bin
+        │   ├── com
+        │   │   └── itranswarp
+        │   │       └── sample
+        │   │           ├── Greeting.class
+        │   │           └── Main.class
+        │   └── module-info.class
+        └── src
+            ├── com
+            │   └── itranswarp
+            │       └── sample
+            │           ├── Greeting.java
+            │           └── Main.java
+            └── module-info.java
+    2. 把bin目录下的所有class文件先打包成jar，在打包的时候，注意传入--main-class参数，让这个jar包能自己定位main方法所在的类：
+        $ jar --create --file hello.jar --main-class com.itranswarp.sample.Main -C bin .
+        现在我们就在当前目录下得到了 hello.jar这个jar包，它和普通jar包并无区别，可以直接使用命令 java -jar hello.jar 来运行它，因为
+        在创建 jar 时已经指定了 --main-class，所以可以直接运行jar 包，否则就需要 java -jar hello.jar com.itranswarp.sample.Main
+        灵感来自： MANIFEST.MF文件可以提供jar包的信息，如Main-Class，这样可以直接运行jar包。 from: 上一节 classpath和jar
+
+    3. 使用JDK自带的jmod命令把一个jar包转换成模块：
+        $ jmod create --class-path hello.jar hello.jmod
+        在当前目录下我们又得到了hello.jmod这个模块文件，这就是最后打包出来的传说中的模块！
+        注：.jmod不能被放入--module-path，
+        $ java --module-path hello.jmod --module hello.world 这是会报异常的，换成.jar就没问题了
+        $ java --module-path hello.jar --module hello.world 就可以了
+
+    辛辛苦苦创建的hello.jmod有什么用？
+        使用模块可以按需打包JRE:
+        $ jlink --module-path hello.jmod --add-modules java.base,java.xml,hello.world --output jre/
+        Mac jmods路径：/Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/jmods
+        Win jmods路径：C:\Program Files\Java\jdk-15.0.1\jmods
+
 
 /Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
 

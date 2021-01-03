@@ -22,7 +22,7 @@ package com.company;
  */
 
 
-// 面向对象编程--面向对象基础--包和作用域:
+// 面向对象编程--面向对象基础--包和作用域两章:
 // 1. 当把 public class Person ---> class Person 仍然可以在 Main.java 中访问 class Person：因为包作用域。
 //    包作用域是指一个类允许访问同一个package的没有public、private修饰的class，以及没有public、protected、private修饰的字段和方法。
 // 2. 一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和public类的名字相同。
