@@ -95,17 +95,20 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
         Mac jmods路径：/Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/jmods
         Win jmods路径：C:\Program Files\Java\jdk-15.0.1\jmods
 
+面向对象编程--Java核心类--字符串和编码:
+    在Java中，String是一个引用类型，它本身也是一个class。但是，Java编译器对String有特殊处理，即可以直接用"..."来表示一个字符串：
+    String s1 = "Hello!";
+    实际上字符串在String内部是通过一个char[]数组表示的，因此，按下面的写法也是可以的：
+    String s2 = new String(new char[] {'H', 'e', 'l', 'l', 'o', '!'});
+    因为String太常用了，所以Java提供了"..."这种字符串字面量表示方法。
+
+    Java字符串的一个重要特点就是字符串不可变。这种不可变性是通过内部的private final char[]字段，以及没有任何修改char[]的方法实现的。
+    这点可以联想到:面向对象编程--多态、继承中相关的 final 的用法
+
 
 /Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
 
 
 
-
-
-
-
-
-
-
-
+包作用域和 public 作用域，谁的更宽泛，猜测是public
 

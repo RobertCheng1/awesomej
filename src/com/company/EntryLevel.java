@@ -27,7 +27,8 @@ public class EntryLevel {
         System.out.println(f);
         // 定义变量的时候，如果加上 final 修饰符，这个变量就变成了常量：
         final double PI = 3.14;
-        // 有些时候，类型的名字太长，写起来比较麻烦。这时如果想省略变量类型，可以使用 var关键字，使用 var 定义变量，仅仅是少写了变量类型而已。
+        // 有些时候，类型的名字太长，写起来比较麻烦。这时如果想省略变量类型，可以使用 var关键字，
+        // 编译器会根据赋值语句自动推断出变量sb的类型是StringBuilder， 使用 var 定义变量，仅仅是少写了变量类型而已。
         // StringBuilder sb = new StringBuilder();   等同下面的语句
         var sb = new StringBuilder();
         // 类型自动提升与强制转型:
@@ -44,7 +45,14 @@ public class EntryLevel {
         System.out.printf("ch2int = %d\n", ch2int);
         int tmp = 20013;
         System.out.println((char)tmp);
-        /* 引用类型： 和 char类型不同，字符串类型String是引用类型，我们用双引号"..."表示字符串 */
+        /* 引用类型： 和 char类型不同，字符串类型String是引用类型，我们用双引号"..."表示字符串
+         * 引用类型的变量类似于 C 语言的指针，它内部存储一个“地址”，指向某个对象在内存的位置。
+         *
+         * 在Java中，String是一个引用类型，它本身也是一个class，但是Java编译器对String有特殊处理，即可以直接用"..."来表示一个字符串,
+         * 实际上字符串在String内部是通过一个char[]数组表示的,因此，按下面的写法也是可以的：
+         * String s2 = new String(new char[] {'H', 'e', 'l', 'l', 'o', '!'});
+         * 因为String太常用了，所以Java提供了"..."这种字符串字面量表示方法。 from: 面向对象编程--Java核心类--字符串和编码
+         */
         String s1 = "Hello";
         String s2 = "world";
         String ss = s1 + " " + s2 + "!";

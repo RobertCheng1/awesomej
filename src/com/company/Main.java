@@ -28,8 +28,9 @@ public class Main {
         Person per = new Person();
         System.out.println(per.getName());
 
-        Student stu = new Student("rob", 11, 99);
+        Student stu = new Student("robb", 11, 99);
         System.out.println(stu.getScore());
+        System.out.println(stu.getName());
         // 测试覆写 Override
         Person perstu = new Student("rob", 12, 98);
         perstu.run();
