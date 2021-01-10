@@ -52,3 +52,4 @@ class Teacher extends Person{
         System.out.println("In the teach of class Teacher");
     }
 }
+

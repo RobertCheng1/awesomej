@@ -10,6 +10,7 @@ public class EntryLevel {
         // Java的 char类型除了可表示标准的ASCII外，还可以表示一个Unicode字符，
         // 注意char类型使用单引号'，且仅有一个字符，要和双引号"的字符串类型区分开。
         // Java在内存中总是使用Unicode表示字符，所以一个英文字符和一个中文字符都用一个char类型表示，它们都占用两个字节：from:字符和字符串
+        // Java的 String 和 char 在内存中总是以Unicode编码表示。from: 面向对象--Java核心类--字符串和编码
         char a = 'A';
         char zh = '中';
         System.out.printf("Test char a = %s\n", a);
@@ -19,11 +20,25 @@ public class EntryLevel {
         long ly = 15;
         long sum = lx + ly;
         System.out.println(sum); // 2147483655
+        // Java的包装类型还定义了一些有用的静态变量from： 面向对象--Java核心类--包装类型
+        int max = Integer.MAX_VALUE; // 2147483647
+        int min = Integer.MIN_VALUE; // -2147483648
+        System.out.printf("max = %d, min = %d\n", max, min);
+        // long类型占用的bit和byte数量:
+        int sizeOfLong = Long.SIZE; // 64 (bits)
+        int bytesOfLong = Long.BYTES; // 8 (bytes)
+        System.out.printf("sizeOfLong = %d, bytesOfLong = %d\n", sizeOfLong, bytesOfLong);
 
-        // 浮点类型的数就是小数，因为小数用科学计数法表示的时候，小数点是可以“浮动”的，如1234.5可以表示成12.345x102，
-        // 也可以表示成1.2345x103，所以称为浮点数。  对于 float 类型，需要加上 f 后缀。
-        // 科学计数法表示的3.14x10^38
-        float f = 3.14e38f;
+        /* 浮点类型的数就是小数，因为小数用科学计数法表示的时候，小数点是可以“浮动”的，
+         * 如1234.5可以表示成12.345x10^2，也可以表示成1.2345x10^3，所以称为浮点数。  对于 float 类型，需要加上 f 后缀。
+         * 整数运算在除数为0时会报错，而浮点数运算在除数为0时，不会报错，但会返回几个特殊值：
+         *    NaN表示Not a Number,  比如 double d1 = 0.0 / 0
+         *    Infinity表示无穷大,    比如 double d2 = 1.0 / 0
+         *    -Infinity表示负无穷大, 比如 double d3 = -1.0 / 0
+         * 浮点数 0.1在计算机中就无法精确表示，因为十进制的0.1换算成二进制是一个无限循环小数，
+         * 很显然，无论使用float还是double，都只能存储一个0.1的近似值。但是，0.5这个浮点数又可以精确地表示。
+         */
+        float f = 3.14e38f; // 科学计数法表示的3.14x10^38
         System.out.println(f);
         // 定义变量的时候，如果加上 final 修饰符，这个变量就变成了常量：
         final double PI = 3.14;
@@ -45,13 +60,16 @@ public class EntryLevel {
         System.out.printf("ch2int = %d\n", ch2int);
         int tmp = 20013;
         System.out.println((char)tmp);
-        /* 引用类型： 和 char类型不同，字符串类型String是引用类型，我们用双引号"..."表示字符串
-         * 引用类型的变量类似于 C 语言的指针，它内部存储一个“地址”，指向某个对象在内存的位置。
+
+        /* 引用类型： 和char类型不同，字符串类型 String 是引用类型，我们用双引号"..."表示字符串
+         * 引用类型的变量类似于 C 语言的指针，它内部存储一个“地址”，指向某个对象在内存的位置。from: Java 程序基础--变量和数据类型
          *
          * 在Java中，String是一个引用类型，它本身也是一个class，但是Java编译器对String有特殊处理，即可以直接用"..."来表示一个字符串,
          * 实际上字符串在String内部是通过一个char[]数组表示的,因此，按下面的写法也是可以的：
          * String s2 = new String(new char[] {'H', 'e', 'l', 'l', 'o', '!'});
          * 因为String太常用了，所以Java提供了"..."这种字符串字面量表示方法。 from: 面向对象编程--Java核心类--字符串和编码
+         * Java字符串的一个重要特点就是字符串不可变。
+         * 这种不可变性是通过内部的private final char[]字段，以及没有任何修改char[]的方法实现的。from：Java核心类--字符串和编码
          */
         String s1 = "Hello";
         String s2 = "world";
@@ -59,13 +77,44 @@ public class EntryLevel {
         System.out.printf("test add strings: ss = %s\n", ss);
         i = 25;
         System.out.println(ss + i);
-        //  重点1：这个 demo 非常棒，一下子就所清楚了基本类型和引用类型的区别
+
         String s3 = "Google";
         String s4 = s3;
         s3 = "Baidu";
         System.out.printf("s4 = %s\n", s4); // 是输出 Google 还是 Baidu？ Google
-        // 数组是引用类型: 整形数组和字符串数组的区别
-        int[] ns = new int[] {11,22,33}; //如果在定义数组变量的同时初始化数组内容，就不能再指定数组大小了
+
+        stringCorePoc();
+
+        /* 数组是引用类型:
+         * 如果在定义数组变量的同时初始化数组内容，就不能再指定数组大小了，而是由编译器自动推算数组大小
+         * int[] ns = new int[] {11,22,33};  等于  int[] ns = {11,22,33};
+         *
+         * Java 中的数组和 C / Go 中的数组的差异：
+         * C 语言中：
+         * 数组变量代表了数组首元素的地址，数组变量是不能重新赋值的，参考 http://c.biancheng.net/view/185.html。
+         * 若定义了一个数组“int a[5]={1，2，3，4，5}；”，又定义了一个数组“int b[5]；”，
+         * 那么如何编写程序才能将数组 a 中的数据赋给数组 b？ 经常有人会这样写：
+         *      b = a;
+         * 这样写是错误的。前面说过，a 和 b 是数组名，而数组名表示的是数组“第一个元素”的“起始地址”。
+         * 即 a 和 b 表示的是地址，是一个常数，不能将一个常数赋给另一个常数。这种错误就类似于将 3 赋给 2，所以是错误的。
+         *
+         * Go 语言中：参考：awesomeProject/libbase/array_poc.go
+         * array := [9]int{1,2,3,4,5,6,7,8,9}
+         * array_tmp := array  // 是完全拷贝了一份数组。
+         * array_tmp[0] = 655
+	     * fmt.Printf("The adrress of array = %p,  array = %d\n", &array, array)
+	     * fmt.Printf("The adrress of array_tmp = %p,  array_tmp = %d\n", &array_tmp, array_tmp)
+         *
+         * Java 中：
+         * int[] ns;
+         * ns = new int[] {68, 79, 91, 85, 62};
+         * ns = new int[] {61，62 }; //居然还能再赋值,根据这个写法猜测Java的机制就当这是一个数组对象(和自定义的类 Student 没区别)而已
+         * System.out.println(ns.length); // 5
+         * int[] nb = new int[] { 1, 2, 3 };
+         * ns = nb;
+         * System.out.println(ns.length); // 3
+         */
+        int[] ns = new int[] {11,22,33}; //如果在定义数组变量的同时初始化数组内容，就不能再指定数组大小了，而是由编译器自动推算数组大小
         int itmp = ns[1];
         ns[1] = 99;
         System.out.printf("itmp = %d\n", itmp); // itmp 是 99 还是 22 ？ 22
@@ -85,13 +134,13 @@ public class EntryLevel {
         // System.out.println("Please input your age:");
         // int age = scanner.nextInt();
         // System.out.printf("age = %d\n", age);
-        cmpString();
+        stringCmp();
         switchTest();
         overflowInt();  // 重点3-1：非常棒的测试
         forCircle();
     }
 
-    public void cmpString(){
+    public void stringCmp(){
         String s1 = "hello";
         String s2 = "HELLO".toLowerCase();
         System.out.printf("s1 = %s, s2 = %s\n", s1, s2);
@@ -108,7 +157,6 @@ public class EntryLevel {
         }
     }
 
-
     public void switchTest(){
         String fruit = "apple";
         // case 语句有 "穿透性"
@@ -123,7 +171,6 @@ public class EntryLevel {
                 System.out.println("No fruit selected");
                 break;
         }
-
 
         // 从Java 12开始，switch语句升级为更简洁的表达式语法，
         // 使用类似模式匹配（Pattern Matching）的方法，保证只有一种路径会被执行，并且不需要break语句：
@@ -178,11 +225,66 @@ public class EntryLevel {
         }
         // 直接打印数组变量，得到的是数组在JVM中的引用地址 from: Java 快速入门--遍历数组
         System.out.println(ns);
+        // 对于字符数组的话，直接打印数组变量会得到字符数组对应的字符串而不是地址。
+        // 联系上面提到的 String class 有个 char[] 字段，然后输出字符串的时候，大概率就是从 char[]字段取值的吧
+        char[] achar = {'C', 'H', 'I', 'N', 'A'};
+        System.out.println(achar);
+
         // 使用for each循环打印也很麻烦。幸好Java标准库提供了Arrays.toString()，可以快速打印数组内容
         System.out.println(Arrays.toString(ns));
         int[] nss = { 1, 14, 9, 16, 25 };
         Arrays.sort(nss);
-
     }
 
+    void stringCorePoc(){
+        /*
+         * 面向对象编程--Java核心类--字符串和编码
+         */
+        //要分割字符串，使用split()方法，并且传入的也是正则表达式：
+        String s = "A,B,C,D";
+        String[] ss = s.split("\\,"); // {"A", "B", "C", "D"}
+
+        // 拼接字符串使用：静态方法join()，它用指定的字符串连接字符串数组：
+        System.out.println("In the stringAdvPoc");
+        String[] names = {"Bob", "Alice", "Grace"};
+        var sjon = String.join(", ", names);
+        System.out.println(sjon);
+
+        // 字符串提供了 formatted() 方法和 format() 静态方法，可以传入其他参数，替换占位符，然后生成新的字符串
+        // String s = "Hi %s, your score is %d!";
+        // Error:(236, 29) java: formatted(java.lang.Object...) 是某预览功能中的一个 API
+        // System.out.println(s.formatted("Alice", 80));
+        System.out.println(String.format("Hi %s, your score is %.2f!", "Bob", 59.5));
+
+        // 类型转换：要把任意基本类型或引用类型转换为字符串，可以使用： 静态方法 valueOf()
+        String.valueOf(123); // "123"
+        String.valueOf(45.67); // "45.67"
+        String.valueOf(true); // "true"
+        String.valueOf(new Object()); // 类似java.lang.Object@636be97c
+        // 要把字符串转换为其他类型，就需要根据情况。例如，把字符串转换为int类型：
+        int n1 = Integer.parseInt("123"); // 123
+        int n2 = Integer.parseInt("ff", 16); // 按十六进制转换，255
+        // 把字符串转换为boolean类型：
+        boolean bo1 = Boolean.parseBoolean("true"); // true
+        boolean bo2 = Boolean.parseBoolean("FALSE"); // false
+
+
+        // String 和 char[] 类型可以互相转换，方法是：
+        char[] cs = "GREAT".toCharArray(); // String -> char[]
+        System.out.println(cs);
+        String s5 = new String(cs); // char[] -> String
+        System.out.println(s5);
+
+        // 在Java中，char类型实际上就是两个字节的Unicode编码。如果我们要手动把字符串转换成其他编码，可以这样做：
+        // byte[] b2 = "Hello".getBytes("UTF-8"); // 按UTF-8编码转换
+        // byte[] b2 = "Hello".getBytes("GBK"); // 按GBK编码转换
+        // byte[] b3 = "Hello".getBytes(StandardCharsets.UTF_8); // 按UTF-8编码转换
+        byte[] b1 = "abcd".getBytes();
+        for(byte i:b1){
+            System.out.println(i);
+        }
+        String s6 = new String(b1);
+        System.out.printf("s6 = %s\n", s6);
+    }
 }
+

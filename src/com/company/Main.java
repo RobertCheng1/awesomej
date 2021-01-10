@@ -1,5 +1,8 @@
 package com.company;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.util.Scanner;
 
 public class Main {
@@ -14,12 +17,13 @@ public class Main {
      * https://www.liaoxuefeng.com/wiki/1252599548343744/1260467032946976
      * 编写class的时候，编译器会自动帮我们做两个 import 动作：
      *     默认自动 import 当前 package 的其他class；
-     *     默认自动import java.lang.*。
+     *     默认自动 import java.lang.*。
      * 注意：自动导入的是 java.lang 包，但类似 java.lang.reflect 这些包仍需要手动导入。
      *
      * @param args
      */
-    public static void main(String[] args) {
+    // public static void main(String[] args)  {
+    public static void main(String[] args) throws Exception {
         // write your code here
         System.out.println("Hello, world!");
         EntryLevel obj = new EntryLevel();
@@ -53,5 +57,20 @@ public class Main {
         Outer.StaticNested sn = new Outer.StaticNested();
         sn.homeland();
 
+        // 测试包装类型：
+        WrapperPoc wrap = new WrapperPoc();
+        wrap.int2Integer();
+
+        // 要枚举一个JavaBean的所有属性，可以直接使用Java核心库提供的Introspector from: 面向对象编程--Java核心类--包装类型
+        // 为了执行下面的代码：需要把 public static void main(String[] args)  {
+        // 改为  public static void main(String[] args) throws Exception {  否则编译报如下错误：
+        // Error:(65, 49) java: 未报告的异常错误java.beans.IntrospectionException; 必须对其进行捕获或声明以便抛出
+        BeanInfo info = Introspector.getBeanInfo(Student.class);
+        for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
+            System.out.println(pd.getName());
+            System.out.println("  " + pd.getReadMethod());
+            System.out.println("  " + pd.getWriteMethod());
+        }
     }
 }
+

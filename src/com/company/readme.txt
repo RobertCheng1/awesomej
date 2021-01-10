@@ -107,8 +107,5 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
 
 
 /Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
-
-
-
 包作用域和 public 作用域，谁的更宽泛，猜测是public
 
