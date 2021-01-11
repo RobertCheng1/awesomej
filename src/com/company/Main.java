@@ -71,6 +71,12 @@ public class Main {
             System.out.println("  " + pd.getReadMethod());
             System.out.println("  " + pd.getWriteMethod());
         }
+        // 测试枚举类 和 记录类
+        Color yanse = Color.RED;
+        System.out.println(yanse);
+        var z = PointAdv.of();
+        var p = PointAdv.of(321, 456);
+        System.out.println(p.x());
     }
 }
 

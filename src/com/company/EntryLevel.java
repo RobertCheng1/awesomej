@@ -20,7 +20,7 @@ public class EntryLevel {
         long ly = 15;
         long sum = lx + ly;
         System.out.println(sum); // 2147483655
-        // Java的包装类型还定义了一些有用的静态变量from： 面向对象--Java核心类--包装类型
+        // Java的包装类型还定义了一些有用的静态变量 from：面向对象--Java核心类--包装类型
         int max = Integer.MAX_VALUE; // 2147483647
         int min = Integer.MIN_VALUE; // -2147483648
         System.out.printf("max = %d, min = %d\n", max, min);
@@ -124,12 +124,13 @@ public class EntryLevel {
         System.out.printf("stmp = %s\n",stmp); // stmp 是"XYZ"还是"cat"?  XYZ
 
         // Java源码的缩进不是必须的，但是用缩进后，格式好看，很容易看出代码块的开始和结束，缩进一般是4个空格或者一个tab。
+        // from:Java 快速入门--Java简介--第一个Java程序
         int score = 60;
         if (score > 90)
             System.out.println("excellent!");
             System.out.println("soso......"); // 重点2：这句话居然输出了，这和 Python 很不一样,充分证明 Java 不缩进
 
-        // 输入
+        // 输入 from: Java 快速入门--流程控制相关章节
         // Scanner scanner = new Scanner(System.in);
         // System.out.println("Please input your age:");
         // int age = scanner.nextInt();
@@ -257,17 +258,16 @@ public class EntryLevel {
         System.out.println(String.format("Hi %s, your score is %.2f!", "Bob", 59.5));
 
         // 类型转换：要把任意基本类型或引用类型转换为字符串，可以使用： 静态方法 valueOf()
-        String.valueOf(123); // "123"
+        String.valueOf(666); // "666"
         String.valueOf(45.67); // "45.67"
         String.valueOf(true); // "true"
         String.valueOf(new Object()); // 类似java.lang.Object@636be97c
         // 要把字符串转换为其他类型，就需要根据情况。例如，把字符串转换为int类型：
-        int n1 = Integer.parseInt("123"); // 123
+        int n1 = Integer.parseInt("666"); // 666
         int n2 = Integer.parseInt("ff", 16); // 按十六进制转换，255
         // 把字符串转换为boolean类型：
         boolean bo1 = Boolean.parseBoolean("true"); // true
         boolean bo2 = Boolean.parseBoolean("FALSE"); // false
-
 
         // String 和 char[] 类型可以互相转换，方法是：
         char[] cs = "GREAT".toCharArray(); // String -> char[]

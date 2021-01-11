@@ -18,7 +18,6 @@ public class WrapperPoc {
         Integer big = 100; // 编译器自动使用Integer.valueOf(int)
         int small = big; // 编译器自动使用Integer.intValue()
 
-
         // 进制转换：Integer类本身还提供了大量方法，例如，最常用的静态方法parseInt()可以把字符串解析成一个整数：
         int x1 = Integer.parseInt("100"); // 100
         int x2 = Integer.parseInt("100", 16); // 256,因为按16进制解析
@@ -38,6 +37,17 @@ public class WrapperPoc {
         long ln = num.longValue();
         float f = num.floatValue();
         double d = num.doubleValue();
+
+        // from: 面向对象编程--Java核心类--BigInteger:
+        // BigInteger和Integer、Long一样，也是不可变类，并且也继承自Number类。因为Number定义了转换为基本类型的几个方法：
+        //     转换为byte：byteValue()
+        //     转换为short：shortValue()
+        //     转换为int：intValue()
+        //     转换为long：longValue()
+        //     转换为float：floatValue()
+        //     转换为double：doubleValue()
+        // 因此，通过上述方法，可以把BigInteger转换成基本类型。
+        // 如果BigInteger表示的范围超过了基本类型的范围，转换时将丢失高位信息，即结果不一定是准确的
     }
 }
 
