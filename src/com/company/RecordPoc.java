@@ -27,42 +27,47 @@ package com.company;
  * 后续我们会详细讲解正确覆写equals()和hashCode()，这里演示 Point不变类的写法目的是，这些代码写起来都非常简单，但是很繁琐。
  */
 
-///////////////////////////////////////////////////////////////////////////////////////
+
 /* 使用record关键字，可以一行写出一个不变类。
-   把 record Point(int x, int y) {
-
-      }
-   改写为class，相当于以下代码：
-    public final class Point extends Record {
-        private final int x;
-        private final int y;
-
-        public Point(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public int x() {
-            return this.x;
-        }
-
-        public int y() {
-            return this.y;
-        }
-
-        public String toString() {
-            return String.format("Point[x=%s, y=%s]", x, y);
-        }
-
-        public boolean equals(Object o) {
-            ...
-        }
-        public int hashCode() {
-            ...
-        }
-    }
-    除了用final修饰class以及每个字段外，编译器还自动为我们创建了构造方法，和字段名同名的方法，以及覆写toString()、equals()和hashCode()方法。
+ * 把 record Point(int x, int y) {
+ *
+ *    }
+ * 改写为class，相当于以下代码：
+ *  public final class Point extends Record {
+ *      private final int x;
+ *      private final int y;
+ *
+ *      public Point(int x, int y) {
+ *          this.x = x;
+ *          this.y = y;
+ *      }
+ *
+ *      public int x() {
+ *          return this.x;
+ *      }
+ *
+ *      public int y() {
+ *          return this.y;
+ *      }
+ *
+ *      public String toString() {
+ *          return String.format("Point[x=%s, y=%s]", x, y);
+ *      }
+ *
+ *      public boolean equals(Object o) {
+ *          ...
+ *      }
+ *      public int hashCode() {
+ *          ...
+ *      }
+ *  }
+ *  除了用final修饰class以及每个字段外，编译器还自动为我们创建了构造方法，和字段名同名的方法，以及覆写toString()、equals()和hashCode()方法。
  */
+// 面向对象编程--面向对象基础--包和作用域两章:
+// 1. 没有 public 的 record Point 仍然可以在 Main.java 中访问 Point：因为包作用域。
+//    包作用域是指一个类允许访问同一个package的没有public、private修饰的class，以及没有public、protected、private修饰的字段和方法。
+// 2. 一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和public类的名字相同。
+//    如果我改为 public record Point 则会提示：Class 'Point' is public，should be declared in a file named 'Point.java'
 record Point(int x, int y) {
 }
 

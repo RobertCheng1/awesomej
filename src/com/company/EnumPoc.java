@@ -1,32 +1,37 @@
 package com.company;
 
 
-/* 通过enum定义的枚举类，和其他的 class有什么区别？
- * 答案是没有任何区别。enum 定义的类型就是class，只不过它有以下几个特点：
- *     定义的enum类型总是继承自java.lang.Enum，且无法被继承；
- *     只能定义出enum的实例，而无法通过new操作符创建enum的实例；
- *     定义的每个实例都是引用类型的唯一实例；
- *     可以将enum类型用于switch语句。
- * 
- * 例如，我们定义的Color枚举类：
- *     public enum Color {
- *         RED, GREEN, BLUE;
- *     }
- * 编译器编译出的class大概就像这样： ===这个细节真是太棒了===
- *     public final class Color extends Enum { // 继承自Enum，标记为final class
- *         // 每个实例均为全局唯一:
- *         public static final Color RED = new Color();
- *         public static final Color GREEN = new Color();
- *         public static final Color BLUE = new Color();
+/* 通过 enum 定义的枚举类，和其他的 class有什么区别？
+ *    答案是没有任何区别。enum 定义的类型就是class，只不过它有以下几个特点：
+ *        定义的enum类型总是继承自java.lang.Enum，且无法被继承；
+ *        只能定义出enum的实例，而无法通过new操作符创建enum的实例；
+ *        定义的每个实例都是引用类型的唯一实例；
+ *        可以将enum类型用于switch语句。
+ *    
+ *    例如，我们定义的Color枚举类：
+ *        public enum Color {
+ *            RED, GREEN, BLUE;
+ *        }
+ *    编译器编译出的class大概就像这样： ===这个细节真是太棒了===
+ *        public final class Color extends Enum { // 继承自Enum，标记为final class
+ *            // 每个实例均为全局唯一:
+ *            public static final Color RED = new Color();
+ *            public static final Color GREEN = new Color();
+ *            public static final Color BLUE = new Color();
+ *    
+ *            // private构造方法，确保外部无法调用new操作符:
+ *            private Color() {}
+ *        }
+ *    所以，编译后的enum类和普通class并没有任何区别。但是我们自己无法按定义普通class那样来定义 enum，必须使用enum关键字，这是Java语法规定的。
+ *    因为 enum是一个class，每个枚举的值都是 class 实例，from: 面向对象编程--Java核心类--枚举类
  *
- *         // private构造方法，确保外部无法调用new操作符:
- *         private Color() {}
- *     }
- * 所以，编译后的enum类和普通class并没有任何区别。但是我们自己无法按定义普通class那样来定义 enum，必须使用enum关键字，这是Java语法规定的。
- * 因为enum是一个class，每个枚举的值都是 class 实例，  from: 面向对象编程--Java核心类--枚举类
+ * 进阶:
+ *  1. 使用 enum 定义的枚举类是一种引用类型。前面我们讲到，引用类型比较，要使用 equals()方法，
+ *     如果使用 == 比较，它比较的是两个引用类型的变量是否是同一个对象。因此，引用类型比较，要始终使用equals()方法，但 enum类型可以例外。
  *
- * 使用enum定义的枚举类是一种引用类型。前面我们讲到，引用类型比较，要使用equals()方法，
- * 如果使用==比较，它比较的是两个引用类型的变量是否是同一个对象。因此，引用类型比较，要始终使用equals()方法，但enum类型可以例外。
+ *  2. enum 和 record(不变类) 的主要区别：
+ *     枚举类的字段也可以是 非final 类型，即可以在运行期修改，但是不推荐这样做！
+ *     enum的构造方法要声明为 private，字段强烈建议声明为 final；(既然是建议说明就不是强制)。 from: 面向对象编程--Java核心类--枚举类
  */
 
 // 面向对象编程--面向对象基础--包和作用域两章:
@@ -43,19 +48,14 @@ enum Color {
 enum Weekday {
     // 因为 enum 本身是class，所以我们可以定义private的构造方法，并且，给每个枚举常量添加字段,
     // 这样就无需担心顺序的变化，新增枚举常量时，也需要指定一个int值。
+    // 注意：枚举类的字段也可以是 非final 类型，即可以在运行期修改，但是不推荐这样做！===可能这就是 enum 和 record(不变类) 的主要区别===
     MON(1, "星期一"), TUE(2, "星期二"), WED(3, "星期三"),
     THU(4, "星期四"), FRI(5, "星期五"),
     SAT(6, "星期六"), SUN(0, "星期日");
 
-
-
-    // Java使用enum定义枚举类型，它被编译器编译为final class Xxx extends Enum { … }；
-    // 通过name()获取常量定义的字符串，注意不要使用toString()；
-    // 通过ordinal()返回常量定义的顺序（无实质意义）；
-    // 可以为enum 编写构造方法、字段和方法
-    //
-    // enum的构造方法要声明为private，字段强烈建议声明为 final；
-    // enum适合用在switch语句中。
+    // 可以为 enum 编写构造方法、字段和方法
+    // enum的构造方法要声明为 private，字段强烈建议声明为 final；
+    // enum适合用在 switch 语句中。
     public final int dayValue;
     private final String chinese;
 
@@ -70,3 +70,4 @@ enum Weekday {
         return this.chinese;
     }
 }
+

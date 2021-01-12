@@ -38,7 +38,6 @@ public class WrapperPoc {
         float f = num.floatValue();
         double d = num.doubleValue();
 
-        // from: 面向对象编程--Java核心类--BigInteger:
         // BigInteger和Integer、Long一样，也是不可变类，并且也继承自Number类。因为Number定义了转换为基本类型的几个方法：
         //     转换为byte：byteValue()
         //     转换为short：shortValue()
@@ -47,7 +46,7 @@ public class WrapperPoc {
         //     转换为float：floatValue()
         //     转换为double：doubleValue()
         // 因此，通过上述方法，可以把BigInteger转换成基本类型。
-        // 如果BigInteger表示的范围超过了基本类型的范围，转换时将丢失高位信息，即结果不一定是准确的
+        // 如果BigInteger表示的范围超过了基本类型的范围，转换时将丢失高位信息，即结果不一定是准确的.from:面向对象编程--Java核心类--BigInteger
     }
 }
 

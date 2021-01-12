@@ -61,7 +61,7 @@ public class Main {
         WrapperPoc wrap = new WrapperPoc();
         wrap.int2Integer();
 
-        // 要枚举一个JavaBean的所有属性，可以直接使用Java核心库提供的Introspector from: 面向对象编程--Java核心类--包装类型
+        // 要枚举一个JavaBean的所有属性，可以直接使用Java核心库提供的 Introspector from: 面向对象编程--Java核心类--JavaBean
         // 为了执行下面的代码：需要把 public static void main(String[] args)  {
         // 改为  public static void main(String[] args) throws Exception {  否则编译报如下错误：
         // Error:(65, 49) java: 未报告的异常错误java.beans.IntrospectionException; 必须对其进行捕获或声明以便抛出
@@ -71,12 +71,17 @@ public class Main {
             System.out.println("  " + pd.getReadMethod());
             System.out.println("  " + pd.getWriteMethod());
         }
-        // 测试枚举类 和 记录类
+        // 测试枚举类
         Color yanse = Color.RED;
         System.out.println(yanse);
+        // 测试记录类
         var z = PointAdv.of();
         var p = PointAdv.of(321, 456);
         System.out.println(p.x());
+        // 测试 BigDecimal
+        BigDecimalPoc big = new BigDecimalPoc();
+        big.compare();
+
     }
 }
 
