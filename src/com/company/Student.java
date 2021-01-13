@@ -37,9 +37,16 @@ public class Student extends Person {
         return this.score;
     }
 
-    // Override 覆写父类的方法：Override(覆写) 和Overload(重载)不同的是，
-    // 如果方法签名如果不同，就是Overload，Overload方法是一个新方法；
-    // 如果方法签名相同，并且返回值也相同，就是Override。
+    /* Override: 在继承关系中，子类如果定义了一个与父类方法签名完全相同的方法,被称为覆写（Override）。
+       Override(覆写) 和Overload(重载)不同的是：
+          如果方法签名如果不同，就是Overload，Overload方法是一个新方法；
+          如果方法签名相同，并且返回值也相同，就是Override。
+
+       覆写Object方法: 因为所有的class最终都继承自 Object，而Object定义了几个重要的方法：
+          toString()：把instance输出为String；
+          equals()：判断两个instance是否逻辑相等；
+          hashCode()：计算一个instance的哈希值。
+     */
     @Override
     public void run(){
         System.out.println("In the Student.run");

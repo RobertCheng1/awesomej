@@ -106,6 +106,35 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
     这点可以联想到:面向对象编程--多态、继承中相关的 final 的用法
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+面向对象编程--Java核心类--常用工具类:
+    实际使用的时候，可以优先获取高强度的安全随机数生成器，如果没有提供，再使用普通等级的安全随机数生成器：
+    这种手法很 Java,利用捕获异常来选择生成安全数的方法,实在是高！
+    public class Main {
+        public static void main(String[] args) {
+            SecureRandom sr = null;
+            try {
+                sr = SecureRandom.getInstanceStrong(); // 获取高强度安全随机数生成器
+            } catch (NoSuchAlgorithmException e) {
+                sr = new SecureRandom(); // 获取普通的安全随机数生成器
+            }
+            byte[] buffer = new byte[16];
+            sr.nextBytes(buffer); // 用安全随机数填充buffer
+            System.out.println(Arrays.toString(buffer));
+        }
+    }
+
 /Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
 包作用域和 public 作用域，谁的更宽泛，猜测是public
 

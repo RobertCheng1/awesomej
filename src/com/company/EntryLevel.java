@@ -252,9 +252,8 @@ public class EntryLevel {
         System.out.println(sjon);
 
         // 字符串提供了 formatted() 方法和 format() 静态方法，可以传入其他参数，替换占位符，然后生成新的字符串
-        // String s = "Hi %s, your score is %d!";
-        // Error:(236, 29) java: formatted(java.lang.Object...) 是某预览功能中的一个 API
-        // System.out.println(s.formatted("Alice", 80));
+        String note = "Hi %s, your score is %d!";  // Error:(236, 29) java: formatted(java.lang.Object...)是某预览功能中的一个 API
+        System.out.println(note.formatted("Alice", 80));
         System.out.println(String.format("Hi %s, your score is %.2f!", "Bob", 59.5));
 
         // 类型转换：要把任意基本类型或引用类型转换为字符串，可以使用： 静态方法 valueOf()
@@ -279,6 +278,7 @@ public class EntryLevel {
         // byte[] b2 = "Hello".getBytes("UTF-8"); // 按UTF-8编码转换
         // byte[] b2 = "Hello".getBytes("GBK"); // 按GBK编码转换
         // byte[] b3 = "Hello".getBytes(StandardCharsets.UTF_8); // 按UTF-8编码转换
+        // 注意：转换编码后，就不再是char类型，而是byte类型表示的数组。
         byte[] b1 = "abcd".getBytes();
         for(byte i:b1){
             System.out.println(i);
