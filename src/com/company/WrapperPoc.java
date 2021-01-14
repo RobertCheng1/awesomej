@@ -72,6 +72,13 @@ public class WrapperPoc {
         long ln = num.longValue();
         float f = num.floatValue();
         double d = num.doubleValue();
+        // 在Java中，并没有无符号整型（Unsigned）的基本数据类型。 byte、short、int和long都是带符号整型，最高位是符号位。
+        // 而C语言则提供了CPU支持的全部数据类型，包括无符号整型。 无符号整型和有符号整型的转换在Java中就需要借助包装类型的静态方法完成。
+        // byte是有符号整型，范围是-128~+127，但如果把byte看作无符号整型，它的范围就是0~255。我们把一个负的byte按无符号整型转换为int：
+        // 因为byte的-1的二进制表示是11111111，以无符号整型转换后的int就是255。
+        // 类似的，可以把一个 short 按 unsigned 转换为 int，把一个 int 按 unsigned 转换为 long。
+        byte rob = -1;
+        System.out.println(Byte.toUnsignedInt(rob)); // 255
 
         // BigInteger和Integer、Long一样，也是不可变类，并且也继承自Number类。因为Number定义了转换为基本类型的几个方法：
         //     转换为byte：byteValue()

@@ -5,12 +5,26 @@ import java.util.Arrays;
 public class EntryLevel {
 
     public void varPoc(){
-        // 变量和数据类型:
-        // 在 Java 中，变量分为两种：基本类型的变量和引用类型的变量。
-        // Java的 char类型除了可表示标准的ASCII外，还可以表示一个Unicode字符，
-        // 注意char类型使用单引号'，且仅有一个字符，要和双引号"的字符串类型区分开。
-        // Java在内存中总是使用Unicode表示字符，所以一个英文字符和一个中文字符都用一个char类型表示，它们都占用两个字节：from:字符和字符串
-        // Java的 String 和 char 在内存中总是以Unicode编码表示。from: 面向对象--Java核心类--字符串和编码
+        /* 变量和数据类型:
+           在 Java 中，变量分为两种：基本类型的变量和引用类型的变量。
+           基本数据类型是CPU可以直接进行运算的类型。Java定义了以下几种基本数据类型：  from:变量和数据类型
+                整数类型：byte，short，int，long
+                浮点数类型：float，double
+                字符类型：char
+                布尔类型：boolean
+           对于整型类型，Java只定义了带符号的整型，因此，最高位的bit表示符号位（0表示正数，1表示负数）。
+           各种整型能表示的最大范围如下：
+                byte：-128 ~ 127
+                short: -32768 ~ 32767
+                int: -2147483648 ~ 2147483647
+                long: -9223372036854775808 ~ 9223372036854775807
+           Java的 char类型除了可表示标准的ASCII外，还可以表示一个Unicode字符，
+           注意char类型使用单引号'，且仅有一个字符，要和双引号"的字符串类型区分开。
+           Java在内存中总是使用Unicode表示字符，所以一个英文字符和一个中文字符都用一个char类型表示，它们都占用两个字节：from:字符和字符串
+           Java的 String 和 char 在内存中总是以Unicode编码表示。from: 面向对象--Java核心类--字符串和编码
+        */
+        byte by = 127; // byte 就是占用一个字节的整形
+        System.out.println(by);
         char a = 'A';
         char zh = '中';
         System.out.printf("Test char a = %s\n", a);
@@ -55,7 +69,8 @@ public class EntryLevel {
         int i = 123456;
         int x = si + i;
         // 因为Java在内存中总是使用Unicode表示字符，所以，一个英文字符和一个中文字符都用一个char类型表示，它们都占用两个字节。
-        // 要显示一个字符的Unicode编码，只需将char类型直接赋值给int类型即可：from: 字符和字符串
+        // 要显示一个字符的 Unicode 编码，只需将char类型直接赋值给int类型即可：from: 字符和字符串
+        // int ch2int = "中"; 会报错的哦，原因参考下面提到的： String是一个引用类型，它本身也是一个class
         int ch2int = '中';
         System.out.printf("ch2int = %d\n", ch2int);
         int tmp = 20013;
@@ -274,17 +289,90 @@ public class EntryLevel {
         String s5 = new String(cs); // char[] -> String
         System.out.println(s5);
 
-        // 在Java中，char类型实际上就是两个字节的Unicode编码。如果我们要手动把字符串转换成其他编码，可以这样做：
-        // byte[] b2 = "Hello".getBytes("UTF-8"); // 按UTF-8编码转换
-        // byte[] b2 = "Hello".getBytes("GBK"); // 按GBK编码转换
-        // byte[] b3 = "Hello".getBytes(StandardCharsets.UTF_8); // 按UTF-8编码转换
-        // 注意：转换编码后，就不再是char类型，而是byte类型表示的数组。
+        /* 在Java中，char类型实际上就是两个字节的Unicode编码。如果我们要手动把字符串转换成其他编码，可以这样做：
+           byte[] b2 = "Hello".getBytes("UTF-8"); // 按UTF-8编码转换
+           byte[] b2 = "Hello".getBytes("GBK"); // 按GBK编码转换
+           byte[] b3 = "Hello".getBytes(StandardCharsets.UTF_8); // 按UTF-8编码转换
+           注意：转换编码后，就不再是 char 类型，而是 byte类型表示的数组。
+
+           延伸阅读: from: 面向对象编程--Java核心类--字符串和编码
+           对于不同版本的JDK，String类在内存中有不同的优化方式。具体来说，早期JDK版本的String总是以char[]存储，它的定义如下：
+                public final class String {
+                    private final char[] value;
+                    private final int offset;
+                    private final int count;
+                }
+            而较新的JDK版本的String则以 byte[]存储：如果String仅包含ASCII字符，则每个byte存储一个字符，否则，每两个byte存储一个字符，
+            这样做的目的是为了节省内存，因为大量的长度较短的String通常仅包含ASCII字符：
+                public final class String {
+                    private final byte[] value;
+                    private final byte coder; // 0 = LATIN1, 1 = UTF16
+            对于使用者来说，String内部的优化不影响任何已有代码，因为它的public方法签名是不变的。
+         */
         byte[] b1 = "abcd".getBytes();
         for(byte i:b1){
             System.out.println(i);
         }
         String s6 = new String(b1);
         System.out.printf("s6 = %s\n", s6);
+
+        // https://blog.csdn.net/qq_22771739/article/details/84261165
+        // https://blog.csdn.net/lcfeng1982/article/details/6830584
+        try {
+            System.out.println("Good test the getBytes:");
+            String temp = "中";
+            // 该操作返回了四个字节，-1,-2,是字节顺的一种表示，这是由sun的类库实现，
+            // 指示如果没有指定字节就使用默认的UnicodeLittle， 但为了标识这种字节顺，就使用了-1,-2在前面表示。
+            byte[] unicodes = temp.getBytes("Unicode");
+            System.out.println("unicodes=" + unicodes.length);
+            for (int i = 0; i < unicodes.length; i++) {
+                System.out.println(unicodes[i]);
+            }
+            unicodes = temp.getBytes("UnicodeLittleUnmarked");
+            System.out.println("unicodes=" + unicodes.length);
+            for (int i = 0; i < unicodes.length; i++) {
+                System.out.println(unicodes[i]);
+            }
+            unicodes = temp.getBytes("UnicodeBigUnmarked");
+            System.out.println("unicodes=" + unicodes.length);
+            for (int i = 0; i < unicodes.length; i++) {
+                System.out.println(unicodes[i]);
+            }
+
+            //汉字 中 对应的 unicode 码是 4E2D
+            String ts = "中中国";
+            char[] ca = ts.toCharArray(); // String -> char[], 转换后是个 char 数组，每个元素都是一个 char: 中 中 国
+            System.out.println(ca);
+            for(char one: ca){
+                System.out.println(Integer.toBinaryString(one));
+            }
+            System.out.println(Integer.toBinaryString(ts.charAt(0))); // 01001110 00101101
+            System.out.println(Integer.toBinaryString(ts.charAt(1))); // 01001110 00101101
+            System.out.println(Integer.toBinaryString(ts.charAt(2))); // 01010110 11111101
+
+            unicodes = ts.getBytes("UnicodeBigUnmarked");
+            System.out.println("unicodes=" + unicodes.length);
+            for (int i = 0; i < unicodes.length; i++) {
+                System.out.println(unicodes[i]);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        // 对于不同版本的JDK，String类在内存中有不同的优化方式。具体来说，早期JDK版本的String总是以char[]存储，它的定义如下：
+        //
+        // public final class String {
+        //     private final char[] value;
+        //     private final int offset;
+        //     private final int count;
+        // }
+        //
+        // 而较新的JDK版本的String则以byte[]存储：如果String仅包含ASCII字符，则每个byte存储一个字符，否则，每两个byte存储一个字符，这样做的目的是为了节省内存，因为大量的长度较短的String通常仅包含ASCII字符：
+        //
+        // public final class String {
+        //     private final byte[] value;
+        //     private final byte coder; // 0 = LATIN1, 1 = UTF16
+        //
+        //     对于使用者来说，String内部的优化不影响任何已有代码，因为它的public方法签名是不变的。
     }
 }
 

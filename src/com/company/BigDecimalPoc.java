@@ -14,7 +14,7 @@ public class BigDecimalPoc {
 
     public void compare(){
         // 测试 BigDecimal: 如果一个BigDecimal的scale()返回负数，例如，-2，表示这个数是个整数，并且末尾有2个0
-        System.out.println("In the compare");
+        System.out.println("In the compare of BigDecimalPoc");
         BigDecimal d1 = new BigDecimal("1234500");
         BigDecimal d2 = d1.stripTrailingZeros();
         System.out.println(d1);
