@@ -82,6 +82,12 @@ public class Main {
         BigDecimalPoc big = new BigDecimalPoc();
         big.compare();
 
+        String str = "ab";
+        byte[] by = str.getBytes("UnicodeBigUnmarked");
+        for(byte entry:by){
+            System.out.println(entry);
+        }
+
     }
 }
 

@@ -358,21 +358,6 @@ public class EntryLevel {
         } catch (Exception e){
             e.printStackTrace();
         }
-        // 对于不同版本的JDK，String类在内存中有不同的优化方式。具体来说，早期JDK版本的String总是以char[]存储，它的定义如下：
-        //
-        // public final class String {
-        //     private final char[] value;
-        //     private final int offset;
-        //     private final int count;
-        // }
-        //
-        // 而较新的JDK版本的String则以byte[]存储：如果String仅包含ASCII字符，则每个byte存储一个字符，否则，每两个byte存储一个字符，这样做的目的是为了节省内存，因为大量的长度较短的String通常仅包含ASCII字符：
-        //
-        // public final class String {
-        //     private final byte[] value;
-        //     private final byte coder; // 0 = LATIN1, 1 = UTF16
-        //
-        //     对于使用者来说，String内部的优化不影响任何已有代码，因为它的public方法签名是不变的。
     }
 }
 
