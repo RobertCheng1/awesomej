@@ -1,5 +1,7 @@
 package com.company;
 
+import java.net.Inet4Address;
+
 /* 1.不变类:
      所有的包装类型都是不变类(这应该是第一次提到不变类)。我们查看Integer的源码可知，它的核心代码如下：
           public final class Integer {
@@ -62,12 +64,14 @@ public class WrapperPoc {
         System.out.println(Integer.toHexString(100)); // "64",表示为16进制
         System.out.println(Integer.toOctalString(100)); // "144",表示为8进制
         System.out.println(Integer.toBinaryString(100)); // "1100100",表示为2进制
+        // 注意：上述方法的输出都是String，在计算机内存中，只用二进制表示，不存在十进制或十六进制的表示方法。
         
         // 最后，所有的整数和浮点数的包装类型都继承自Number，因此，可以非常方便地直接通过包装类型获取各种基本类型：
         // 向上转型为Number:
         Number num = new Integer(999);
         // 获取byte, int, long, float, double, ===很好的例子，有点利用 面向对象 的感觉了===
-        byte b = num.byteValue();
+        byte b = num.byteValue(); // 取 999 对应的二进制 Integer.toBinaryString(999) 1111100111 的最后一个字节，然后取反加1
+        System.out.println(b);    // -25
         int nn = num.intValue();
         long ln = num.longValue();
         float f = num.floatValue();
@@ -88,7 +92,9 @@ public class WrapperPoc {
         //     转换为float：floatValue()
         //     转换为double：doubleValue()
         // 因此，通过上述方法，可以把BigInteger转换成基本类型。
-        // 如果BigInteger表示的范围超过了基本类型的范围，转换时将丢失高位信息，即结果不一定是准确的.from:面向对象编程--Java核心类--BigInteger
+        // 如果BigInteger表示的范围超过了基本类型的范围，转换时将丢失高位信息，即结果不一定是准确的.
+        // 如果需要准确地转换成基本类型，可以使用intValueExact()、longValueExact()等方法，
+        // 在转换时如果超出范围，将直接抛出ArithmeticException异常。 from:面向对象编程--Java核心类--BigInteger
     }
 }
 

@@ -74,19 +74,23 @@ public class Main {
         // 测试枚举类
         Color yanse = Color.RED;
         System.out.println(yanse);
-        // 测试记录类
-        var z = PointAdv.of();
-        var p = PointAdv.of(321, 456);
-        System.out.println(p.x());
+        // 测试记录类: For MAC：Error:java: 源发行版 14 与 --enable-preview 一起使用时无效 （仅发行版 15 支持预览语言功能）
+        // var z = PointAdv.of();
+        // var p = PointAdv.of(321, 456);
+        // System.out.println(p.x());
         // 测试 BigDecimal
         BigDecimalPoc big = new BigDecimalPoc();
         big.compare();
 
-        String str = "ab";
-        byte[] by = str.getBytes("UnicodeBigUnmarked");
-        for(byte entry:by){
-            System.out.println(entry);
+        byte[] b1 = "abc".getBytes("UTF-8");
+        for(byte i:b1){
+            System.out.println(i);
         }
+        String s6 = new String(b1);
+
+        // 测试异常处理
+        ExceptionPoc exce = new ExceptionPoc();
+        exce.touchExcep();
 
     }
 }

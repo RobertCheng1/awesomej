@@ -1,5 +1,6 @@
 package com.company;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 public class EntryLevel {
@@ -267,8 +268,8 @@ public class EntryLevel {
         System.out.println(sjon);
 
         // 字符串提供了 formatted() 方法和 format() 静态方法，可以传入其他参数，替换占位符，然后生成新的字符串
-        String note = "Hi %s, your score is %d!";  // Error:(236, 29) java: formatted(java.lang.Object...)是某预览功能中的一个 API
-        System.out.println(note.formatted("Alice", 80));
+        // String note = "Hi %s, your score is %d!";  // For MAC:Error:(236, 29) java: formatted(java.lang.Object...)是某预览功能中的一个 API
+        // System.out.println(note.formatted("Alice", 80));
         System.out.println(String.format("Hi %s, your score is %.2f!", "Bob", 59.5));
 
         // 类型转换：要把任意基本类型或引用类型转换为字符串，可以使用： 静态方法 valueOf()
@@ -289,7 +290,8 @@ public class EntryLevel {
         String s5 = new String(cs); // char[] -> String
         System.out.println(s5);
 
-        /* 在Java中，char类型实际上就是两个字节的Unicode编码。如果我们要手动把字符串转换成其他编码，可以这样做：
+        /* 在Java中，char类型实际上就是两个字节的 Unicode编码。如果我们要手动把字符串转换成其他编码，可以这样做：
+           byte[] b1 = "Hello".getBytes(); // 按系统默认编码转换，不推荐
            byte[] b2 = "Hello".getBytes("UTF-8"); // 按UTF-8编码转换
            byte[] b2 = "Hello".getBytes("GBK"); // 按GBK编码转换
            byte[] b3 = "Hello".getBytes(StandardCharsets.UTF_8); // 按UTF-8编码转换
@@ -309,7 +311,8 @@ public class EntryLevel {
                     private final byte coder; // 0 = LATIN1, 1 = UTF16
             对于使用者来说，String内部的优化不影响任何已有代码，因为它的public方法签名是不变的。
          */
-        byte[] b1 = "abcd".getBytes();
+        // byte[] b1 = "abc".getBytes("UnicodeBigUnmarked"); //会输出 0097 0098 0099, 把00也输出来了
+        byte[] b1 = "abc".getBytes();
         for(byte i:b1){
             System.out.println(i);
         }
