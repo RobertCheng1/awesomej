@@ -103,7 +103,11 @@ public class EntryLevel {
 
         /* 数组是引用类型:
          * 如果在定义数组变量的同时初始化数组内容，就不能再指定数组大小了，而是由编译器自动推算数组大小
-         * int[] ns = new int[] {11,22,33};  等于  int[] ns = {11,22,33};
+         * int[] ns = new int[] {11,22,33};  这还可以进一步简写为  int[] ns = {11,22,33};
+         * String[] strA = new String[] {"hello", "hi"};
+         * String[] strA = new String[0];  new String[0]是用来创建一个长度为 0 的数组。 from: 异常处理--NullPointerException
+         * String[] strA = new String[2];  new String[2]是用来创建一个长度为 2 的数组。
+         *
          *
          * Java 中的数组和 C / Go 中的数组的差异：
          * C 语言中：

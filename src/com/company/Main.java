@@ -4,6 +4,8 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.Scanner;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class Main {
 
@@ -88,9 +90,14 @@ public class Main {
         }
         String s6 = new String(b1);
 
-        // 测试异常处理
+        // 测试异常处理: Throwable.getSuppressed();   无法从静态上下文中引用非静态 方法 getSuppressed()
         ExceptionPoc exce = new ExceptionPoc();
         exce.touchExcep();
+
+        // 测试日志系统：
+        // System.out.println(getClass());  无法从静态上下文中引用非静态 方法 getClass();放到其他类里的非静态方法即可
+        Log log = LogFactory.getLog(Main.class);
+        log.info("start...");
 
     }
 }

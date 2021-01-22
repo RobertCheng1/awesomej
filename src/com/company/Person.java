@@ -23,7 +23,7 @@ package com.company;
             final修饰的方法可以阻止被覆写；
             final修饰的class可以阻止被继承；
             final修饰的field必须在创建对象时初始化，随后不可修改。
-       final实例案例：
+       final实例案例 Java核心类--字符串和编码：
             Java字符串的一个重要特点就是字符串不可变。这种不可变性是通过内部的private final char[]字段，以及没有任何修改char[]的方法实现的。
 
    2. 静态字段：
@@ -31,14 +31,20 @@ package com.company;
         还有一种字段，是用static修饰的字段，称为静态字段：static field。
         实例字段在每个实例中都有自己的一个独立“空间”，但是静态字段只有一个共享“空间”，所有实例都会共享该字段。
 
-   3. 在Java中，我们可以通过static final来定义常量: from: 面向对象编程--Java核心类--枚举类
+   3. 静态方法：
+        用static修饰的方法称为静态方法。
+        调用实例方法必须通过一个实例变量，而调用静态方法则不需要实例变量，通过类名就可以调用。静态方法类似其它编程语言的函数。
+        因为静态方法属于 class 而不属于实例，因此，静态方法内部，无法访问this变量，也无法访问实例字段，它只能访问静态字段。
+
+   4. 在Java中，我们可以通过static final来定义常量: from: 面向对象编程--Java核心类--枚举类
  */
 
 
 // 面向对象编程--面向对象基础--包和作用域两章:
-// 1. 当把 public class Person ---> class Person 仍然可以在 Main.java 中访问 class Person：因为包作用域。
+// 1. 不写 public，也能正确编译，但是这个类将无法从命令行执行。 from:Java程序基础--Java程序基本结构
+// 2. 当把 public class Person ---> class Person 仍然可以在 Main.java 中访问 class Person：因为包作用域。
 //    包作用域是指一个类允许访问同一个package的没有public、private修饰的class，以及没有public、protected、private修饰的字段和方法。
-// 2. 一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和public类的名字相同。
+// 3. 一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和public类的名字相同。
 public class Person {
     private String name;
     private int age;

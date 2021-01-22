@@ -35,9 +35,10 @@ package com.company;
  */
 
 // 面向对象编程--面向对象基础--包和作用域两章:
-// 1. 没有 public 的 enum Color 仍然可以在 Main.java 中访问 Color：因为包作用域。
+// 1. 不写 public，也能正确编译，但是这个类将无法从命令行执行。 from:Java程序基础--Java程序基本结构
+// 2. 没有 public 的 enum Color 仍然可以在 Main.java 中访问 Color：因为包作用域。
 //    包作用域是指一个类允许访问同一个package的没有public、private修饰的class，以及没有public、protected、private修饰的字段和方法。
-// 2. 一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和public类的名字相同。
+// 3. 一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和public类的名字相同。
 //    如果我改为 public enum Color 则会提示：Class 'Color' is public，should be declared in a file named 'Color.java'
 enum Color {
     RED, GREEN, BLUE;

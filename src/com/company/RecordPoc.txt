@@ -64,9 +64,10 @@ package com.company;
  *  除了用final修饰class以及每个字段外，编译器还自动为我们创建了构造方法，和字段名同名的方法，以及覆写toString()、equals()和hashCode()方法。
  */
 // 面向对象编程--面向对象基础--包和作用域两章:
-// 1. 没有 public 的 record Point 仍然可以在 Main.java 中访问 Point：因为包作用域。
+// 1. 不写 public，也能正确编译，但是这个类将无法从命令行执行。 from:Java程序基础--Java程序基本结构
+// 2. 没有 public 的 record Point 仍然可以在 Main.java 中访问 Point：因为包作用域。
 //    包作用域是指一个类允许访问同一个package的没有public、private修饰的class，以及没有public、protected、private修饰的字段和方法。
-// 2. 一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和public类的名字相同。
+// 3. 一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和public类的名字相同。
 //    如果我改为 public record Point 则会提示：Class 'Point' is public，should be declared in a file named 'Point.java'
 record Point(int x, int y) {
 }
