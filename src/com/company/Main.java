@@ -73,9 +73,10 @@ public class Main {
             System.out.println("  " + pd.getReadMethod());
             System.out.println("  " + pd.getWriteMethod());
         }
-        // 测试枚举类
+        // 测试枚举类： 默认情况下，对枚举常量调用toString()会返回和name()一样的字符串。但是，toString()可以被覆写，而name()则不行
         Color yanse = Color.RED;
-        System.out.println(yanse);
+        System.out.println(yanse); //猛一看是直接打印对象，其实是在调用对象的toString()，目的是在输出时更有可读性。
+        System.out.println(yanse.name()); // 返回常量名 或者说是 常量定义的字符串  from:枚举类
         // 测试记录类: For MAC：Error:java: 源发行版 14 与 --enable-preview 一起使用时无效 （仅发行版 15 支持预览语言功能）
         // var z = PointAdv.of();
         // var p = PointAdv.of(321, 456);
@@ -99,6 +100,9 @@ public class Main {
         Log log = LogFactory.getLog(Main.class);
         log.info("start...");
 
+        // 测试反射
+        ReflecitonPoc ref = new ReflecitonPoc();
+        ref.touchReflect();
     }
 }
 

@@ -105,22 +105,9 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
     Java字符串的一个重要特点就是字符串不可变。这种不可变性是通过内部的private final char[]字段，以及没有任何修改char[]的方法实现的。
     这点可以联想到:面向对象编程--多态、继承中相关的 final 的用法
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 面向对象编程--Java核心类--常用工具类:
     实际使用的时候，可以优先获取高强度的安全随机数生成器，如果没有提供，再使用普通等级的安全随机数生成器：
-    这种手法很 Java,利用捕获异常来选择生成安全数的方法,实在是高！
+    ===这种手法很 Java,利用捕获异常来选择生成安全数的方法,实在是高！===
     public class Main {
         public static void main(String[] args) {
             SecureRandom sr = null;

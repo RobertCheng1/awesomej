@@ -42,6 +42,11 @@ package com.company;
 //    如果我改为 public enum Color 则会提示：Class 'Color' is public，should be declared in a file named 'Color.java'
 enum Color {
     RED, GREEN, BLUE;
+
+    @Override
+    public String toString(){
+        return "AAA";
+    }
 }
 
 

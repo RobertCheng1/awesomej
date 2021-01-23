@@ -17,6 +17,7 @@ package com.company;
 public class ExceptionPoc {
 
     public void myparseInt(){
+        System.out.println("In the myparseInt");
         try {
             Integer.parseInt("abc");
         } catch (NumberFormatException e) {
@@ -31,6 +32,7 @@ public class ExceptionPoc {
     }
 
     public void myparseIntAdv() throws Exception{
+        System.out.println("In the myparseIntAdv");
         Exception origin = null;
         try {
             Integer.parseInt("abc");
@@ -51,6 +53,7 @@ public class ExceptionPoc {
     }
 
     public void touchExcep(){
+        System.out.println("In the touchExcep");
         try {
             // myparseInt();
             myparseIntAdv();
