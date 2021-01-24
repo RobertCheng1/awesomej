@@ -43,11 +43,12 @@ public class ExceptionPoc {
         } finally {
             // 如果在 finally 中抛出异常，应该原始异常加入到原有异常中。
             // 调用方可通过Throwable.getSuppressed()获取所有添加的Suppressed Exception。
-            System.out.println("For myparseIntAdv: finally of myparseInt");
+            System.out.println("For myparseIntAdv: finally of myparseIntAdv");
             Exception fe = new RuntimeException();
             if(origin != null){
                 fe.addSuppressed(origin);
             }
+            System.out.println(fe.getSuppressed());
             throw fe;
         }
     }
@@ -59,6 +60,7 @@ public class ExceptionPoc {
             myparseIntAdv();
         } catch (Exception e){
             System.out.println("catched Exception");
+            // e.getCause();
             // e.printStackTrace();
         } finally {
             System.out.println("finally of touchExcep");
