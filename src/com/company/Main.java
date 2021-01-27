@@ -138,6 +138,17 @@ public class Main {
         ref.constructor(stu);
         ref.inherit();
         ref.dynamicProxy();
+
+        // 测试注解:正好也用到了反射的知识
+        AnnotationPoc annpoc = new AnnotationPoc("BeiJing");
+        annpoc.fieldCheck();
+        // AnnotationRep annrep = new AnnotationRep();
+        // System.out.println(annrep.getClass().isAnnotationPresent(Reports.class));
+        // Reports reports = annrep.getClass().getAnnotation(Reports.class);
+        // System.out.println(reports);
+
+
+
     }
 }
 

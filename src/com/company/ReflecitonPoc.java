@@ -216,10 +216,10 @@ public class ReflecitonPoc {
          *              this.handler = handler;
          *          }
          *          public void morning(String name) {
-         *              handler.invoke( // 根据下面的代码实现，invoke 需要三个参数
-         *                 this,
-         *                 Hello.class.getMethod("morning", String.class),
-         *                 new Object[] { name });
+         *              // 根据 InvocationHandler 的 invoke 覆写实现，invoke 需要三个参数
+         *              handler.invoke(this,
+         *                             Hello.class.getMethod("morning", String.class),
+         *                             new Object[] { name });
          *          }
          *      }
          * 其实就是JVM帮我们自动编写了一个上述类（不需要源码，可以直接生成字节码），并不存在可以直接实例化接口的黑魔法。

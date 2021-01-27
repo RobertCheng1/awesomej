@@ -19,7 +19,7 @@ public class Student extends Person {
           如果子类没有明确地调用父类的构造方法，编译器会帮我们自动加一句super()，这就要求父类必须有无参数的构造方法即默认的构造方法，否则编译失败！
           如果父类没有默认的构造方法，子类就必须显式调用super()并给出参数以便让编译器定位到父类的一个合适的构造方法。
 
-       3. 在子类的覆写方法中，如果要调用父类的被覆写的方法，可以通过super来调用：super.hello() from:多态
+       3. 在子类的覆写方法中，如果要调用父类的被覆写的方法，可以通过super来调用：super.run() from:多态
      */
     public Student(String name, int age, int score){
         //super();

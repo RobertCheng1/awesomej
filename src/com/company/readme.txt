@@ -28,6 +28,7 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
     java Hello: 给虚拟机传递的参数 Hello 是我们定义的类名，虚拟机自动查找对应的 class 文件并执行。
 
     一个Java源码只能定义一个public类型的class，并且class名称和文件名要完全一致；
+    一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和public类的名字相同。面向对象基础--包和作用域两章:
     使用javac可以将.java源码编译成.class字节码；
     使用java可以运行一个已编译的Java程序，参数是类名。
 
