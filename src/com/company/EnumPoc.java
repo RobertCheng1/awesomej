@@ -77,3 +77,14 @@ enum Weekday {
     }
 }
 
+public class EnumPoc{
+    public void touchEnum(){
+        //默认情况下，对枚举常量调用toString()会返回和name()一样的字符串。但是，toString()可以被覆写，而name()则不行.
+        //所以通过name()获取常量定义的字符串，注意不要使用toString()；
+        System.out.println("In the touchEnum");
+        Color yanse = Color.RED;
+        System.out.println(yanse); //猛一看是直接打印对象，其实是在调用对象的toString()，目的是在输出时更有可读性。
+        System.out.println(yanse.name()); // 返回常量名 或者说是 常量定义的字符串  from:枚举类
+    }
+}
+

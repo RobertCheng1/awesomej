@@ -40,15 +40,15 @@ package com.company;
     1_3. 单继承和一个类实现多个interface 以及 interface 中的 default 方法的使用：
         一个类只能继承自另一个类，不能从多个类继承。但是，一个类可以实现多个interface。关于单继承，请参考 Student.java
         一个interface可以继承自另一个interface。interface继承自interface使用extends，它相当于扩展了接口的方法。例如：
-            interface Hello {
-                void hello();
+            interface Person {
+                void eat();
             }
 
-            interface Person extends Hello {
+            interface Farmer extends Person {
                 void run();
                 String getName();
             }
-        此时，Person接口继承自 Hello 接口，因此，Person 接口现在实际上有3个抽象方法签名，其中一个来自继承的Hello接口。
+        此时，Farmer 接口继承自 Person 接口，因此，Person 接口现在实际上有3个抽象方法签名，其中一个来自继承的Person接口。
 
         default方法的目的是：
         接口实现类可以不必覆写 default 方法，当我们需要给接口新增一个方法时，会涉及到修改全部子类。

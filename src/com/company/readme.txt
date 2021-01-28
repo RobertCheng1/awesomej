@@ -106,6 +106,9 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
     Java字符串的一个重要特点就是字符串不可变。这种不可变性是通过内部的private final char[]字段，以及没有任何修改char[]的方法实现的。
     这点可以联想到:面向对象编程--多态、继承中相关的 final 的用法
 
+
+
+
 面向对象编程--Java核心类--常用工具类:
     实际使用的时候，可以优先获取高强度的安全随机数生成器，如果没有提供，再使用普通等级的安全随机数生成器：
     ===这种手法很 Java,利用捕获异常来选择生成安全数的方法,实在是高！===
@@ -122,6 +125,20 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
             System.out.println(Arrays.toString(buffer));
         }
     }
+
+在 Java 中 int 貌似不是类, 执行下面的代码得到异常：这个灵感来自泛型，
+    // 第一个元素是 String, 第二个元素是 Integer， 这居然是可以的，想想也是 String 和 Integer 都继承自 Object
+    Object[] tmp = new Object[10];
+    tmp[0] = "hello";
+    tmp[1] = new Integer(655);
+    tmp[2] = 136; // 为什么整形是可以的，这怎么解释？难道整形也是类，但是下面代码的执行结果证明 Java 中 int 貌似不是类
+
+    int aaa = 123;
+    if (aaa instanceof Integer){        // java: 意外的类型 需要:引用  找到:int
+        System.out.println("noooo");
+    }
+    System.out.println(aaa.getClass()); // java: 无法取消引用int
+
 
 /Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
 包作用域和 public 作用域，谁的更宽泛，猜测是public

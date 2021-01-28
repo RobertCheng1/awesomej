@@ -6,6 +6,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.net.Inet4Address;
 import java.sql.SQLSyntaxErrorException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -100,14 +101,13 @@ public class Main {
             System.out.println("  " + pd.getReadMethod());
             System.out.println("  " + pd.getWriteMethod());
         }
-        // 测试枚举类： 默认情况下，对枚举常量调用toString()会返回和name()一样的字符串。但是，toString()可以被覆写，而name()则不行
-        Color yanse = Color.RED;
-        System.out.println(yanse); //猛一看是直接打印对象，其实是在调用对象的toString()，目的是在输出时更有可读性。
-        System.out.println(yanse.name()); // 返回常量名 或者说是 常量定义的字符串  from:枚举类
+        // 测试枚举类：
+        EnumPoc enumObj = new EnumPoc();
+        enumObj.touchEnum();
         // 测试记录类: For MAC：Error:java: 源发行版 14 与 --enable-preview 一起使用时无效 （仅发行版 15 支持预览语言功能）
-        // var z = PointAdv.of();
-        // var p = PointAdv.of(321, 456);
-        // System.out.println(p.x());
+        // RecordPoc recordObj = new RecordPoc();
+        // recordObj.touchRecord();
+
         // 测试 BigDecimal
         BigDecimalPoc big = new BigDecimalPoc();
         big.compare();
@@ -142,13 +142,23 @@ public class Main {
         // 测试注解:正好也用到了反射的知识
         AnnotationPoc annpoc = new AnnotationPoc("BeiJing");
         annpoc.fieldCheck();
-        // AnnotationRep annrep = new AnnotationRep();
-        // System.out.println(annrep.getClass().isAnnotationPresent(Reports.class));
-        // Reports reports = annrep.getClass().getAnnotation(Reports.class);
-        // System.out.println(reports);
+        AnnotationRep annrep = new AnnotationRep();
+        annrep.touchAnnoRep();
 
+        // 测试泛型：第一个元素是 String 第二个元素是 Integer， 这居然是可以的，想想也是 String 和 Integer 都继承自 Object
+        Object[] tmp = new Object[5];
+        tmp[0] = "hello";
+        tmp[1] = new Integer(655);
+        tmp[2] = 5555; // 为什么整形是可以的，这怎么解释？难道整形也是类，但是 123.getClass 和 instanceof 证明 Java 中 int 貌似不是类
+        for (Object entry:tmp){
+            System.out.println(entry);
+        }
 
-
+        ArrayList<String> strList = new ArrayList<String>();
+        strList.add("Google");
+        for(String entry:strList){
+            System.out.println(entry);
+        }
     }
 }
 

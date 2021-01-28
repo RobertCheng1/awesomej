@@ -92,3 +92,14 @@ record PointAdv(int x, int y) {
     }
 }
 
+public class RecordPoc{
+    public void touchRecord() {
+        System.out.println("In the touchRecord");
+        // 测试记录类: For MAC：Error:java: 源发行版 14 与 --enable-preview 一起使用时无效 （仅发行版 15 支持预览语言功能）
+        // var z = PointAdv.of();
+        var p = PointAdv.of(321, 456);
+        System.out.println(p.x());
+    }
+}
+
+

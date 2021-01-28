@@ -90,6 +90,12 @@ public class AnnotationPoc {
 @Report(type=2, level="warning")
 @Report(type=3, level="warning")
 class AnnotationRep {
+    public void touchAnnoRep(){
+        System.out.println("In the AnnotationRep");
+        System.out.println(this.getClass().isAnnotationPresent(Reports.class));
+        Reports reports = this.getClass().getAnnotation(Reports.class);
+        System.out.println(reports);
+    }
 }
 
 

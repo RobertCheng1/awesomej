@@ -19,7 +19,7 @@ import java.util.ConcurrentModificationException;
       方法一：直接通过一个class的静态变量class获取：
             Class cls = String.class;
       方法二：如果我们有一个实例变量，可以通过该实例变量提供的getClass()方法获取：
-            String s = "Hello";
+            String s = "Great";
             Class cls = s.getClass();
       方法三：如果知道一个class的完整类名，可以通过静态方法Class.forName()获取：
             Class cls = Class.forName("java.lang.String");
@@ -116,7 +116,7 @@ public class ReflecitonPoc {
         Class cls = obj.getClass();
         Field field = cls.getDeclaredField("score");
         field.setAccessible(true);
-        Object oldValue = field.get(obj);
+        Object oldValue = field.get(obj);  //String s = (String) value; from: the fieldCheck of Annotation.java
         System.out.printf("for changeScore: Old value = %d\n", oldValue);
         field.set(obj, 90);
     }
@@ -239,7 +239,7 @@ public class ReflecitonPoc {
                 new Class[] { Hello.class }, // 传入要实现的接口
                 handler); // 传入处理调用方法的InvocationHandler
         hello.morning("Bob");
-        hello.night("AAA");
+        hello.night("Jordan");
     }
 }
 
