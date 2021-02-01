@@ -145,20 +145,13 @@ public class Main {
         AnnotationRep annrep = new AnnotationRep();
         annrep.touchAnnoRep();
 
-        // 测试泛型：第一个元素是 String 第二个元素是 Integer， 这居然是可以的，想想也是 String 和 Integer 都继承自 Object
-        Object[] tmp = new Object[5];
-        tmp[0] = "hello";
-        tmp[1] = new Integer(655);
-        tmp[2] = 5555; // 为什么整形是可以的，这怎么解释？难道整形也是类，但是 123.getClass 和 instanceof 证明 Java 中 int 貌似不是类
-        for (Object entry:tmp){
-            System.out.println(entry);
-        }
+        // 测试泛型：
+        GenericPoc gen = new GenericPoc();
+        gen.genEntry();
+        gen.genAdv();
+        gen.cutomizeGeneric();
 
-        ArrayList<String> strList = new ArrayList<String>();
-        strList.add("Google");
-        for(String entry:strList){
-            System.out.println(entry);
-        }
+
     }
 }
 

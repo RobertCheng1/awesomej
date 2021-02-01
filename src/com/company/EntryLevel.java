@@ -92,7 +92,7 @@ public class EntryLevel {
         String ss = s1 + " " + s2 + "!";
         System.out.printf("test add strings: ss = %s\n", ss);
         i = 25;
-        System.out.println(ss + i);
+        System.out.println(ss + i); // 如果用+连接字符串和其他数据类型，会将其他数据类型先自动转型为字符串再连接 from：字符和字符串
 
         String s3 = "Google";
         String s4 = s3;

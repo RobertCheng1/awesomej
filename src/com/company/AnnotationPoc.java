@@ -44,7 +44,7 @@ public class AnnotationPoc {
         System.out.println("In the fieldCheck");
         // 遍历所有Field:
         for (Field field : this.getClass().getFields()) {
-            // 获取Field定义的@Range:
+            // 获取Field定义的@Range: 因为某个 field 可能有多个注解，所以需要指定你想要获取哪个注解
             Range range = field.getAnnotation(Range.class);
             // 如果@Range存在:
             if (range != null){
