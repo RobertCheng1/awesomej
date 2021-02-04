@@ -147,11 +147,11 @@ public class Main {
 
         // 测试泛型：
         GenericPoc gen = new GenericPoc();
-        gen.genEntry();
-        gen.genAdv();
+        gen.genericEntry();
+        gen.genericAdv();
         gen.cutomizeGeneric();
-
-
+        gen.typeErasureGeneric();
+        gen.extendsGeneric();
     }
 }
 
