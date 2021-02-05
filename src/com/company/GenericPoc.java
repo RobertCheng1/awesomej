@@ -49,9 +49,12 @@ class Pair<T> {
     public T getLast() {
         return this.last;
     }
-    // setFirst 函数是为了测试 extends 通配符的限制
+    // setFirst 函数是为了测试 extends 通配符的限制和 super 通配符的用法
     public void setFirst(T first) {
         this.first = first;
+    }
+    public void setLast(T last) {
+        this.last = last;
     }
 
     /**
@@ -120,7 +123,7 @@ public class GenericPoc {
         // 获取到Object，必须强制转型为String,如果去掉类型强转(String)编译提示不兼容的类型: java.lang.Object无法转换为java.lang.String
         String first = (String) list.get(0);
 
-        // 第一个元素是 String 第二个元素是 Integer， 这居然是可以的，想想也是 String 和 Integer 都继承自 Object
+        // 第一个元素是 String 第二个元素是 Integer， 这居然是可以的，想想也是因为 String 和 Integer 都继承自 Object
         Object[] tmp = new Object[3];
         tmp[0] = "hello";
         tmp[1] = new Integer(655);
@@ -187,7 +190,7 @@ public class GenericPoc {
         // 编写泛型类：
         // 编写泛型类 比 普通类 要复杂。通常来说，泛型类一般用在集合类中，例如ArrayList<T>，我们很少需要编写泛型类。
         // 编写泛型类时，需要定义泛型类型<T>；要特别注意，泛型类型<T>不能用于静态方法。
-        // 静态方法不能引用泛型类型<T>，必须定义其他类型（例如<K>）来实现静态泛型方法；具体参考上面的 Pair 的静态方法 create
+        // 静态方法不能引用泛型类型<T>，必须定义其他类型（例如<K>）来实现静态泛型方法；详情请参考上面的 Pair 的静态方法 create
         System.out.println("In the cutomizeGeneric");
         Pair<String> p = new Pair<String>("Michael", "Jordan");
         System.out.println(p.getFirst());
@@ -219,7 +222,7 @@ public class GenericPoc {
         System.out.println(wade.getFirst());
         System.out.println(wade.getLast());
     }
-    
+
     public void typeErasureGeneric(){
         /**
          * 所谓擦拭法是指，虚拟机对泛型其实一无所知，所有的工作都是编译器做的。
@@ -233,13 +236,27 @@ public class GenericPoc {
          * 所以，Java的泛型是由编译器在编译时实行的，编译器内部永远把所有类型T视为Object处理，
          * 但是，在需要转型的时候，编译器会根据T的类型自动为我们实行安全地强制转型。
          *
-         *
          * 前面讲了，我们无法获取Pair<T>的T类型，即给定一个变量Pair<Integer> p，无法从p中获取到Integer类型。
          * 但是，在父类是泛型类型的情况下，编译器就必须把类型T（对IntPair来说，也就是Integer类型）保存到子类的class文件中，
          * 不然编译器就不知道IntPair只能存取Integer这种类型。
          * 在继承了泛型类型的情况下，子类可以获取父类的泛型类型。例如：IntPair可以获取到父类的泛型类型Integer
+         *
+         * 擦拭法决定了泛型<T>：
+         *     不能是基本类型，例如：int；
+         *     不能获取带泛型类型的Class，例如：Pair<String>.class；
+         *     不能判断带泛型类型的类型，例如：x instanceof Pair<String>；
+         *     不能实例化T类型，例如：new T()。
          */
+        // 无法取得带泛型的Class
         System.out.println("In the typeErasureGeneric");
+        Pair<String> p1 = new Pair<>("Hello", "world");
+        Pair<Integer> p2 = new Pair<>(123, 456);
+        Class c1 = p1.getClass();
+        Class c2 = p2.getClass();
+        System.out.println(c1==c2); // true
+        System.out.println(c1==Pair.class); // true
+
+        // 在继承了泛型类型的情况下，子类可以获取父类的泛型类型
         Class<IntPair> clazz = IntPair.class;
         Type t = clazz.getGenericSuperclass();
         if (t instanceof ParameterizedType) {
@@ -253,22 +270,17 @@ public class GenericPoc {
 
 
     static int add(Pair<Number> p) {
+        //该函数的形参类型是 Pair<Number>
         Number first = p.getFirst();
         Number last = p.getLast();
         return first.intValue() + last.intValue();
     }
     static int addAdv(Pair<? extends Number> p) {
+        // ===这个例子精确解释了 extends 通配符的用法===
+        // 该函数的形参类型是 Pair<? extends Number>, 且把 p.getXXX()的值赋值给了 Number 类型变量，这两者是统一的。
+        // 因为 ? extends Number 表达的是参数必须是 Number 和 Number 的子类，所以 getXXX 时候，可以安全赋值给Number类型的变量
         Number first = p.getFirst();
         Number last = p.getLast();
-        // p.setFirst(xxx) 编译报错：不兼容的类型: java.lang.Integer无法转换为capture#1, 共 ? extends java.lang.Number
-        // 有些童鞋会问了，既然 p 的定义是 Pair<? extends Number>，那么setFirst(? extends Number)为什么不能传入Integer？
-        // 原因还在于擦拭法。如果我们传入的 p 是Pair<Double>，显然它满足参数定义Pair<? extends Number>，
-        // 然而，Pair<Double>的setFirst()显然无法接受 Integer类型。
-        //
-        // 这就是 <? extends Number>通配符的一个重要限制：
-        // 方法参数签名 setFirst(? extends Number) 无法传递任何Number的子类型给setFirst(? extends Number)。
-        // 也许你会猜想我直接传 Number 类型会成功吗？答案也是否定的，因为 Number 是个抽象类不能实例化，哈哈哈。
-        // p.setFirst(new Integer(first.intValue() + 100));
         return first.intValue() + last.intValue();
     }
     public void extendsGeneric(){
@@ -285,7 +297,7 @@ public class GenericPoc {
         // 有没有办法使得方法参数接受 Pair<Integer> ?
         // 办法是有的，这就是使用 Pair<? extends Number> 使得方法接收所有泛型类型为Number或Number子类的Pair类型
         // 这样一来，给方法传入Pair<Integer>类型时，它符合参数 Pair<? extends Number>类型。
-        // 这种使用 <? extends Number> 的泛型定义称之为上界通配符（Upper Bounds Wildcards），即把泛型类型T的上界限定在 Number了。
+        // 这种使用 <? extends Number> 的泛型定义称之为 上界通配符（Upper Bounds Wildcards），即把泛型类型T的上界限定在 Number了。
         // 除了可以传入Pair<Integer>类型，我们还可以传入Pair<Double>类型，Pair<BigDecimal>类型等等，因为Double和BigDecimal都是Number的子类。
         //
         // 如果我们考察对 Pair<? extends Number>类型调用getFirst()方法，实际的方法签名变成了：
@@ -294,14 +306,95 @@ public class GenericPoc {
         System.out.printf("the sum = %d\n", sum);
         int total = addAdv(new Pair<Integer>(11, 22));
         System.out.printf("the total = %d\n", total);
-        // 小结：
-        // 使用类似<? extends Number>通配符作为方法参数时表示：
-        //     方法内部可以调用获取Number引用的方法，例如：Number n = obj.getFirst();；
-        //     方法内部无法调用传入Number引用的方法（null除外），例如：obj.setFirst(Number n);。
-        // 即一句话总结：使用extends通配符表示可以读，不能写。
-        //
-        // 使用类似<T extends Number>定义泛型类时表示：
-        //      泛型类型限定为Number以及Number的子类。
+
+        Pair<? extends Number> p = new Pair<>(1,2);
+        // p.setFirst(new Integer(798));
+        // 编译报错：不兼容的类型: java.lang.Integer无法转换为capture#1, 共 ? extends java.lang.Number
+        // 有些童鞋会问：既然 p 的定义是 Pair<? extends Number>，那么setFirst(? extends Number)为什么不能传入Integer？
+        // 原因还在于擦拭法。如果我们传入的 p 是 Pair<Double>，显然它满足参数定义Pair<? extends Number>，
+        // 然而，Pair<Double> 的 setFirst()显然无法接受 Integer类型。这里要注意不要和 double int 混淆，因为泛型类型不能是基本类型。
+        // 这就是 <? extends Number>通配符的一个重要限制：
+        //      方法参数签名 setFirst(? extends Number) 无法传递任何 Number 的子类型给 setFirst(? extends Number)。
+        // 也许你会猜想直接传 Number 类型会成功吗？答案是否定的，因为 Number 是个抽象类不能实例化, 即便 Number不是抽象类也无法通过编译。
+        // 因为当你发散下思维把上面提到（“原因还在于擦拭法”该句话所在行）的 Double 和 Integer 类比成其他非抽象类的子类，就明白在说什么了。
     }
+
+
+    static void setSame(Pair<? super Integer> p, Integer n) {
+        p.setFirst(n);
+        p.setLast(n);
+    }
+    public void superGeneric(){
+        System.out.println("In the superGeneric");
+        // 考察下面的set方法，解释了引入 super 可以解决的情况。
+        //  void set(Pair<Integer> p, Integer first, Integer last) {
+        //      p.setFirst(first);
+        //      p.setLast(last);
+        //  }
+        // 传入Pair<Integer>是允许的，但是传入Pair<Number>是不允许的。
+        // 和 extends 通配符相反，这次，我们希望接受Pair<Integer>类型，以及Pair<Number>、Pair<Object>，
+        // 因为 Number和 Object 是 Integer的父类，setFirst(Number)和setFirst(Object)实际上 允许接受 Integer 类型。
+        // 我们使用super通配符来改写这个方法,
+        //  void set(Pair<? super Integer> p, Integer first, Integer last) {
+        //      p.setFirst(first);
+        //      p.setLast(last);
+        //  }
+        // 注意到 Pair<? super Integer>表示，方法参数接受所有泛型类型为 Integer 或 Integer父类的Pair类型。
+        // 所以才可以接受（写入） Integer 类型。 ===这个例子精确解释了 super 通配符的用法===。
+        //
+        //
+        // 考察Pair<? super Integer>的setFirst()方法，它的方法签名实际上是：
+        //      void setFirst(? super Integer);   因此，可以安全地传入Integer类型。
+        // 再考察Pair<? super Integer>的getFirst()方法，它的方法签名实际上是：
+        //      ? super Integer getFirst();
+        // 这里注意到我们无法使用 Integer 类型来接收 getFirst() 的返回值，即下面的语句将无法通过编译：
+        //      Integer x = p.getFirst();
+        // 因为如果传入的实际类型是Pair<Number>，编译器无法将Number类型转型为Integer。注意：虽然Number是一个抽象类，我们无法直接实例化它。
+        // 但是，即便 Number不是抽象类，这里仍然无法通过编译。此外，传入Pair<Object>类型时，编译器也无法将Object类型转型为Integer。
+        // 唯一可以接收getFirst()方法返回值的是Object类型：
+        //      Object obj = p.getFirst();
+        // 因此，使用<? super Integer>通配符表示：
+        //     允许调用set(? super Integer)方法传入Integer的引用；
+        //     不允许调用get()方法获得Integer的引用。
+        // 唯一例外是可以获取Object的引用：Object o = p.getFirst()。
+        // 换句话说，使用<? super Integer>通配符作为方法参数，表示方法内部代码对于参数只能写，不能读。
+        Pair<Number> p1 = new Pair<>(12.3, 4.56);
+        Pair<Integer> p2 = new Pair<>(123, 456);
+        setSame(p1, 100);
+        setSame(p2, 200);
+        System.out.println(p1.getFirst() + ", " + p1.getLast());
+        System.out.println(p2.getFirst() + ", " + p2.getLast());
+
+        //---------------------------------------------
+        // 可以声明带泛型的数组，但不能用new操作符创建带泛型的数组
+    }
+
+    // 小结：
+    // 使用类似<? extends Number>通配符作为方法参数时表示：
+    //     方法内部可以调用获取 Number 引用的方法，例如：Number n = obj.getFirst();；
+    //     方法内部无法调用传入 Number 引用的方法（null除外），例如：obj.setFirst(Number n);。
+    // 即一句话总结：使用extends通配符表示可以读，不能写。
+    //
+    // 使用类似<T extends Number>定义泛型类时表示：
+    //      泛型类型限定为Number以及Number的子类。
+    //
+    //
+    // 使用类似<? super Integer>通配符作为方法参数时表示：
+    //     方法内部可以调用传入 Integer 引用的方法，例如：obj.setFirst(Integer n);；
+    //     方法内部无法调用获取Integer引用的方法（Object除外），例如：Integer n = obj.getFirst();。
+    //
+    // 对比extends和super通配符:
+    // 我们再回顾一下extends通配符。作为方法参数，<? extends T>类型和<? super T>类型的区别在于：
+    //     <? extends T>允许调用读方法T get()获取T的引用，但不允许调用写方法set(T)传入T的引用（传入null除外）；
+    //     <? super T>允许调用写方法set(T)传入T的引用，但不允许调用读方法T get()获取T的引用（获取Object除外）。
+    // 一个是允许读不允许写，另一个是允许写不允许读。
+    //
+    // 为什么要有extends 和super 通配符这样的语法？
+    // 其实是为了方便开发业务逻辑要不然参数类型卡的太死板了。这和正常业务函数调用时参数在父子类之间强制类型转换一样，都是为了代码的高度抽象和复用
+    //
+    // Pair<? extends Number> 的本质：
+    // ? extends Number 和 Integer和 Double 没有本质区别都是一种参数类型的表达,
+    // 只不过 ? extends Number表达的是接收所有泛型类型为 Number或 Number子类的 Pair类型，是一个区间的表达方式，
+    // 而Integer 和 Double 表达的是参数类型必须是具体的某种类型而已！
 }
 

@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.net.Inet4Address;
 import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Scanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -152,6 +153,15 @@ public class Main {
         gen.cutomizeGeneric();
         gen.typeErasureGeneric();
         gen.extendsGeneric();
+        gen.superGeneric();
+        // ToDo: copy()方法的另一个好处是可以安全地把一个List<Integer>添加到List<Number>，但是无法反过来添加：
+        // // copy List<Integer> to List<Number> ok:
+        // List<Number> numList = ...;
+        // List<Integer> intList = ...;
+        // Collections.copy(numList, intList);
+        //
+        // // ERROR: cannot copy List<Number> to List<Integer>:
+        // Collections.copy(intList, numList);
     }
 }
 

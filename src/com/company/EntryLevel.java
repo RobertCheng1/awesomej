@@ -240,7 +240,7 @@ public class EntryLevel {
             System.out.println(ns[i]);
         }
         // 很多时候，我们实际上真正想要访问的是数组每个元素的值。Java还提供了另一种 for each循环，它可以更简单地遍历数组
-        System.out.println("===for each===");
+        System.out.println("---for each---");
         for (int n : ns) {
             System.out.println(n);
         }
