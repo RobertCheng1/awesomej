@@ -314,7 +314,7 @@ public class GenericPoc {
         // 原因还在于擦拭法。如果我们传入的 p 是 Pair<Double>，显然它满足参数定义Pair<? extends Number>，
         // 然而，Pair<Double> 的 setFirst()显然无法接受 Integer类型。这里要注意不要和 double int 混淆，因为泛型类型不能是基本类型。
         // 这就是 <? extends Number>通配符的一个重要限制：
-        //      方法参数签名 setFirst(? extends Number) 无法传递任何 Number 的子类型给 setFirst(? extends Number)。
+        //    方法参数签名 setFirst(? extends Number) 无法传递任何 Number 的子类型给 setFirst(? extends Number)。
         // 也许你会猜想直接传 Number 类型会成功吗？答案是否定的，因为 Number 是个抽象类不能实例化, 即便 Number不是抽象类也无法通过编译。
         // 因为当你发散下思维把上面提到（“原因还在于擦拭法”该句话所在行）的 Double 和 Integer 类比成其他非抽象类的子类，就明白在说什么了。
     }
@@ -365,8 +365,9 @@ public class GenericPoc {
         System.out.println(p1.getFirst() + ", " + p1.getLast());
         System.out.println(p2.getFirst() + ", " + p2.getLast());
 
-        //---------------------------------------------
+        // ---泛型和反射---
         // 可以声明带泛型的数组，但不能用new操作符创建带泛型的数组
+        // 如果在方法内部创建了泛型数组，最好不要将它返回给外部使用。
     }
 
     // 小结：
