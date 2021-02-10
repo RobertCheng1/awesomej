@@ -154,6 +154,7 @@ public class Main {
         gen.typeErasureGeneric();
         gen.extendsGeneric();
         gen.superGeneric();
+        gen.genericsAndReflection();
         // ToDo: copy()方法的另一个好处是可以安全地把一个List<Integer>添加到List<Number>，但是无法反过来添加： from:super通配符
         // // copy List<Integer> to List<Number> ok:
         // List<Number> numList = ...;
