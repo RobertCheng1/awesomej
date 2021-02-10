@@ -70,9 +70,14 @@ class Pair<T> {
      * 评论中的清晰解释：
      * 因为普通的方法是通过类的实例来调用的，创建实例的过程调用了构造方法，也就是说对象已经知道这个时候类上面定义的<T>的具体类型了；
      * 而静态方法不需要对象实例来调用，所以也就不知道<T>的具体类型，虚拟机不允许这种情况发生，所以编译的时候就报错了。
+     * 用个老师的例子：
+     *      Pair<String> p = new Pair<>("Hello", "world");  //创建实例时已经知道<T>是String类型
+     *      String first = p.getFirst();
+     *      Pair.create(...);  //如果是静态方法，则并不清楚<T>的具体类型
      * <K>放在static后面，你可以理解为既然静态方法不知道Pair里面的具体类型，你就手动的告诉它具体的类型。
      */
     // 静态泛型方法应该使用其他类型区分: 这样才能清楚地将 静态方法的泛型类型 和 实例类型的泛型类型 区分开。
+    // 当然静态泛型方法的返回值类型可以是 void，参考：PECS 的 copy 方法， from：super通配符
     public static <K> Pair<K> create(K first, K last) {
         return new Pair<K>(first, last);
     }
@@ -121,6 +126,9 @@ public class GenericPoc {
         ArrayList list = new ArrayList();
         list.add("Hello");
         // 获取到Object，必须强制转型为String,如果去掉类型强转(String)编译提示不兼容的类型: java.lang.Object无法转换为java.lang.String
+        // 很容易出现ClassCastException，因为容易“误转型”：
+        //      list.add(new Integer(123));
+        //      String second = (String) list.get(1); // ERROR: ClassCastException
         String first = (String) list.get(0);
 
         // 第一个元素是 String 第二个元素是 Integer， 这居然是可以的，想想也是因为 String 和 Integer 都继承自 Object
@@ -160,6 +168,15 @@ public class GenericPoc {
          * 编译器看到泛型类型List<Number>就可以自动推断出后面的ArrayList<T>的泛型类型必须是ArrayList<Number>，因此，可以把代码简写为：
          *      // 可以省略后面的Number，编译器可以自动推断泛型类型：
          *      List<Number> list = new ArrayList<>();
+         *
+         * 向上转型：
+         * 在Java标准库中的ArrayList<T>实现了List<T>接口，它可以向上转型为List<T>： from：什么是泛型
+         *      public class ArrayList<T> implements List<T> {
+         *           ...
+         *      }
+         *      List<String> list = new ArrayList<String>();
+         * 即类型 ArrayList<T> 可以向上转型为 List<T>。
+         * 要特别注意：不能把ArrayList<Integer>向上转型为ArrayList<Number>或List<Number>。
          *
          * 泛型接口:
          * 除了 ArrayList<T>使用了泛型，还可以在接口中使用泛型。
