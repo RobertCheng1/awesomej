@@ -155,7 +155,8 @@ public class GenericPoc {
          * 泛型的好处是使用时不必对类型进行强制转换，它通过编译器对类型进行检查；
          *
          * 使用泛型：
-         * 使用泛型时，把  泛型参数<T>替换为需要的class类型，例如：ArrayList<String>，ArrayList<Number>等
+         * 使用泛型时，把  泛型参数<T>替换为需要的class类型，例如：ArrayList<String>，ArrayList<Number>等，
+         * ===ArrayList<Farmer>也是可以的,比如 List<Farmer> farmers = new ArrayList<Farmer>(); 这个扩展太棒了===
          * 使用ArrayList时，如果不定义泛型类型时，泛型类型实际上就是Object：
          *      // 编译器警告:
          *      List list = new ArrayList();
@@ -259,7 +260,7 @@ public class GenericPoc {
          * 在继承了泛型类型的情况下，子类可以获取父类的泛型类型。例如：IntPair可以获取到父类的泛型类型Integer
          *
          * 擦拭法决定了泛型<T>：
-         *     不能是基本类型，例如：int；
+         *     不能是基本类型，例如：int；因为实际类型是Object，Object类型无法持有基本类型
          *     不能获取带泛型类型的Class，例如：Pair<String>.class；
          *     不能判断带泛型类型的类型，例如：x instanceof Pair<String>；
          *     不能实例化T类型，例如：new T()。
@@ -272,8 +273,36 @@ public class GenericPoc {
         Class c2 = p2.getClass();
         System.out.println(c1==c2); // true
         System.out.println(c1==Pair.class); // true
-
-        // 在继承了泛型类型的情况下，子类可以获取父类的泛型类型
+        /**
+         * 不能实例化T类型：
+         *      public class Pair<T> {
+         *          private T first;
+         *          private T last;
+         *          public Pair() {
+         *              // Compile error:
+         *              first = new T();
+         *              last = new T();
+         *          }
+         *      }
+         * 上述代码无法通过编译，因为构造方法的两行语句：
+         *      first = new T();
+         * 擦拭后实际上变成了：
+         *      first = new Object();
+         * 这样一来，创建new Pair<String>()和创建new Pair<Integer>()就全部成了Object，显然编译器要阻止这种类型不对的代码。
+         * 要实例化T类型，我们必须借助额外的Class<T>参数：
+         *      public class Pair<T> {
+         *          private T first;
+         *          private T last;
+         *          public Pair(Class<T> clazz) {
+         *              first = clazz.newInstance();
+         *              last = clazz.newInstance();
+         *          }
+         *      }
+         * 上述代码借助Class<T>参数并通过反射来实例化T类型，使用的时候，也必须传入Class<T>。例如：
+         *      Pair<String> pair = new Pair<>(String.class);
+         * 因为传入了Class<String>的实例，所以我们借助 String.class 就可以实例化String类型。参考反射一节提到的 cls.newInstance()
+         */
+        // 在继承了泛型类型的情况下，子类可以获取父类的泛型类型：
         Class<IntPair> clazz = IntPair.class;
         Type t = clazz.getGenericSuperclass();
         if (t instanceof ParameterizedType) {
@@ -381,12 +410,48 @@ public class GenericPoc {
         setSame(p2, 200);
         System.out.println(p1.getFirst() + ", " + p1.getLast());
         System.out.println(p2.getFirst() + ", " + p2.getLast());
-
-        // ---泛型和反射---
-        // 可以声明带泛型的数组，但不能用new操作符创建带泛型的数组
-        // 如果在方法内部创建了泛型数组，最好不要将它返回给外部使用。
     }
 
+    public void genericsAndReflection(){
+        // 可以声明带泛型的数组，但不能用 new 操作符创建带泛型的数组, 必须通过强制转型实现带泛型的数组：
+        Pair<String>[] ps1 = null; // ok
+        // Pair<String>[] ps2 = new Pair<String>[2]; // compile error!
+        Pair<String>[] ps2 = (Pair<String>[]) new Pair[2];
+
+        // 因为数组实际上在运行期没有泛型，编译器可以强制检查变量ps，因为它的类型是泛型数组。
+        // 但是，编译器不会检查变量arr，因为它不是泛型数组。因为这两个变量实际上指向同一个数组，所以，操作arr可能导致从ps获取元素时报错，
+        // 例如，以下代码演示了不安全地使用带泛型的数组: 要安全地使用泛型数组，必须扔掉 arr 的引用
+        Pair[] arr = new Pair[2];
+        Pair<String>[] ps = (Pair<String>[]) arr;
+        ps[0] = new Pair<String>("a", "b");
+        arr[1] = new Pair<Integer>(1, 2);
+        // ClassCastException:
+        // Pair<String> p = ps[1];
+        // String s = p.getFirst();
+
+        /**
+         * 借助Class<T>来创建泛型数组：
+         * 带泛型的数组实际上是编译器的类型擦除：
+         *      Pair[] arr = new Pair[2];
+         *      Pair<String>[] ps = (Pair<String>[]) arr;
+         *      System.out.println(ps.getClass() == Pair[].class); // true
+         *      String s1 = (String) arr[0].getFirst();
+         *      String s2 = ps[0].getFirst();
+         *
+         * 所以我们不能直接创建泛型数组T[]，因为擦拭后代码变为Object[]： 参考上文Java语言的泛型实现方式擦拭法的局限性：不能实例化T类型
+         *      // compile error:
+         *      public class Abc<T> {
+         *          T[] createArray() {
+         *              return new T[5];
+         *          }
+         *      }
+         * 必须借助Class<T>来创建泛型数组：
+         *      T[] createArray(Class<T> cls) {
+         *          return (T[]) Array.newInstance(cls, 5);
+         *      }
+         */
+        // 如果在方法内部创建了泛型数组，最好不要将它返回给外部使用。
+    }
     // 小结：
     // 使用类似<? extends Number>通配符作为方法参数时表示：
     //     方法内部可以调用获取 Number 引用的方法，例如：Number n = obj.getFirst();；

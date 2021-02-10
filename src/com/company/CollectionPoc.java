@@ -8,13 +8,17 @@ import java.util.Objects;
 
 
 class Worker{
-    String name;
-    int salary;
+    private String name;
+    private int salary;
 
     public Worker(String name, int salary){
         this.name = name;
         this.salary = salary;
     }
+    public String getName(){
+        return this.name;
+    }
+
     public boolean equals(Object other){
         System.out.println("In the equals of worker");
         if (other instanceof Worker) {
@@ -38,6 +42,11 @@ public class CollectionPoc {
          *
          */
         System.out.println("In the listEntry");
+        List<String> fruitList = new ArrayList<>();
+        fruitList.add("apple"); // size=1
+        fruitList.add("pear"); // size=2
+        fruitList.add("apple"); // 允许重复添加元素，size=3
+        System.out.println(fruitList.size());
         // 创建 List：
         // 因为List只是一个接口，如果我们调用List.of()，它返回的是一个只读List：
         // list.add(78); // UnsupportedOperationException
@@ -67,8 +76,8 @@ public class CollectionPoc {
             System.out.println(s);
         }
         System.out.println("List和Array转换");
-        // String[] array = list.toArray(new String[3]);
-        String[] array = list.toArray(String[]::new); // 这种函数式写法我们会在后续讲到。
+        String[] array = list.toArray(new String[3]);
+        // String[] array = list.toArray(String[]::new); // 这种函数式写法我们会在后续讲到。
         for (String str : array) {
             System.out.println(str);
         }
@@ -94,7 +103,7 @@ public class CollectionPoc {
                 new Worker("Robert", 1000),
                 new Worker("Bruce", 2000)
         );
-        boolean flag = workers.contains(new Worker("Bruce", 1000));
+        boolean flag = workers.contains(new Worker("Bruce", 2000));
         System.out.println(flag);
     }
 }
