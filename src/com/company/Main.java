@@ -168,6 +168,7 @@ public class Main {
         CollectionPoc cp = new CollectionPoc();
         cp.listEntry();
         cp.listEquals();
+        cp.mapEntry();
     }
 }
 

@@ -24,7 +24,7 @@ public class Outer {
 
     /* Anonymous Class：
         观察asyncHello()方法，我们在方法内部实例化了一个Runnable。Runnable本身是接口，接口是不能实例化的，
-        所以这里实际上是定义了一个实现了Runnable接口的匿名类，并且通过new实例化该匿名类，然后转型为Runnable。
+        所以这里实际上是定义了一个实现了 Runnable 接口的匿名类，并且通过new实例化该匿名类，然后转型为Runnable。
         在定义匿名类的时候就必须实例化它，定义匿名类的写法如下：
               Runnable r = new Runnable() {
                   // 实现必要的抽象方法...

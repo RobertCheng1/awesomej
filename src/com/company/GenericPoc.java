@@ -135,7 +135,7 @@ public class GenericPoc {
         Object[] tmp = new Object[3];
         tmp[0] = "hello";
         tmp[1] = new Integer(655);
-        tmp[2] = 5555; // 为什么整形是可以的，这怎么解释？难道整形也是类，但是 123.getClass 和 instanceof 证明 Java 中 int 貌似不是类
+        tmp[2] = 5555; // 为什么整形是可以的,这怎么解释？难道整形也是类，但是 123.getClass() 和 instanceof 证明 Java 中 int 貌似不是类
         for (Object entry:tmp){
             System.out.println(entry);
             System.out.println(entry.getClass());
@@ -263,7 +263,7 @@ public class GenericPoc {
          *     不能是基本类型，例如：int；因为实际类型是Object，Object类型无法持有基本类型
          *     不能获取带泛型类型的Class，例如：Pair<String>.class；
          *     不能判断带泛型类型的类型，例如：x instanceof Pair<String>；
-         *     不能实例化T类型，例如：new T()。
+         *     不能实例化T类型，例如：new T()。这和下文提到的 借助Class<T>来创建泛型数组 是相呼应的。
          */
         // 无法取得带泛型的Class
         System.out.println("In the typeErasureGeneric");
@@ -289,7 +289,7 @@ public class GenericPoc {
          * 擦拭后实际上变成了：
          *      first = new Object();
          * 这样一来，创建new Pair<String>()和创建new Pair<Integer>()就全部成了Object，显然编译器要阻止这种类型不对的代码。
-         * 要实例化T类型，我们必须借助额外的Class<T>参数：
+         * 要实例化T类型，我们必须借助额外的 Class<T> 参数： ===这和下文提到的 借助Class<T>来创建泛型数组 是相呼应的。===
          *      public class Pair<T> {
          *          private T first;
          *          private T last;
@@ -389,9 +389,9 @@ public class GenericPoc {
         // 所以才可以接受（写入） Integer 类型。 ===这个例子精确解释了 super 通配符的用法===。
         //
         //
-        // 考察Pair<? super Integer>的setFirst()方法，它的方法签名实际上是：
+        // 考察 Pair<? super Integer> 的 setFirst() 方法，它的方法签名实际上是：
         //      void setFirst(? super Integer);   因此，可以安全地传入Integer类型。
-        // 再考察Pair<? super Integer>的getFirst()方法，它的方法签名实际上是：
+        // 再考察 Pair<? super Integer> 的 getFirst() 方法，它的方法签名实际上是：
         //      ? super Integer getFirst();
         // 这里注意到我们无法使用 Integer 类型来接收 getFirst() 的返回值，即下面的语句将无法通过编译：
         //      Integer x = p.getFirst();
@@ -430,7 +430,7 @@ public class GenericPoc {
         // String s = p.getFirst();
 
         /**
-         * 借助Class<T>来创建泛型数组：
+         * Case1: 借助Class<T>来创建泛型数组：
          * 带泛型的数组实际上是编译器的类型擦除：
          *      Pair[] arr = new Pair[2];
          *      Pair<String>[] ps = (Pair<String>[]) arr;
@@ -438,7 +438,7 @@ public class GenericPoc {
          *      String s1 = (String) arr[0].getFirst();
          *      String s2 = ps[0].getFirst();
          *
-         * 所以我们不能直接创建泛型数组T[]，因为擦拭后代码变为Object[]： 参考上文Java语言的泛型实现方式擦拭法的局限性：不能实例化T类型
+         * 所以我们不能直接创建泛型数组T[]，因为擦拭后代码变为Object[]： 参考:上文Java语言的泛型实现方式擦拭法的局限性：不能实例化T类型
          *      // compile error:
          *      public class Abc<T> {
          *          T[] createArray() {
@@ -449,6 +449,16 @@ public class GenericPoc {
          *      T[] createArray(Class<T> cls) {
          *          return (T[]) Array.newInstance(cls, 5);
          *      }
+         *
+         * Case2: 利用可变参数创建泛型数组T[]：
+         *      public class ArrayHelper {
+         *          @SafeVarargs
+         *          static <T> T[] asArray(T... objs) {
+         *              return objs;
+         *          }
+         *      }
+         *      String[] ss = ArrayHelper.asArray("a", "b", "c");
+         *      Integer[] ns = ArrayHelper.asArray(1, 2, 3);
          */
         // 如果在方法内部创建了泛型数组，最好不要将它返回给外部使用。
     }

@@ -1,10 +1,7 @@
 package com.company;
 
 import javax.xml.namespace.QName;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 class Worker{
@@ -17,6 +14,9 @@ class Worker{
     }
     public String getName(){
         return this.name;
+    }
+    public int getSalary(){
+        return this.salary;
     }
 
     public boolean equals(Object other){
@@ -37,9 +37,8 @@ public class CollectionPoc {
         /**
          *  List是最基础的一种集合：它是一种有序列表。
          *  实现List接口并非只能通过数组（即ArrayList的实现方式）来实现，
-         *  另一种LinkedList通过“链表”也实现了List接口。在LinkedList中，它的内部每个元素都指向下一个元素：
+         *  另一种 LinkedList 通过“链表”也实现了List接口。在LinkedList中，它的内部每个元素都指向下一个元素：
          *  在实际应用中，需要增删元素的有序列表，我们使用最多的是ArrayList。
-         *
          */
         System.out.println("In the listEntry");
         List<String> fruitList = new ArrayList<>();
@@ -77,10 +76,13 @@ public class CollectionPoc {
         }
         System.out.println("List和Array转换");
         String[] array = list.toArray(new String[3]);
-        // String[] array = list.toArray(String[]::new); // 这种函数式写法我们会在后续讲到。
+        // String[] array = list.toArray(String[]::new); // ToDO：这种函数式写法我们会在后续讲到，这是第一次看到::的用法。
         for (String str : array) {
             System.out.println(str);
         }
+        // 反过来，把Array变为List就简单多了，通过List.of(T...)方法最简单：
+        Integer[] intArray = { 1, 2, 3 };
+        List<Integer> intList = List.of(intArray);
     }
 
     public void listEquals() {
@@ -106,5 +108,37 @@ public class CollectionPoc {
         boolean flag = workers.contains(new Worker("Bruce", 2000));
         System.out.println(flag);
     }
+
+
+    public void mapEntry(){
+        // Map也是一个接口，最常用的实现类是HashMap。
+        System.out.println("In the mapEntry");
+        Worker alen = new Worker("Alen", 3000);
+        // 联想泛型代码中提到的：Java标准库的Map<K, V>就是使用两种泛型类型的例子。它对Key使用一种类型，对Value使用另一种类型。
+        Map<String, Worker> map = new HashMap<>();
+        map.put("Alen", alen); // 将"Alen"和 Worker 实例映射并关联
+        Worker target = map.get("Alen"); // 通过key查找并返回映射的Student实例
+        System.out.println(target == alen); // true，同一个实例
+        System.out.println(target.getSalary()); // 3000
+        Worker another = map.get("Bob"); // 通过另一个key查找
+        System.out.println(another); // 未找到返回null
+
+        // 遍历 Map：在遍历的时候，遍历的顺序既不一定是put()时放入的key的顺序，也不一定是key的排序顺序
+        Map<String, Integer> mpasi = new HashMap<>();
+        mpasi.put("apple", 123);
+        mpasi.put("pear", 456);
+        mpasi.put("banana", 789);
+        for (String key : mpasi.keySet()) {
+            Integer value = mpasi.get(key);
+            System.out.println(key + " = " + value);
+        }
+
+        for (Map.Entry<String, Integer> entry : mpasi.entrySet()) {
+            String key = entry.getKey();
+            Integer value = entry.getValue();
+            System.out.println(key + " = " + value);
+        }
+    }
+
 }
 
