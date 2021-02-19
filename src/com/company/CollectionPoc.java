@@ -19,7 +19,9 @@ class Worker{
         return this.salary;
     }
 
+    @Override
     public boolean equals(Object other){
+        //该方法是为了验证以该类的实例为元素的 list 的 contains 操作和以该类的实例为 Key 的 Map的 put 操作
         System.out.println("In the equals of worker");
         if (other instanceof Worker) {
             Worker tmp = (Worker) other;
@@ -30,6 +32,11 @@ class Worker{
 
         }
         return false;
+    }
+    @Override
+    public int hashCode(){
+        //该方法是为了验证以该类的实例为 Key 的 Map的 put 操作
+        return Objects.hash(this.name, this.salary);
     }
 }
 public class CollectionPoc {
@@ -98,8 +105,8 @@ public class CollectionPoc {
          *     1. 先确定实例“相等”的逻辑，即哪些字段相等，就认为实例相等；
          *     2. 用instanceof判断传入的待比较的Object是不是当前类型，如果是，继续比较，否则，返回false；
          *     3. 对引用类型用 Objects.equals() 比较，对基本类型直接用==比较。
-         *     使用Objects.equals()比较两个引用类型是否相等的目的是省去了判断null的麻烦。两个引用类型都是null时它们也是相等的。
-         *     如果不调用List的contains()、indexOf()这些方法，那么放入的元素就不需要实现equals()方法。
+         *        使用 Objects.equals() 比较两个引用类型是否相等的目的是省去了判断null的麻烦。两个引用类型都是null时它们也是相等的。
+         * 如果不调用List的contains()、indexOf()这些方法，那么放入的元素就不需要实现 equals()方法。
          */
         List<Worker> workers = List.of(
                 new Worker("Robert", 1000),
@@ -132,7 +139,7 @@ public class CollectionPoc {
             Integer value = mpasi.get(key);
             System.out.println(key + " = " + value);
         }
-
+        // 查看 Map.Entry 源码，可知其是一个接口（而接口是不能实例化的，参考Outer.java），但 for循环却不报错，难道是采用了匿名类实现抽象方法！
         for (Map.Entry<String, Integer> entry : mpasi.entrySet()) {
             String key = entry.getKey();
             Integer value = entry.getValue();
@@ -140,5 +147,49 @@ public class CollectionPoc {
         }
     }
 
+    public void mapEquals(){
+        /**
+         * 正确使用Map必须保证：
+         * 1. 作为 key 的对象必须正确覆写 equals()方法，相等的两个key实例调用equals()必须返回true；
+         * 2. 作为 key 的对象还必须正确覆写 hashCode()方法，且hashCode()方法要严格遵循以下规范：
+         *      如果两个对象相等，则两个对象的hashCode()必须相等；
+         *      如果两个对象不相等，则两个对象的hashCode()尽量不要相等。
+         * 即对应两个实例a和b：
+         *     如果a和b相等，那么a.equals(b)一定为true，则a.hashCode()必须等于b.hashCode()；
+         *     如果a和b不相等，那么a.equals(b)一定为false，则a.hashCode()和b.hashCode()尽量不要相等。
+         * 上述第一条规范是正确性，必须保证实现，否则HashMap不能正常工作。
+         * 而第二条如果尽量满足，则可以保证查询效率，因为不同的对象，如果返回相同的hashCode()，会造成Map内部存储冲突，使存取的效率下降。
+         *
+         * 编写equals()和hashCode()遵循的原则是：
+         * equals()用到的用于比较的每一个字段，都必须在hashCode()中用于计算；equals()中没有使用到的字段，绝不可放在hashCode()中计算。
+         * 在计算hashCode()的时候，经常借助 Objects.hash()来计算：
+         *      int hashCode() {
+         *          return Objects.hash(firstName, lastName, age);
+         *      }
+         * 避免 firstName或lastName为null，firstName.hashCode() 抛 NullPointerException 异常。
+         *
+         * 扩展思考：
+         * 如果不同的两个key，例如"a"和"b"，它们的hashCode()恰好是相同的（这种情况是完全可能的，因为不相等的两个实例，只要求hashCode()尽量不相等），那么，当我们放入：
+         *      map.put("a", new Person("Xiao Ming"));
+         *      map.put("b", new Person("Xiao Hong"));
+         * 时，由于计算出的数组索引相同，后面放入的"Xiao Hong"会不会把"Xiao Ming"覆盖了？
+         * 当然不会！使用Map的时候，只要 key 不相同，它们映射的value就互不干扰。
+         * 但是，在HashMap内部，确实可能存在不同的 key，映射到相同的hashCode()，即相同的数组索引上，肿么办？
+         *
+         * 我们就假设"a"和"b"这两个key最终计算出的索引都是 5，那么，在HashMap的数组中，实际存储的不是一个Person实例，
+         * 而是一个List，它包含两个Entry，一个是"a"的映射，一个是"b"的映射：在查找的时候，例如：
+         *      Person p = map.get("a");
+         * HashMap内部通过"a"找到的实际上是List<Entry<String, Person>>，它还需要遍历这个List，并找到一个Entry，
+         * 它的key字段是"a"，才能返回对应的Person实例。我们把不同的key具有相同的hashCode()的情况称之为哈希冲突。
+         */
+        System.out.println("In the mapEquals");
+        Map<Worker, String> map = new HashMap<>();
+        map.put(new Worker("rob", 1000), "MVP");
+        map.put(new Worker("rob", 1000), "SuperStar");
+        for(Map.Entry<Worker, String> entry:map.entrySet()){
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue());
+        }
+    }
 }
 

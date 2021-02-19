@@ -430,6 +430,7 @@ public class GenericPoc {
         // String s = p.getFirst();
 
         /**
+         * 创建泛型数组: from: 泛型--泛型和反射
          * Case1: 借助Class<T>来创建泛型数组：
          * 带泛型的数组实际上是编译器的类型擦除：
          *      Pair[] arr = new Pair[2];

@@ -169,6 +169,7 @@ public class Main {
         cp.listEntry();
         cp.listEquals();
         cp.mapEntry();
+        cp.mapEquals();
     }
 }
 
