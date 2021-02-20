@@ -12,6 +12,12 @@ package com.company;
 
         如果不实现抽象方法，则该子类仍是一个抽象类。因此，抽象方法实际上相当于定义了“规范”。
 
+        这种尽量引用高层类型 Animal a = new Cat(10, "yellow"); 避免引用实际子类型的方式，称之为面向抽象编程。
+        面向抽象编程的本质就是：
+            上层代码只定义规范（例如：abstract class Person）；
+            不需要子类就可以实现业务逻辑（正常编译）；
+            具体的业务逻辑由不同的子类实现，调用者并不关心。
+
     1_2. 接口 interface：
         在抽象类中，抽象方法本质上是定义接口规范：即规定高层类的接口，从而保证所有子类都有相同的接口实现，这样，多态就能发挥出威力。
         如果一个抽象类没有字段，所有方法全部都是抽象方法：
@@ -44,11 +50,11 @@ package com.company;
                 void eat();
             }
 
-            interface Farmer extends Person {
+            interface Soldier extends Person {
                 void run();
                 String getName();
             }
-        此时，Farmer 接口继承自 Person 接口，因此，Person 接口现在实际上有3个抽象方法签名，其中一个来自继承的Person接口。
+        此时，Soldier 接口继承自 Person 接口，因此，Person 接口现在实际上有3个抽象方法签名，其中一个来自继承的Person接口。
 
         default方法的目的是：
         接口实现类可以不必覆写 default 方法，当我们需要给接口新增一个方法时，会涉及到修改全部子类。

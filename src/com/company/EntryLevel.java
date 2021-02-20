@@ -325,6 +325,10 @@ public class EntryLevel {
 
         // https://blog.csdn.net/qq_22771739/article/details/84261165
         // https://blog.csdn.net/lcfeng1982/article/details/6830584
+        // 在Java（其中主要包括在JVM中、内存中、在代码里声明的每一个char、String类型的变量中。）中字符只以一种形式存在，那就是Unicode，
+        // 不选择任何特定的编码，直接使用它们在字符集中的编号，这是统一的唯一的方法。
+        // 在JVM内部，统一使用Unicode表示，当着字符从JVM内部移动到外部时（即保存为文件系统中的一个文件内容时），就进行了编码转换，
+        // 使用了具体的编码方案。因此也可以说，所有的编码转换只发生在边界的地方，也就是各种输入/输出流的起作用的地方。
         try {
             System.out.println("Good test the getBytes:");
             String temp = "中";

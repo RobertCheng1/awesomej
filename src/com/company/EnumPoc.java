@@ -34,6 +34,9 @@ package com.company;
  *     enum的构造方法要声明为 private，字段强烈建议声明为 final；(既然是建议说明就不是强制)。 from: 面向对象编程--Java核心类--枚举类
  */
 
+import java.time.DayOfWeek;
+import java.util.Arrays;
+
 // 面向对象编程--面向对象基础--包和作用域两章:
 // 1. 不写 public，也能正确编译，但是这个类将无法从命令行执行。 from:Java程序基础--Java程序基本结构
 // 2. 没有 public 的 enum Color 仍然可以在 Main.java 中访问 Color：因为包作用域。
@@ -52,6 +55,9 @@ enum Color {
 
 
 enum Weekday {
+    // ordinal(): 返回定义的常量的顺序，从0开始计数，例如：
+    //      int n = Weekday.MON.ordinal(); // 1
+    // 改变枚举常量定义的顺序就会导致ordinal()返回值发生变化。要编写健壮的代码，就不要依靠ordinal()的返回值。
     // 因为 enum 本身是class，所以我们可以定义private的构造方法，并且，给每个枚举常量添加字段,
     // 这样就无需担心顺序的变化，新增枚举常量时，也需要指定一个int值。
     // 注意：枚举类的字段也可以是 非final 类型，即可以在运行期修改，但是不推荐这样做！===可能这就是 enum 和 record(不变类) 的主要区别===
@@ -72,7 +78,7 @@ enum Weekday {
 
     @Override
     public String toString() {
-        //覆写toString()的目的是在输出时更有可读性。
+        //覆写toString()的目的是使输出的信息更有可读性。
         return this.chinese;
     }
 }
@@ -83,7 +89,7 @@ public class EnumPoc{
         //所以通过name()获取常量定义的字符串，注意不要使用toString()；
         System.out.println("In the touchEnum");
         Color yanse = Color.RED;
-        System.out.println(yanse); //猛一看是直接打印对象，其实是在调用对象的toString()，目的是在输出时更有可读性。
+        System.out.println(yanse); //猛一看是直接打印对象，其实是在调用对象的toString()，目的是使输出的信息更有可读性。
         System.out.println(yanse.name()); // 返回常量名 或者说是 常量定义的字符串  from:枚举类
     }
 }

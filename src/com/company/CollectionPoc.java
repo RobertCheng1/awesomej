@@ -2,7 +2,7 @@ package com.company;
 
 import javax.xml.namespace.QName;
 import java.util.*;
-
+import java.time.DayOfWeek;
 
 class Worker{
     private String name;
@@ -149,19 +149,32 @@ public class CollectionPoc {
 
     public void mapEquals(){
         /**
+         * HashMap之所以能根据key直接拿到value，
+         * 原因是它内部通过空间换时间的方法，用一个大数组存储所有value，并根据key直接计算出value应该存储在哪个索引。
+         * 既然HashMap内部使用了数组，通过计算 key的 hashCode()直接定位value所在的索引，那么第一个问题来了：
+         * hashCode()返回的int范围高达±21亿，先不考虑负数，HashMap内部使用的数组得有多大？
+         * 实际上HashMap初始化时默认的数组大小只有 16，任何key，无论它的hashCode()有多大，都可以简单地通过：
+         *      int index = key.hashCode() & 0xf; // 0xf = 15  ===这是典型的位操作运算===
+         * 把索引确定在0～15，即永远不会超出数组范围，上述算法只是一种最简单的实现。
+         *
+         * 由于扩容会导致重新分布已有的key-value，所以，频繁扩容对HashMap的性能影响很大。
+         * 如果我们确定要使用一个容量为10000个key-value的HashMap，更好的方式是创建HashMap时就指定容量：
+         *      Map<String, Integer> map = new HashMap<>(10000);
+         * 虽然指定容量是10000(这个值指的是初始容量，后续还会根据扩容因子 DEFAULT_LOAD_FACTOR 扩容)，
+         * 但HashMap内部的数组长度总是2^n，因此，实际数组长度被初始化为比10000大的16384（2^14）。
+         * https://blog.csdn.net/Maxiao1204/article/details/80729657
+         *
          * 正确使用Map必须保证：
          * 1. 作为 key 的对象必须正确覆写 equals()方法，相等的两个key实例调用equals()必须返回true；
          * 2. 作为 key 的对象还必须正确覆写 hashCode()方法，且hashCode()方法要严格遵循以下规范：
-         *      如果两个对象相等，则两个对象的hashCode()必须相等；
-         *      如果两个对象不相等，则两个对象的hashCode()尽量不要相等。
-         * 即对应两个实例a和b：
-         *     如果a和b相等，那么a.equals(b)一定为true，则a.hashCode()必须等于b.hashCode()；
-         *     如果a和b不相等，那么a.equals(b)一定为false，则a.hashCode()和b.hashCode()尽量不要相等。
+         *      如果两个对象a和b相等，那么a.equals(b)一定为true，则a.hashCode()必须等于b.hashCode()；
+         *      如果两个对象a和b不相等，那么a.equals(b)一定为false，则a.hashCode()和b.hashCode()尽量不要相等。
          * 上述第一条规范是正确性，必须保证实现，否则HashMap不能正常工作。
          * 而第二条如果尽量满足，则可以保证查询效率，因为不同的对象，如果返回相同的hashCode()，会造成Map内部存储冲突，使存取的效率下降。
          *
          * 编写equals()和hashCode()遵循的原则是：
          * equals()用到的用于比较的每一个字段，都必须在hashCode()中用于计算；equals()中没有使用到的字段，绝不可放在hashCode()中计算。
+         * 经测试（把Worker的hashCode函数改为 return Objects.hash(this.name)）这个原则不是必须的，只是为了最大程度满足上面提到的第二条规范
          * 在计算hashCode()的时候，经常借助 Objects.hash()来计算：
          *      int hashCode() {
          *          return Objects.hash(firstName, lastName, age);
@@ -190,6 +203,7 @@ public class CollectionPoc {
             System.out.println(entry.getKey());
             System.out.println(entry.getValue());
         }
+        System.out.println(Arrays.toString(DayOfWeek.values()));
     }
 }
 

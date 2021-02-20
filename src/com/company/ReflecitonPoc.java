@@ -137,6 +137,7 @@ public class ReflecitonPoc {
          */
         System.out.println("In the accessMethod");
         Class cls = obj.getClass();
+        // 获取 public方法 setScore，参数类型为 int
         Method method = cls.getMethod("setScore",int.class);
         System.out.println(method);
         method.setAccessible(true);
@@ -198,7 +199,11 @@ public class ReflecitonPoc {
     }
 
     public void dynamicProxy(){
-        /* 动态代理：
+        /**
+         * 有没有可能不编写实现类，直接在运行期创建某个interface的实例呢？
+         * 这是可能的，因为Java标准库提供了一种动态代理（Dynamic Proxy）的机制：可以在运行期动态创建某个interface的实例。
+         *
+         * 动态代理：ToDo:和 Outer.java 中匿名类有些相似
          * 先定义了接口Hello，但是我们并不去编写实现类，而是直接通过JDK提供的一个Proxy.newProxyInstance()创建了一个Hello接口对象。
          * 这种没有实现类但是在运行期动态创建了一个接口对象的方式，我们称为动态代码。JDK提供的动态创建接口对象的方式，就叫动态代理。
          *
