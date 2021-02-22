@@ -170,6 +170,7 @@ public class Main {
         cp.listEquals();
         cp.mapEntry();
         cp.mapEquals();
+        cp.mapMisc();
     }
 }
 

@@ -21,7 +21,7 @@ class Worker{
 
     @Override
     public boolean equals(Object other){
-        //该方法是为了验证以该类的实例为元素的 list 的 contains 操作和以该类的实例为 Key 的 Map的 put 操作
+        //该方法是为了验证以该类的实例为元素的 list 的 contains 操作和以该类的实例为 Key 的 HashMap的 put 操作
         System.out.println("In the equals of worker");
         if (other instanceof Worker) {
             Worker tmp = (Worker) other;
@@ -35,7 +35,7 @@ class Worker{
     }
     @Override
     public int hashCode(){
-        //该方法是为了验证以该类的实例为 Key 的 Map的 put 操作
+        //该方法是为了验证以该类的实例为 Key 的 HashMap 的 put 操作
         return Objects.hash(this.name, this.salary);
     }
 }
@@ -169,8 +169,10 @@ public class CollectionPoc {
          * 2. 作为 key 的对象还必须正确覆写 hashCode()方法，且hashCode()方法要严格遵循以下规范：
          *      如果两个对象a和b相等，那么a.equals(b)一定为true，则a.hashCode()必须等于b.hashCode()；
          *      如果两个对象a和b不相等，那么a.equals(b)一定为false，则a.hashCode()和b.hashCode()尽量不要相等。
+         * 即相同的key对象（使用equals()判断时返回true）必须要计算出相同的索引，否则，相同的key每次取出的value就不一定对。
          * 上述第一条规范是正确性，必须保证实现，否则HashMap不能正常工作。
          * 而第二条如果尽量满足，则可以保证查询效率，因为不同的对象，如果返回相同的hashCode()，会造成Map内部存储冲突，使存取的效率下降。
+         * 我们经常使用String作为key，因为String已经正确覆写了equals()方法， String类已经正确实现了hashCode()方法。
          *
          * 编写equals()和hashCode()遵循的原则是：
          * equals()用到的用于比较的每一个字段，都必须在hashCode()中用于计算；equals()中没有使用到的字段，绝不可放在hashCode()中计算。
@@ -193,7 +195,7 @@ public class CollectionPoc {
          * 而是一个List，它包含两个Entry，一个是"a"的映射，一个是"b"的映射：在查找的时候，例如：
          *      Person p = map.get("a");
          * HashMap内部通过"a"找到的实际上是List<Entry<String, Person>>，它还需要遍历这个List，并找到一个Entry，
-         * 它的key字段是"a"，才能返回对应的Person实例。我们把不同的key具有相同的hashCode()的情况称之为哈希冲突。
+         * 它的key字段是"a"，才能返回对应的Person实例。我们把不同的 key 具有相同的hashCode()的情况称之为哈希冲突。
          */
         System.out.println("In the mapEquals");
         Map<Worker, String> map = new HashMap<>();
@@ -203,7 +205,80 @@ public class CollectionPoc {
             System.out.println(entry.getKey());
             System.out.println(entry.getValue());
         }
+    }
+
+    public void mapMisc(){
+        /**
+         * 如果Map的key是enum类型，推荐使用EnumMap，既保证速度，也不浪费空间。
+         * 它在内部以一个非常紧凑的数组存储value，并且根据enum类型的key直接定位到内部数组的索引，并不需要计算hashCode()，不但效率最高，而且没有额外的空间浪费。
+         * 使用EnumMap的时候，根据面向抽象编程的原则，应持有Map接口。
+         *
+         * 还有一种Map，它在内部会对Key进行排序，这种Map就是SortedMap。注意到SortedMap是接口，它的实现类是TreeMap。
+         * 使用TreeMap时，放入的Key必须实现 Comparable接口。
+         * String、Integer这些类已经实现了 Comparable接口，因此可以直接作为Key使用。作为Value的对象则没有任何要求。
+         * 如果作为 Key 的class没有实现 Comparable接口，那么，必须在创建TreeMap时同时指定一个自定义排序算法。
+         * TreeMap 和 HashMap 的区别：
+         * TreeMap 要根据 Key 查找 Value 时，TreeMap不使用 Key 对象的 equals()和 hashCode()
+         * TreeMap 在比较两个 Key 是否相等时依赖 Key 的 compareTo()方法或者 Comparator.compare()方法。在两个Key相等时，必须返回0。
+         * 难道TreeMap不存在(HashMap中存在的)哈希冲突的情况，因为key相等就替换value from: new Student("Bob", 66)进行查找时，结果为null
+         *             ┌───┐
+         *             │Map│
+         *             └───┘
+         *               ^
+         *          ┌────┴─────┐
+         *          │          │
+         *      ┌───────┐ ┌─────────┐
+         *      │HashMap│ │SortedMap│
+         *      └───────┘ └─────────┘
+         *                     ^
+         *                     │
+         *                ┌─────────┐
+         *                │ TreeMap │
+         *                └─────────┘
+         */
+
+        Map<DayOfWeek, String> map = new EnumMap<>(DayOfWeek.class);
+        map.put(DayOfWeek.MONDAY, "星期一");
+        map.put(DayOfWeek.TUESDAY, "星期二");
+        map.put(DayOfWeek.WEDNESDAY, "星期三");
+        map.put(DayOfWeek.THURSDAY, "星期四");
+        map.put(DayOfWeek.FRIDAY, "星期五");
+        map.put(DayOfWeek.SATURDAY, "星期六");
+        map.put(DayOfWeek.SUNDAY, "星期日");
         System.out.println(Arrays.toString(DayOfWeek.values()));
+        System.out.println(map);
+        System.out.println(map.get(DayOfWeek.MONDAY));
+
+        Map<String, Integer> map1 = new TreeMap<>();
+        map1.put("orange", 1);
+        map1.put("apple", 2);
+        map1.put("pear", 3);
+        for (String key : map1.keySet()) {
+            System.out.println(key);
+        }
+
+        Map<Worker, Integer> map2 = new TreeMap<>(new Comparator<Worker>() {
+            public int compare(Worker p1, Worker p2) {
+                // Case1: 按照 Worker 的名字排序
+                // return p1.getName().compareTo(p2.getName());
+                // Case2: 按照 Worker 的薪水排序
+                if (p1.getSalary() == p2.getSalary()){
+                    return 0;
+                }
+                // 如果要倒序的话：return p1.getSalary() < p2.getSalary()?1:-1;
+                // 也可以直接借助 Integer.compare(int, int) 也可以返回正确的比较结果。
+                return p1.getSalary() < p2.getSalary()?-1:1;
+
+            }
+        });
+        map2.put(new Worker("Tom", 1000), 1);
+        map2.put(new Worker("Bob", 3000), 2);
+        // 验证了 TreeMap 不存在(HashMap中存在的)哈希冲突的情况，因为key相等就替换value
+        map2.put(new Worker("Bobbbb", 3000), 44);
+        map2.put(new Worker("Alen", 2000), 3);
+        for (Map.Entry<Worker, Integer> entry : map2.entrySet()) {
+            System.out.println(entry.getKey().getName() + '-' + entry.getValue());
+        }
     }
 }
 
