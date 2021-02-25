@@ -55,7 +55,23 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
     一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和 public 类的名字相同。
 
 面向对象编程--面向对象基础--模块:
-    把一堆 class 封装为jar仅仅是一个打包的过程，而把一堆class封装为模块则不但需要打包，还需要写入依赖关系，并且还可以包含二进制代码（通常是JNI扩展）。
+    java -h 的输出：
+    用法: java [-options] class [args...]  (执行类)
+    或  java [-options] -jar jarfile [args...]  (执行 jar 文件)
+
+    如果我们要执行一个jar包的class，就可以把jar包放到classpath中：
+        java -cp ./hello.jar abc.xyz.Hello   这样JVM会自动在hello.jar文件里去搜索某个类。
+    jar包还可以包含一个特殊的/META-INF/MANIFEST.MF文件，MANIFEST.MF是纯文本，可以指定Main-Class和其它信息。
+    JVM会自动读取这个MANIFEST.MF文件，如果存在Main-Class，我们就不必在命令行指定启动的类名，而是用更方便的命令：
+        java -jar hello.jar
+
+    在Java 9之前，一个大型Java程序会生成自己的jar文件，同时引用依赖的第三方jar文件，
+    而JVM自带的Java标准库，实际上也是以jar文件形式存放的，这个文件叫rt.jar，一共有60多M。
+    如果是自己开发的程序，除了一个自己的app.jar以外，还需要一堆第三方的jar包，运行一个Java程序，一般来说，命令行写这样：
+        java -cp app.jar:a.jar:b.jar:c.jar com.liaoxuefeng.sample.Main
+
+    把一堆 class 封装为jar仅仅是一个打包的过程，
+    而把一堆class封装为模块则不但需要打包，还需要写入依赖关系，并且还可以包含二进制代码（通常是JNI扩展）。
     此外，模块支持多版本，即在同一个模块中可以为不同的JVM提供不同的版本。
     jar --help: 如果模块描述符 'module-info.class' 位于指定目录的根目录中, 或者位于 jar 档案本身的根目录中, 则该档案是一个模块化 jar。
 
@@ -77,6 +93,7 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
             │           ├── Greeting.java
             │           └── Main.java
             └── module-info.java
+
     2. 把bin目录下的所有class文件先打包成jar，在打包的时候，注意传入--main-class参数，让这个jar包能自己定位main方法所在的类：
         $ jar --create --file hello.jar --main-class com.itranswarp.sample.Main -C bin .
         现在我们就在当前目录下得到了 hello.jar这个jar包，它和普通jar包并无区别，可以直接使用命令 java -jar hello.jar 来运行它，因为
@@ -91,6 +108,7 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
         $ java --module-path hello.jar --module hello.world 就可以了
 
     辛辛苦苦创建的hello.jmod有什么用？
+    过去发布一个Java应用程序，要运行它，必须下载一个完整的JRE，再运行jar包。而完整的JRE块头很大，有100多M。怎么给JRE瘦身呢？这就是模块的意义！
         使用模块可以按需打包JRE:
         $ jlink --module-path hello.jmod --add-modules java.base,java.xml,hello.world --output jre/
         Mac jmods路径：/Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/jmods

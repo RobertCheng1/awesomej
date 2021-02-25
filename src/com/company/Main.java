@@ -171,6 +171,9 @@ public class Main {
         cp.mapEntry();
         cp.mapEquals();
         cp.mapMisc();
+        cp.properties();
+        cp.setEntry();
+
     }
 }
 

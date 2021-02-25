@@ -1,8 +1,12 @@
 package com.company;
 
 import javax.xml.namespace.QName;
+import java.awt.*;
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.util.*;
 import java.time.DayOfWeek;
+import java.util.List;
 
 class Worker{
     private String name;
@@ -101,7 +105,7 @@ public class CollectionPoc {
          *
          * 在List中查找元素时，List的实现类通过元素的equals()方法比较两个元素是否相等，
          * 因此，放入的元素必须正确覆写equals()方法，Java标准库提供的String、Integer等已经覆写了equals()方法；
-         * 因此，我们总结一下equals()方法的正确编写方法：
+         * 因此，我们总结一下 equals() 方法的正确编写方法：
          *     1. 先确定实例“相等”的逻辑，即哪些字段相等，就认为实例相等；
          *     2. 用instanceof判断传入的待比较的Object是不是当前类型，如果是，继续比较，否则，返回false；
          *     3. 对引用类型用 Objects.equals() 比较，对基本类型直接用==比较。
@@ -164,12 +168,12 @@ public class CollectionPoc {
          * 但HashMap内部的数组长度总是2^n，因此，实际数组长度被初始化为比10000大的16384（2^14）。
          * https://blog.csdn.net/Maxiao1204/article/details/80729657
          *
-         * 正确使用Map必须保证：
+         * 正确使用 Map 必须保证：
          * 1. 作为 key 的对象必须正确覆写 equals()方法，相等的两个key实例调用equals()必须返回true；
          * 2. 作为 key 的对象还必须正确覆写 hashCode()方法，且hashCode()方法要严格遵循以下规范：
          *      如果两个对象a和b相等，那么a.equals(b)一定为true，则a.hashCode()必须等于b.hashCode()；
          *      如果两个对象a和b不相等，那么a.equals(b)一定为false，则a.hashCode()和b.hashCode()尽量不要相等。
-         * 即相同的key对象（使用equals()判断时返回true）必须要计算出相同的索引，否则，相同的key每次取出的value就不一定对。
+         * 即相同的key对象（使用equals()判断时返回true）必须要计算出相同的索引，否则，相同的key每次取出的value就不一定对。===精准的解释===
          * 上述第一条规范是正确性，必须保证实现，否则HashMap不能正常工作。
          * 而第二条如果尽量满足，则可以保证查询效率，因为不同的对象，如果返回相同的hashCode()，会造成Map内部存储冲突，使存取的效率下降。
          * 我们经常使用String作为key，因为String已经正确覆写了equals()方法， String类已经正确实现了hashCode()方法。
@@ -280,5 +284,112 @@ public class CollectionPoc {
             System.out.println(entry.getKey().getName() + '-' + entry.getValue());
         }
     }
-}
 
+    public void properties() throws  java.io.UnsupportedEncodingException, java.io.IOException{
+        System.out.println("In the properties:" + getClass());
+        /**
+         * 在编写应用程序的时候，经常需要读写配置文件。例如，用户的设置：
+         *      # 上次最后打开的文件:
+         *      last_open_file=/data/hello.txt
+         *      # 自动保存文件的时间间隔:
+         *      auto_save_interval=60
+         * 配置文件的特点是，它的Key-Value一般都是String-String类型的，因此我们完全可以用Map<String, String>来表示它。
+         * 因为配置文件非常常用，所以Java集合库提供了一个Properties来表示一组“配置”。
+         * Properties 设计的目的是存储 String 类型的 key－value，但 Properties 实际上是从 Hashtable 派生的，它的设计实际上是有问题的，
+         * 但是为了保持兼容性，现在已经没法修改了。 除了getProperty()和setProperty()方法外，还有从Hashtable继承下来的get()和put()方法，
+         * 这些方法的参数签名是Object，我们在使用Properties的时候，不要去调用这些从 Hashtable 继承下来的方法。
+         *
+         * 用 Properties读取配置文件，一共有三步：
+         *     创建Properties实例；
+         *     调用load()读取文件； load(InputStream)方法接收一个InputStream实例，表示一个字节流，它可以是文件流,也可以是从jar包中读取的资源流：
+         *     调用getProperty()获取配置。
+         *
+         * 编码：
+         * 早期版本的Java规定.properties文件编码是ASCII编码（ISO8859-1），如果涉及到中文就必须用name=\u4e2d\u6587来表示，非常别扭。
+         * 从JDK9开始，Java的.properties文件可以使用UTF-8编码了。
+         * 不过，需要注意的是，由于 load(InputStream) 默认总是以 ASCII 编码读取字节流，所以会导致读到乱码。
+         * 我们需要用另一个重载方法load(Reader)读取：
+         *      Properties props = new Properties();
+         *      props.load(new FileReader("settings.properties", StandardCharsets.UTF_8));  就可以正常读取中文。
+         * InputStream和Reader的区别是一个是字节流，一个是字符流。字符流在内存中已经以char类型表示了，不涉及编码问题。
+         */
+        // 从文件系统读取这个.properties文件
+        Properties props = new Properties();
+        String f = "setting.properties";
+        props.load(new java.io.FileInputStream(f));
+        // 从classpath读取.properties文件:
+        // 因为load(InputStream)方法接收一个InputStream实例，表示一个字节流，它不一定是文件流，也可以是从jar包中读取的资源流
+        // props.load(getClass().getResourceAsStream("/common/setting.properties"));
+        // 从内存读取一个字节流:
+        // String cfg = "# test" + "\n" + "course=Java" + "\n" + "last_open_date=2019-08-07T12:35:01";
+        // ByteArrayInputStream input = new ByteArrayInputStream(cfg.getBytes("UTF-8"));
+        // props.load(input);
+        System.out.println("course: " + props.getProperty("course"));
+        System.out.println("last_open_date: " + props.getProperty("last_open_date"));
+        System.out.println("last_open_file: " + props.getProperty("last_open_file"));
+        System.out.println("auto_save: " + props.getProperty("auto_save", "60"));
+
+        props.setProperty("url", "http://www.liaoxuefeng.com");
+        props.setProperty("language", "Java");
+        props.store(new FileOutputStream("./setting.properties"), "这是写入的properties注释");
+    }
+
+    public void setEntry(){
+        /**
+         * Set实际上相当于只存储key、不存储value的Map。我们经常用 Set 用于去除重复元素。
+         * 因为放入Set的元素和Map的key类似，都要正确实现equals()和 hashCode()方法，否则该元素无法正确地放入Set。
+         * 最常用的 Set 实现类是 HashSet，实际上，HashSet仅仅是对 HashMap 的一个简单封装.
+         *      public class HashSet<E> implements Set<E> {
+         *          // 持有一个HashMap:
+         *          private HashMap<E, Object> map = new HashMap<>();
+         *          // 放入HashMap的value:
+         *          private static final Object PRESENT = new Object();
+         *      
+         *          public boolean add(E e) {
+         *              return map.put(e, PRESENT) == null;
+         *          }
+         *          public boolean contains(Object o) {
+         *              return map.containsKey(o);
+         *          }
+         *          public boolean remove(Object o) {
+         *              return map.remove(o) == PRESENT;
+         *          }
+         *      }
+         * Set接口并不保证有序，而SortedSet接口则保证元素是有序的：
+         *     HashSet是无序的，因为它实现了Set接口，并没有实现SortedSet接口；
+         *     TreeSet是有序的，因为它实现了SortedSet接口。
+         * Set用于存储不重复的元素集合：
+         *     放入HashSet的元素与作为HashMap的key要求相同；
+         *     放入TreeSet的元素与作为TreeMap的Key要求相同；添加的元素必须正确实现 Comparable 接口，如果没有实现Comparable接口，那么创建TreeSet时必须传入一个Comparator对象。
+         *        ┌───┐
+         *        │Set│
+         *        └───┘
+         *          ^
+         *     ┌────┴─────┐
+         *     │          │
+         * ┌───────┐ ┌─────────┐
+         * │HashSet│ │SortedSet│
+         * └───────┘ └─────────┘
+         *                ^
+         *                │
+         *           ┌─────────┐
+         *           │ TreeSet │
+         *           └─────────┘
+         * Set用于存储不重复的元素集合，它主要提供以下几个方法：
+         *     将元素添加进Set<E>：boolean add(E e)
+         *     将元素从Set<E>删除：boolean remove(Object e)
+         *     判断是否包含元素：boolean contains(Object e)
+         */
+        System.out.println("In the setEntry");
+        Set<String> set = new HashSet<>();
+        System.out.println(set.add("abc")); // true
+        System.out.println(set.add("xyz")); // true
+        System.out.println(set.add("xyz")); // false，添加失败，因为元素已存在, 这是和 List<String> 的区别
+        System.out.println(set.contains("xyz")); // true，元素存在
+        System.out.println(set.remove("hello")); // false，删除失败，因为元素不存在
+        System.out.println(set.size()); // 2，一共两个元素
+        for(String entry : set){
+            System.out.println(entry);
+        }
+    }
+}
