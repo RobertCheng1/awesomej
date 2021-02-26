@@ -48,7 +48,7 @@ public class CollectionPoc {
         /**
          *  List是最基础的一种集合：它是一种有序列表。
          *  实现List接口并非只能通过数组（即ArrayList的实现方式）来实现，
-         *  另一种 LinkedList 通过“链表”也实现了List接口。在LinkedList中，它的内部每个元素都指向下一个元素：
+         *  另一种 LinkedList 通过“链表”也实现了List接口。在 LinkedList 中，它的内部每个元素都指向下一个元素：
          *  在实际应用中，需要增删元素的有序列表，我们使用最多的是ArrayList。
          */
         System.out.println("In the listEntry");
@@ -85,6 +85,7 @@ public class CollectionPoc {
         for (String s : list) {
             System.out.println(s);
         }
+        // List和Array转换:
         System.out.println("List和Array转换");
         String[] array = list.toArray(new String[3]);
         // String[] array = list.toArray(String[]::new); // ToDO：这种函数式写法我们会在后续讲到，这是第一次看到::的用法。
@@ -359,22 +360,22 @@ public class CollectionPoc {
          *     HashSet是无序的，因为它实现了Set接口，并没有实现SortedSet接口；
          *     TreeSet是有序的，因为它实现了SortedSet接口。
          * Set用于存储不重复的元素集合：
-         *     放入HashSet的元素与作为HashMap的key要求相同；
+         *     放入HashSet的元素与作为HashMap的key要求相同；主要是指上文提到的 "正确使用 Map 必须保证" 中对 key 的要求
          *     放入TreeSet的元素与作为TreeMap的Key要求相同；添加的元素必须正确实现 Comparable 接口，如果没有实现Comparable接口，那么创建TreeSet时必须传入一个Comparator对象。
-         *        ┌───┐
-         *        │Set│
-         *        └───┘
-         *          ^
-         *     ┌────┴─────┐
-         *     │          │
-         * ┌───────┐ ┌─────────┐
-         * │HashSet│ │SortedSet│
-         * └───────┘ └─────────┘
-         *                ^
-         *                │
-         *           ┌─────────┐
-         *           │ TreeSet │
-         *           └─────────┘
+         *             ┌───┐
+         *             │Set│
+         *             └───┘
+         *               ^
+         *          ┌────┴─────┐
+         *          │          │
+         *      ┌───────┐ ┌─────────┐
+         *      │HashSet│ │SortedSet│
+         *      └───────┘ └─────────┘
+         *                     ^
+         *                     │
+         *                ┌─────────┐
+         *                │ TreeSet │
+         *                └─────────┘
          * Set用于存储不重复的元素集合，它主要提供以下几个方法：
          *     将元素添加进Set<E>：boolean add(E e)
          *     将元素从Set<E>删除：boolean remove(Object e)
@@ -382,14 +383,56 @@ public class CollectionPoc {
          */
         System.out.println("In the setEntry");
         Set<String> set = new HashSet<>();
-        System.out.println(set.add("abc")); // true
-        System.out.println(set.add("xyz")); // true
-        System.out.println(set.add("xyz")); // false，添加失败，因为元素已存在, 这是和 List<String> 的区别
-        System.out.println(set.contains("xyz")); // true，元素存在
+        System.out.println(set.add("apple")); // true
+        System.out.println(set.add("banana")); // true
+        System.out.println(set.add("pear")); // true
+        System.out.println(set.add("orange")); // false，添加失败，因为元素已存在, 这是和 List<String> 的区别
+        System.out.println(set.contains("xyz")); // false，元素不存在
         System.out.println(set.remove("hello")); // false，删除失败，因为元素不存在
-        System.out.println(set.size()); // 2，一共两个元素
+        System.out.println(set.size()); // 4，一共两个元素
+        // 注意输出的顺序既不是添加的顺序，也不是String排序的顺序，在不同版本的JDK中，这个顺序也可能是不同的。
+        // 把 HashSet 换成 TreeSet，在遍历TreeSet时，输出就是有序的，这个顺序是元素的排序顺序：
         for(String entry : set){
             System.out.println(entry);
         }
     }
+
+    public void queueEntry(){
+        System.out.println("In the queueEntry");
+        /**
+         * 队列（Queue）是一种经常使用的集合。Queue实际上是实现了一个先进先出（FIFO：First In First Out）的有序表。
+         * 它和List的区别在于，List可以在任意位置添加和删除元素，而Queue只有两个操作：
+         *     把元素添加到队列末尾；
+         *     从队列头部取出元素。
+         * 在Java的标准库中，队列接口Queue定义了以下几个方法：
+         *     int size()：获取队列长度；
+         *     boolean add(E)  /  boolean offer(E)：添加元素到队尾；
+         *     E remove()      /  E poll()：获取队首元素并从队列中删除；
+         *     E element()     /  E peek()：获取队首元素但并不从队列中删除。
+         * 对于具体的实现类，有的Queue有最大队列长度限制，有的Queue没有。
+         * 注意到添加、删除和获取队列元素总是有两个方法，这是因为在添加或获取元素失败时，这两个方法的行为是不同的。我们用一个表格总结如下：
+         *      	            throw Exception	            返回false或null
+         *      添加元素到队尾	    add(E e)	                boolean offer(E e)
+         *      取队首元素并删除	E remove()	                E poll()
+         *      取队首元素但不删除	E element()	                E peek()
+         * 注意：不要把null添加到队列中，否则poll()方法返回null时，很难确定是取到了null元素还是队列为空。
+         *
+         * LinkedList即实现了 List 接口(参考 list 章节中提到的 ArrayList 和 LinkedList)，又实现了 Queue 接口，但是，在使用的时候，
+         * 如果我们把它当作List，就获取List的引用，如果我们把它当作Queue，就获取Queue的引用：
+         *      // 这是一个List:
+         *      List<String> list = new LinkedList<>();
+         *      // 这是一个Queue:
+         *      Queue<String> queue = new LinkedList<>();
+         * 始终按照面向抽象编程的原则编写代码，可以大大提高代码的质量。
+         */
+        Queue<String> queue = new LinkedList<>();
+        queue.offer("apple");
+        queue.offer("banana");
+        queue.offer("pear");
+        System.out.println(queue.poll()); // apple
+        System.out.println(queue.poll()); // banana
+        System.out.println(queue.peek()); // pear    队首永远都是pear，因为peek()不会删除它:
+        System.out.println(queue.peek()); // pear
+    }
 }
+
