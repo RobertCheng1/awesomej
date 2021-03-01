@@ -218,14 +218,17 @@ public class CollectionPoc {
          * 它在内部以一个非常紧凑的数组存储value，并且根据enum类型的key直接定位到内部数组的索引，并不需要计算hashCode()，不但效率最高，而且没有额外的空间浪费。
          * 使用EnumMap的时候，根据面向抽象编程的原则，应持有Map接口。
          *
-         * 还有一种Map，它在内部会对Key进行排序，这种Map就是SortedMap。注意到SortedMap是接口，它的实现类是TreeMap。
-         * 使用TreeMap时，放入的Key必须实现 Comparable接口。
+         * 还有一种 Map，它在内部会对Key进行排序，这种Map就是SortedMap。注意到SortedMap是接口，它的实现类是TreeMap。
+         * 使用TreeMap时，放入的 Key必须实现 Comparable接口。
          * String、Integer这些类已经实现了 Comparable接口，因此可以直接作为Key使用。作为Value的对象则没有任何要求。
          * 如果作为 Key 的class没有实现 Comparable接口，那么，必须在创建TreeMap时同时指定一个自定义排序算法。
+         * 注意到 Comparator接口要求实现 compare 方法，它负责比较传入的两个元素a和b，
+         * 如果a<b，则返回负数，通常是-1，如果a==b，则返回0，如果a>b，则返回正数，通常是1。TreeMap内部根据比较结果对Key进行排序。
+         *
          * TreeMap 和 HashMap 的区别：
          * TreeMap 要根据 Key 查找 Value 时，TreeMap不使用 Key 对象的 equals()和 hashCode()
          * TreeMap 在比较两个 Key 是否相等时依赖 Key 的 compareTo()方法或者 Comparator.compare()方法。在两个Key相等时，必须返回0。
-         * 难道TreeMap不存在(HashMap中存在的)哈希冲突的情况，因为key相等就替换value from: new Student("Bob", 66)进行查找时，结果为null
+         * 难道TreeMap不存在(HashMap中存在的)哈希冲突的情况，因为key相等就替换value 参考教程中：new Student("Bob", 66)进行查找时，结果为null
          *             ┌───┐
          *             │Map│
          *             └───┘
@@ -241,7 +244,7 @@ public class CollectionPoc {
          *                │ TreeMap │
          *                └─────────┘
          */
-
+        System.out.println("In the mapMisc");
         Map<DayOfWeek, String> map = new EnumMap<>(DayOfWeek.class);
         map.put(DayOfWeek.MONDAY, "星期一");
         map.put(DayOfWeek.TUESDAY, "星期二");
@@ -278,7 +281,8 @@ public class CollectionPoc {
         });
         map2.put(new Worker("Tom", 1000), 1);
         map2.put(new Worker("Bob", 3000), 2);
-        // 验证了 TreeMap 不存在(HashMap中存在的)哈希冲突的情况，因为key相等就替换value
+        // 验证了 TreeMap 不存在(HashMap中存在的)哈希冲突的情况，因为key相等就替换value,
+        // 如果 TreeMap 只是以 worker 的 salary 排序，则下面的 put 执行后，在 for 循环中会输出 Bob-44 而不是 Bobbbb-44
         map2.put(new Worker("Bobbbb", 3000), 44);
         map2.put(new Worker("Alen", 2000), 3);
         for (Map.Entry<Worker, Integer> entry : map2.entrySet()) {
@@ -386,13 +390,21 @@ public class CollectionPoc {
         System.out.println(set.add("apple")); // true
         System.out.println(set.add("banana")); // true
         System.out.println(set.add("pear")); // true
-        System.out.println(set.add("orange")); // false，添加失败，因为元素已存在, 这是和 List<String> 的区别
+        System.out.println(set.add("banana")); // false，添加失败，因为元素已存在, 这是和 List<String> 的区别
         System.out.println(set.contains("xyz")); // false，元素不存在
         System.out.println(set.remove("hello")); // false，删除失败，因为元素不存在
         System.out.println(set.size()); // 4，一共两个元素
-        // 注意输出的顺序既不是添加的顺序，也不是String排序的顺序，在不同版本的JDK中，这个顺序也可能是不同的。
+        // 注意输出的顺序既不是添加的顺序，也不是String排序的顺序，在不同版本的JDK中，这个顺序也可能是不同的。===普通 set 的输出===
         // 把 HashSet 换成 TreeSet，在遍历TreeSet时，输出就是有序的，这个顺序是元素的排序顺序：
         for(String entry : set){
+            System.out.println(entry);
+        }
+        System.out.println("test the TreeSet");
+        Set<String> tset = new TreeSet<>();
+        tset.add("apple");
+        tset.add("banana");
+        tset.add("pear");
+        for(String entry : tset){
             System.out.println(entry);
         }
     }
@@ -433,6 +445,84 @@ public class CollectionPoc {
         System.out.println(queue.poll()); // banana
         System.out.println(queue.peek()); // pear    队首永远都是pear，因为peek()不会删除它:
         System.out.println(queue.peek()); // pear
+    }
+
+    public void priorityQueueEntry(){
+        System.out.println("In the priQueueEntry");
+        /**
+         * PriorityQueue和Queue的区别在于:
+         * 它的出队顺序与元素的优先级有关，对 PriorityQueue 调用remove()或poll()方法，返回的总是优先级最高的元素。
+         * 放入PriorityQueue的元素，必须实现 Comparable 接口，PriorityQueue会根据元素的排序顺序决定出队的优先级。
+         *
+         * 如果我们要放入的元素并没有实现 Comparable 接口怎么办？
+         * PriorityQueue允许我们提供一个Comparator对象来判断两个元素的顺序。我们以银行排队业务为例，实现一个PriorityQueue：
+         */
+        Queue<String> q = new PriorityQueue<>();
+        // 添加3个元素到队列:
+        q.offer("apple");
+        q.offer("pear");
+        q.offer("banana");
+        // 我们放入的顺序是"apple"、"pear"、"banana"，但是取出的顺序却是"apple"、"banana"、"pear"，
+        // 这是因为从字符串的排序看，"apple"排在最前面，"pear"排在最后面
+        System.out.println(q.poll()); // apple
+        System.out.println(q.poll()); // banana
+        System.out.println(q.poll()); // pear
+        System.out.println(q.poll()); // null,因为队列为空
+
+        Queue<Worker> qw = new PriorityQueue<>(new Comparator<Worker>() {
+            @Override
+            public int compare(Worker o1, Worker o2) {
+                System.out.println("In the compareto:" + o1.getName() + o2.getName());
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        qw.add(new Worker("V4", 20));
+        qw.add(new Worker("V1", 10));
+        qw.add(new Worker("A1", 10));
+        System.out.println("----");
+        System.out.println(qw.poll().getName());
+        System.out.println(qw.poll().getName());
+        System.out.println(qw.poll().getName());
+    }
+
+    public void dequeueEntry(){
+        /**
+         * Java集合提供了接口 Deque来实现一个双端队列，它的功能是：
+         *     既可以添加到队尾，也可以添加到队首；
+         *     既可以从队首获取，又可以从队尾获取。
+         * Deque是一个接口，它的实现类有 ArrayDeque 和 LinkedList。
+         *
+         * 比较一下Queue和Deque出队和入队的方法：
+         * 	                Queue	                    Deque
+         * 添加元素到队尾	    add(E e) / offer(E e)	    addLast(E e) / offerLast(E e)
+         * 取队首元素并删除	E remove() / E poll()	    E removeFirst() / E pollFirst()
+         * 取队首元素但不删除	E element() / E peek()	    E getFirst() / E peekFirst()
+         * 添加元素到队首	    无	                        addFirst(E e) / offerFirst(E e)
+         * 取队尾元素并删除	无	                        E removeLast() / E pollLast()
+         * 取队尾元素但不删除	无	                        E getLast() / E peekLast()
+         *
+         * 对于添加元素到队尾的操作，Queue提供了add()/offer()方法，而Deque提供了addLast()/offerLast()方法。
+         * 添加元素到对首、取队尾元素的操作在Queue中不存在，在Deque中由addFirst()/removeLast()等方法提供。
+         *
+         * 我们发现LinkedList真是一个全能选手，它即是List，又是Queue，还是Deque。
+         * 但是我们在使用的时候，总是用特定的接口来引用它，这是因为持有接口说明代码的抽象层次更高，而且接口本身定义的方法代表了特定的用途。
+         *      // 不推荐的写法:
+         *      LinkedList<String> d1 = new LinkedList<>();
+         *      d1.offerLast("z");
+         *      // 推荐的写法：
+         *      Deque<String> d2 = new LinkedList<>();
+         *      d2.offerLast("z");
+         * 可见面向抽象编程的一个原则就是：尽量持有接口，而不是具体的实现类。
+         */
+        System.out.println("In the dequeueEntry");
+        Deque<String> deque = new LinkedList<>(); // 注意到Deque接口实际上扩展自Queue
+        deque.offerLast("A"); // A
+        deque.offerLast("B"); // A <- B
+        deque.offerFirst("C"); // C <- A <- B
+        System.out.println(deque.pollFirst()); // C, 剩下A <- B
+        System.out.println(deque.pollLast()); // B, 剩下A
+        System.out.println(deque.pollFirst()); // A
+        System.out.println(deque.pollFirst()); // null
     }
 }
 

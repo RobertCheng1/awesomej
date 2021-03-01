@@ -174,6 +174,8 @@ public class Main {
         cp.properties();
         cp.setEntry();
         cp.queueEntry();
+        cp.priorityQueueEntry();
+        cp.dequeueEntry();
     }
 }
 
