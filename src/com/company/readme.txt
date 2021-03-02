@@ -124,7 +124,43 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
     Java字符串的一个重要特点就是字符串不可变。这种不可变性是通过内部的private final char[]字段，以及没有任何修改char[]的方法实现的。
     这点可以联想到:面向对象编程--多态、继承中相关的 final 的用法
 
+    字符串比较:
+        public class Main {
+            public static void main(String[] args) {
+                String s1 = "hello";
+                String s2 = "hello";
+                System.out.println(s1 == s2);
+                System.out.println(s1.equals(s2));
+            }
+        }
+    从表面上看，两个字符串用==和equals()比较都为true，
+    但实际上那只是Java编译器在编译期，会自动把所有相同的字符串当作一个对象放入常量池，自然s1和s2的引用就是相同的。
+    所以，这种==比较返回true纯属巧合。换一种写法，==比较就会失败：
 
+面向对象编程--Java核心类--包装类型：
+    所有的包装类型都是不变类。我们查看Integer的源码可知，它的核心代码如下：
+        public final class Integer {
+            private final int value;
+        }
+    因此，一旦创建了Integer对象，该对象就是不变的。
+    对两个Integer实例进行比较要特别注意：绝对不能用==比较，因为Integer是引用类型，必须使用equals()比较：
+        public class Main {
+            public static void main(String[] args) {
+                Integer x = 127;
+                Integer y = 127;
+                Integer m = 99999;
+                Integer n = 99999;
+                System.out.println("x == y: " + (x==y)); // true
+                System.out.println("m == n: " + (m==n)); // false
+                System.out.println("x.equals(y): " + x.equals(y)); // true
+                System.out.println("m.equals(n): " + m.equals(n)); // true
+            }
+        }
+    仔细观察结果的童鞋可以发现，==比较，较小的两个相同的Integer返回true，较大的两个相同的Integer返回false，
+    这是因为Integer是不变类，编译器把Integer x = 127;自动变为Integer x = Integer.valueOf(127);，
+    为了节省内存，Integer.valueOf()对于较小的数，始终返回相同的实例，因此，==比较“恰好”为true，
+    但我们绝不能因为Java标准库的Integer内部有缓存优化就用==比较，必须用equals()方法比较两个Integer。
+    按照语义编程，而不是针对特定的底层实现去“优化”。
 
 
 面向对象编程--Java核心类--常用工具类:

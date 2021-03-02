@@ -83,7 +83,7 @@ record PointAdv(int x, int y) {
         }
     }
 
-    // 作为 record 的 Point 仍然可以添加静态方法。一种常用的静态方法是 of()方法，用来创建Point：
+    // 作为 record 的 Point 仍然可以添加静态方法。一种常用的静态方法是 of()方法，用来创建Point：联想 Collection.java 中用 List.of()创建只读 list
     public static PointAdv of() {
         return new PointAdv(0, 0);
     }

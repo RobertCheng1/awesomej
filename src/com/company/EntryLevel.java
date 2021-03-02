@@ -99,6 +99,7 @@ public class EntryLevel {
         s3 = "Baidu";
         System.out.printf("s4 = %s\n", s4); // 是输出 Google 还是 Baidu？ Google
 
+        stringTest();
         stringCorePoc();
 
         /* 数组是引用类型:
@@ -163,6 +164,13 @@ public class EntryLevel {
 
     public void stringCmp(){
         String s1 = "hello";
+        String tmp = "hello";
+        // 从表面上看，两个字符串用==和equals()比较都为true，
+        // 但实际上那只是Java编译器在编译期，会自动把所有相同的字符串当作一个对象放入常量池，自然s1和s2的引用就是相同的。
+        // 所以，这种==比较返回true纯属巧合。换一种写法，==比较就会失败：
+        System.out.println(s1 == tmp);
+        System.out.println(s1.equals(tmp));
+
         String s2 = "HELLO".toLowerCase();
         System.out.printf("s1 = %s, s2 = %s\n", s1, s2);
         if (s1 == s2 ){
@@ -170,7 +178,7 @@ public class EntryLevel {
         } else {
             System.out.println("s1 != s2");
         }
-        // 判断引用类型的变量内容是否相等，必须使用equals()方法
+        // 判断引用类型的变量内容是否相等，必须使用equals()方法而不能用==
         if (s1.equals(s2)){
             System.out.println("s1 = s2");
         } else {
@@ -255,6 +263,27 @@ public class EntryLevel {
         System.out.println(Arrays.toString(ns));
         int[] nss = { 1, 14, 9, 16, 25 };
         Arrays.sort(nss);
+    }
+
+    void stringTest(){
+        System.out.println("In the stringTest");
+        // 在学习 PriorityQueue 时，提到银行叫号，A1, A2, A10 教程中的demo有个小瑕疵：A10会排在A2前面
+        String s = "A20";
+        System.out.println(s.length());
+        String numstring = s.substring(1,s.length());
+        int num = Integer.parseInt(numstring);
+        System.out.println(num);
+
+        System.out.println("=======");
+        char[] chars = new char[s.length() + 10];
+        s.getChars(1,s.length(), chars, 0);
+        String orderstring = new String(chars);
+        System.out.println(orderstring);
+        // 注意 orderstring.length() 的长度是 13，是因为数组 chars 的大小是 13， 可以尝试把数组变大来验证。
+        // 另外因为orderstring.length() 的长度是 13，真正想获取的内容长度只是2，所以需要 orderstring.trim()。
+        System.out.println(orderstring.length());
+        int order = Integer.parseInt(orderstring.trim());
+        System.out.println(order);
     }
 
     void stringCorePoc(){

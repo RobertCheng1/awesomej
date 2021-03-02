@@ -22,7 +22,7 @@ import java.net.Inet4Address;
               }
           }
     仔细观察结果的童鞋可以发现，==比较，较小的两个相同的Integer返回true，较大的两个相同的Integer返回false，
-    这是因为Integer是不变类，编译器把 Integer x = 127; 自动变为 Integer x = Integer.valueOf(127);，
+    这是因为Integer是不变类，编译器把 Integer x = 127 自动变为 Integer x = Integer.valueOf(127);，
     为了节省内存，Integer.valueOf()对于较小的数，始终返回相同的实例，
     因此，==比较“恰好”为true，但我们绝不能因为Java标准库的 Integer 内部有缓存优化就用==比较，必须用equals()方法比较两个Integer。
     按照语义编程，而不是针对特定的底层实现去“优化”。

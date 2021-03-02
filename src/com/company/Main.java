@@ -176,6 +176,8 @@ public class Main {
         cp.queueEntry();
         cp.priorityQueueEntry();
         cp.dequeueEntry();
+        cp.stackEntry();
+        cp.iteratorEntry();
     }
 }
 

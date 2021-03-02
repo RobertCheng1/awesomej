@@ -58,7 +58,7 @@ public class CollectionPoc {
         fruitList.add("apple"); // 允许重复添加元素，size=3
         System.out.println(fruitList.size());
         // 创建 List：
-        // 因为List只是一个接口，如果我们调用List.of()，它返回的是一个只读List：
+        // 因为List只是一个接口，如果我们调用List.of()，它返回的是一个只读List：联想 RecordPoc.txt 中的 PointAdv 的 of()方法
         // list.add(78); // UnsupportedOperationException
         List<String> list = List.of("apple", "pear", "banana");
         // 遍历 List：
@@ -71,7 +71,7 @@ public class CollectionPoc {
         // 所以我们要始终坚持使用迭代器 Iterator 来访问List。
         // Iterator本身也是一个对象，但它是由 List 的实例调用 iterator() 方法的时候创建的。
         // Iterator对象知道如何遍历一个List，并且不同的List类型，返回的 Iterator 对象实现也是不同的，但总是具有最高的访问效率。
-        // Iterator对象有两个方法：boolean hasNext()判断是否有下一个元素，E next()返回下一个元素。
+        // Iterator对象有两个方法：boolean hasNext()判断是否有下一个元素，E next()返回下一个元素。详情参考：iteratorEntry()
         for (Iterator<String> it = list.iterator(); it.hasNext(); ) {
             String s = it.next();
             System.out.println(s);
@@ -225,9 +225,9 @@ public class CollectionPoc {
          * 注意到 Comparator接口要求实现 compare 方法，它负责比较传入的两个元素a和b，
          * 如果a<b，则返回负数，通常是-1，如果a==b，则返回0，如果a>b，则返回正数，通常是1。TreeMap内部根据比较结果对Key进行排序。
          *
-         * TreeMap 和 HashMap 的区别：
-         * TreeMap 要根据 Key 查找 Value 时，TreeMap不使用 Key 对象的 equals()和 hashCode()
-         * TreeMap 在比较两个 Key 是否相等时依赖 Key 的 compareTo()方法或者 Comparator.compare()方法。在两个Key相等时，必须返回0。
+         * TreeMap 和 HashMap 的区别(自己总结的)：
+         * TreeMap 要根据 Key 查找 Value 时，TreeMap不使用 Key 对象的 equals()和 hashCode() 参考教程中：因为TreeMap不使用equals()和hashCode()
+         * TreeMap 在比较两个 Key 是否相等时依赖 Key 的 (Comparable接口的)compareTo()方法或者 Comparator.compare()方法。在两个Key相等时，必须返回0。
          * 难道TreeMap不存在(HashMap中存在的)哈希冲突的情况，因为key相等就替换value 参考教程中：new Student("Bob", 66)进行查找时，结果为null
          *             ┌───┐
          *             │Map│
@@ -267,6 +267,7 @@ public class CollectionPoc {
 
         Map<Worker, Integer> map2 = new TreeMap<>(new Comparator<Worker>() {
             public int compare(Worker p1, Worker p2) {
+                System.out.println("In the compare of TreeMap");
                 // Case1: 按照 Worker 的名字排序
                 // return p1.getName().compareTo(p2.getName());
                 // Case2: 按照 Worker 的薪水排序
@@ -472,13 +473,13 @@ public class CollectionPoc {
         Queue<Worker> qw = new PriorityQueue<>(new Comparator<Worker>() {
             @Override
             public int compare(Worker o1, Worker o2) {
-                System.out.println("In the compareto:" + o1.getName() + o2.getName());
+                System.out.println("In the compare of PriorityQueue:" + o1.getName() + o2.getName());
                 return o1.getName().compareTo(o2.getName());
             }
         });
-        qw.add(new Worker("V4", 20));
+        qw.add(new Worker("A2", 10));
+        qw.add(new Worker("A10", 20));
         qw.add(new Worker("V1", 10));
-        qw.add(new Worker("A1", 10));
         System.out.println("----");
         System.out.println(qw.poll().getName());
         System.out.println(qw.poll().getName());
@@ -503,8 +504,14 @@ public class CollectionPoc {
          *
          * 对于添加元素到队尾的操作，Queue提供了add()/offer()方法，而Deque提供了addLast()/offerLast()方法。
          * 添加元素到对首、取队尾元素的操作在Queue中不存在，在Deque中由addFirst()/removeLast()等方法提供。
+         * 注意到 Deque 接口实际上扩展自Queue：
+         *      public interface Deque<E> extends Queue<E> {
+         *          ...
+         *      }
+         * 因此，Queue提供的add()/offer()方法在Deque中也可以使用，
+         * 但是，使用 Deque，最好不要调用offer()，而是调用offerLast()
          *
-         * 我们发现LinkedList真是一个全能选手，它即是List，又是Queue，还是Deque。
+         * 我们发现 LinkedList 真是一个全能选手，它即是List，又是Queue，还是Deque。===你咋这么优秀呢===
          * 但是我们在使用的时候，总是用特定的接口来引用它，这是因为持有接口说明代码的抽象层次更高，而且接口本身定义的方法代表了特定的用途。
          *      // 不推荐的写法:
          *      LinkedList<String> d1 = new LinkedList<>();
@@ -523,6 +530,96 @@ public class CollectionPoc {
         System.out.println(deque.pollLast()); // B, 剩下A
         System.out.println(deque.pollFirst()); // A
         System.out.println(deque.pollFirst()); // null
+    }
+
+    public void stackEntry(){
+        /**
+         * Stack只有入栈和出栈的操作：
+         *     把元素压栈：push(E)；
+         *     把栈顶的元素“弹出”：pop(E)；
+         *     取栈顶元素但不弹出：peek(E)。
+         *
+         * 在Java中，我们用Deque可以实现Stack的功能：
+         *     把元素压栈：push(E)/addFirst(E)；
+         *     把栈顶的元素“弹出”：pop(E)/removeFirst()；
+         *     取栈顶元素但不弹出：peek(E)/peekFirst()。
+         *
+         * 为什么Java的集合类没有单独的Stack接口呢？
+         * 因为有个遗留类名字就叫Stack，出于兼容性考虑，所以没办法创建Stack接口，只能用Deque接口来“模拟”一个Stack了。
+         * 当我们把Deque作为Stack使用时，
+         * 注意只调用push()/pop()/peek()方法，不要调用addFirst()/removeFirst()/peekFirst()方法，这样代码更加清晰。
+         */
+        System.out.println("In the stackEntry");
+    }
+
+    public void iteratorEntry(){
+        /**
+         * Java的集合类都可以使用for each循环，List、Set和Queue会迭代每个元素，Map会迭代每个key。以List为例：
+         *      List<String> list = List.of("Apple", "Orange", "Pear");
+         *      for (String s : list) {
+         *          System.out.println(s);
+         *      }
+         * 实际上，Java编译器并不知道如何遍历List。
+         * 上述代码能够编译通过，只是因为编译器把 for each循环通过 Iterator改写为了普通的 for 循环：
+         *      for (Iterator<String> it = list.iterator(); it.hasNext(); ) {
+         *          String s = it.next();
+         *          System.out.println(s);
+         *      }
+         * 我们把这种通过 Iterator 对象遍历集合的模式称为迭代器。
+         * 使用迭代器的好处在于，调用方总是以统一的方式遍历各种集合类型，而不必关系它们内部的存储结构。
+         *
+         * Iterator对象是集合对象自己在内部创建的，它自己知道如何高效遍历内部的数据集合，调用方则获得了统一的代码，
+         * 编译器才能把标准的 for each 循环自动转换为Iterator遍历。
+         * 如果我们自己编写了一个集合类，想要使用for each循环，只需满足以下条件：
+         *     集合类实现Iterable接口，该接口要求返回一个Iterator对象；
+         *     用Iterator对象迭代集合内部数据。
+         * 这里的关键在于，集合类通过调用iterator()方法，返回一个Iterator对象，这个对象必须自己知道如何遍历该集合。
+         */
+        System.out.println("In the iteratorEntry");
+        ReverseList<String> rlist = new ReverseList<>();
+        rlist.add("Apple");
+        rlist.add("Orange");
+        rlist.add("Pear");
+        for (String s : rlist) {
+            System.out.println(s);
+        }
+    }
+}
+
+
+
+class ReverseList<T> implements Iterable<T> {
+    private List<T> list = new ArrayList<>();
+
+    public void add(T t) {
+        list.add(t);
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new ReverseIterator(list.size());
+    }
+
+    class ReverseIterator implements Iterator<T> {
+        // 在编写Iterator的时候，我们通常可以用一个内部类来实现Iterator接口，这个内部类可以直接访问对应的外部类的所有字段和方法。
+        // 例如，该代码中，内部类ReverseIterator可以用ReverseList.this获得当前外部类的this引用，
+        // 然后，通过这个this引用就可以访问ReverseList的所有字段和方法。
+        int index;
+
+        ReverseIterator(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return index > 0;
+        }
+
+        @Override
+        public T next() {
+            index--;
+            return ReverseList.this.list.get(index);
+        }
     }
 }
 
