@@ -279,7 +279,7 @@ public class EntryLevel {
         s.getChars(1,s.length(), chars, 0);
         String orderstring = new String(chars);
         System.out.println(orderstring);
-        // 注意 orderstring.length() 的长度是 13，是因为数组 chars 的大小是 13， 可以尝试把数组变大来验证。
+        // 注意 orderstring.length() 的长度是 13，是因为数组 chars 的大小是 13， 可以变换数组大小来验证。
         // 另外因为orderstring.length() 的长度是 13，真正想获取的内容长度只是2，所以需要 orderstring.trim()。
         System.out.println(orderstring.length());
         int order = Integer.parseInt(orderstring.trim());

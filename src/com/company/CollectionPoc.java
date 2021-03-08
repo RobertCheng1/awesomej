@@ -571,8 +571,8 @@ public class CollectionPoc {
          * Iterator对象是集合对象自己在内部创建的，它自己知道如何高效遍历内部的数据集合，调用方则获得了统一的代码，
          * 编译器才能把标准的 for each 循环自动转换为Iterator遍历。
          * 如果我们自己编写了一个集合类，想要使用for each循环，只需满足以下条件：
-         *     集合类实现Iterable接口，该接口要求返回一个Iterator对象；
-         *     用Iterator对象迭代集合内部数据。
+         *     a. 集合类实现Iterable接口，该接口要求返回一个Iterator对象；
+         *     b. 用Iterator对象迭代集合内部数据。
          * 这里的关键在于，集合类通过调用iterator()方法，返回一个Iterator对象，这个对象必须自己知道如何遍历该集合。
          */
         System.out.println("In the iteratorEntry");
