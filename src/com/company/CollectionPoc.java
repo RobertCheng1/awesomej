@@ -300,10 +300,10 @@ public class CollectionPoc {
          *      # 自动保存文件的时间间隔:
          *      auto_save_interval=60
          * 配置文件的特点是，它的Key-Value一般都是String-String类型的，因此我们完全可以用Map<String, String>来表示它。
-         * 因为配置文件非常常用，所以Java集合库提供了一个Properties来表示一组“配置”。
+         * 因为配置文件非常常用，所以Java集合库提供了一个Properties来表示一组“配置”。===注意名词的精确使用===
          * Properties 设计的目的是存储 String 类型的 key－value，但 Properties 实际上是从 Hashtable 派生的，它的设计实际上是有问题的，
          * 但是为了保持兼容性，现在已经没法修改了。 除了getProperty()和setProperty()方法外，还有从Hashtable继承下来的get()和put()方法，
-         * 这些方法的参数签名是Object，我们在使用Properties的时候，不要去调用这些从 Hashtable 继承下来的方法。
+         * 这些方法的参数签名是 Object，我们在使用Properties的时候，不要去调用这些从 Hashtable 继承下来的方法。
          *
          * 用 Properties读取配置文件，一共有三步：
          *     创建Properties实例；
@@ -313,7 +313,7 @@ public class CollectionPoc {
          * 编码：
          * 早期版本的Java规定.properties文件编码是ASCII编码（ISO8859-1），如果涉及到中文就必须用name=\u4e2d\u6587来表示，非常别扭。
          * 从JDK9开始，Java的.properties文件可以使用UTF-8编码了。
-         * 不过，需要注意的是，由于 load(InputStream) 默认总是以 ASCII 编码读取字节流，所以会导致读到乱码。
+         * 不过，需要注意的是，由于 load(InputStream) 默认总是以 ASCII 编码读取字节流，所以会导致读到乱码。===这个很精准的描述===
          * 我们需要用另一个重载方法load(Reader)读取：
          *      Properties props = new Properties();
          *      props.load(new FileReader("settings.properties", StandardCharsets.UTF_8));  就可以正常读取中文。
@@ -321,9 +321,15 @@ public class CollectionPoc {
          */
         // 从文件系统读取这个.properties文件
         Properties props = new Properties();
-        String f = "setting.properties";
-        props.load(new java.io.FileInputStream(f));
-        // 从classpath读取.properties文件:
+        String f = "";
+        String os = System.getProperty("os.name");
+        if (os.contains("Windows")){
+            f = "src\\com\\company\\msic\\setting.properties";
+        } else {
+            f = "src/com/company/msic/setting.properties";
+        }
+        props.load(new java.io.FileInputStream(f)); //关于读写文件即IO流的操作，请参考 classpathResourceEntry() of IOPoc.Java
+        // 也可以从 classpath 读取.properties文件:
         // 因为load(InputStream)方法接收一个InputStream实例，表示一个字节流，它不一定是文件流，也可以是从jar包中读取的资源流
         // props.load(getClass().getResourceAsStream("/common/setting.properties"));
         // 从内存读取一个字节流:
@@ -337,7 +343,7 @@ public class CollectionPoc {
 
         props.setProperty("url", "http://www.liaoxuefeng.com");
         props.setProperty("language", "Java");
-        props.store(new FileOutputStream("./setting.properties"), "这是写入的properties注释");
+        props.store(new FileOutputStream(f), "这是写入的properties注释");
     }
 
     public void setEntry(){

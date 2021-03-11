@@ -178,6 +178,20 @@ public class Main {
         cp.dequeueEntry();
         cp.stackEntry();
         cp.iteratorEntry();
+
+        // 测试 IO
+        IOPoc io = new IOPoc();
+        io.fileEntry();
+        io.inputStreamEntry();
+        io.outputStreamEntry();
+        io.filterEntry();
+        io.zipEntry();
+        io.classpathResourceEntry();
+        io.serializableEntry();
+        io.readerEntry();
+        io.writerEntry();
+        io.printStreamAndprintWriterEntry();
+        io.filesEntry();
     }
 }
 

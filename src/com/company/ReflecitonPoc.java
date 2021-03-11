@@ -15,7 +15,7 @@ import java.util.ConcurrentModificationException;
       我们自己的Java程序是无法创建Class实例的。所以，JVM持有的每个Class实例都指向一个数据类型（class或interface）
 
 
-   2. 通过Class实例获取class信息的方法称为反射（Reflection）。
+   2. 通过Class实例获取 class 信息的方法称为反射（Reflection）。
       方法一：直接通过一个class的静态变量class获取：
             Class cls = String.class;
       方法二：如果我们有一个实例变量，可以通过该实例变量提供的getClass()方法获取：
