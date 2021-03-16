@@ -60,7 +60,7 @@ public class EntryLevel {
         // 有些时候，类型的名字太长，写起来比较麻烦。这时如果想省略变量类型，可以使用 var关键字，
         // 编译器会根据赋值语句自动推断出变量sb的类型是StringBuilder， 使用 var 定义变量，仅仅是少写了变量类型而已。
         // StringBuilder sb = new StringBuilder();   等同下面的语句
-        var sb = new StringBuilder();
+        // var sb = new StringBuilder(); //为了用 Java8,暂时注释掉
         // 类型自动提升与强制转型:
         // 类型自动提升： 在运算过程中，如果参与运算的两个数类型不一致，那么计算结果为较大类型的整型。
         // 例如，short和int计算，结果总是int，原因是short首先自动被转型为int
@@ -204,27 +204,27 @@ public class EntryLevel {
         // 从Java 12开始，switch语句升级为更简洁的表达式语法，
         // 使用类似模式匹配（Pattern Matching）的方法，保证只有一种路径会被执行，并且不需要break语句：
         // 注意新语法使用->，如果有多条语句，需要用{}括起来。不要写break语句，因为新语法只会执行匹配的语句，没有穿透效应。
-        switch (fruit) {
-            case "apple" -> System.out.println("Selected apple");
-            case "mango" -> {
-                System.out.println("Selected mango");
-                System.out.println("Good choice!");
-            }
-            default -> System.out.println("No fruit selected");
-        }
-
+        // switch (fruit) {
+        //     case "apple" -> System.out.println("Selected apple");
+        //     case "mango" -> {
+        //         System.out.println("Selected mango");
+        //         System.out.println("Good choice!");
+        //     }
+        //     default -> System.out.println("No fruit selected");
+        // }
+        //
         //大多数时候，在switch表达式内部，我们会返回简单的值。
         //但是，如果需要复杂的语句，我们也可以写很多语句，放到{...}里，然后，用 yield 返回一个值作为switch语句的返回值
-        fruit = "orange";
-        int opt = switch (fruit) {
-            case "apple" -> 1;
-            case "pear", "mango" -> 2;
-            default -> {
-                int code = fruit.hashCode();
-                yield code; // switch语句返回值
-            }
-        };
-        System.out.println("opt = " + opt);
+        // fruit = "orange";
+        // int opt = switch (fruit) {
+        //     case "apple" -> 1;
+        //     case "pear", "mango" -> 2;
+        //     default -> {
+        //         int code = fruit.hashCode();
+        //         yield code; // switch语句返回值
+        //     }
+        // };
+        // System.out.println("opt = " + opt);
     }
 
     public void overflowInt(){
@@ -297,7 +297,7 @@ public class EntryLevel {
         // 拼接字符串使用：静态方法join()，它用指定的字符串连接字符串数组：
         System.out.println("In the stringAdvPoc");
         String[] names = {"Bob", "Alice", "Grace"};
-        var sjon = String.join(", ", names);
+        String sjon = String.join(", ", names);
         System.out.println(sjon);
 
         // 字符串提供了 formatted() 方法和 format() 静态方法，可以传入其他参数，替换占位符，然后生成新的字符串

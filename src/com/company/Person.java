@@ -87,10 +87,12 @@ public class Person {
         return this.name;
     }
     public void setName(String name){
-        if (name == null || name.isBlank()) {
+        // if (name == null || name.isBlank()) {  //为了用 Java8,暂时注释掉
+        if (name == null || name.length() == 0) {
             throw new IllegalArgumentException("invalid name");
         }
-        this.name = name.strip(); // 去掉首尾空格
+        // this.name = name.strip(); // 去掉首尾空格  //为了用 Java8,暂时注释掉
+        this.name = name; // 去掉首尾空格
     }
 
     public int getAge() {

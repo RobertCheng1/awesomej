@@ -60,7 +60,8 @@ public class CollectionPoc {
         // 创建 List：
         // 因为List只是一个接口，如果我们调用List.of()，它返回的是一个只读List：联想 RecordPoc.txt 中的 PointAdv 的 of()方法
         // list.add(78); // UnsupportedOperationException
-        List<String> list = List.of("apple", "pear", "banana");
+        // List<String> list = List.of("apple", "pear", "banana"); //为了用 Java8,暂时注释掉
+        List<String> list = fruitList; //为了用 Java8,暂时这么赋值
         // 遍历 List：
         // 这种方式并不推荐，一是代码复杂，二是因为get(int)方法只有ArrayList的实现是高效的，换成LinkedList后，索引越大，访问速度越慢。
         for (int i = 0; i < list.size(); i++) {
@@ -94,7 +95,7 @@ public class CollectionPoc {
         }
         // 反过来，把Array变为List就简单多了，通过List.of(T...)方法最简单：
         Integer[] intArray = { 1, 2, 3 };
-        List<Integer> intList = List.of(intArray);
+        // List<Integer> intList = List.of(intArray); //为了用 Java8,暂时注释掉
     }
 
     public void listEquals() {
@@ -113,10 +114,14 @@ public class CollectionPoc {
          *        使用 Objects.equals() 比较两个引用类型是否相等的目的是省去了判断null的麻烦。两个引用类型都是null时它们也是相等的。
          * 如果不调用List的contains()、indexOf()这些方法，那么放入的元素就不需要实现 equals()方法。
          */
-        List<Worker> workers = List.of(
-                new Worker("Robert", 1000),
-                new Worker("Bruce", 2000)
-        );
+        //为了用 Java8,暂时注释掉
+        // List<Worker> workers = List.of(
+        //         new Worker("Robert", 1000),
+        //         new Worker("Bruce", 2000)
+        // );
+        List<Worker> workers = new ArrayList<>();
+        workers.add(new Worker("Robert", 1000));
+        workers.add( new Worker("Bruce", 2000));
         boolean flag = workers.contains(new Worker("Bruce", 2000));
         System.out.println(flag);
     }
