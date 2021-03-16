@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Scanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import com.company.socketpoc.Server;
 
 public class Main {
     /**
@@ -192,6 +193,10 @@ public class Main {
         io.writerEntry();
         io.printStreamAndprintWriterEntry();
         io.filesEntry();
+
+        // 测试网络通信
+        Server server = new Server();
+        server.runServer();
     }
 }
 

@@ -341,7 +341,8 @@ public class IOPoc {
         //
         //
         // 所以我们需要用 try (resource)来保证Reader在无论有没有IO错误的时候都能够正确地关闭：
-        try(Reader reader = new FileReader(fullPath, StandardCharsets.UTF_8)){
+        // try(Reader reader = new FileReader(fullPath, StandardCharsets.UTF_8)){ //为了用 Java8,暂时注释掉
+        try(Reader reader = new FileReader(fullPath)){
             for (;;) {
                 int n = reader.read(); // 反复调用read()方法，直到返回-1
                 if (n == -1) {
@@ -351,7 +352,8 @@ public class IOPoc {
             }
         }
 
-        try (Reader reader = new FileReader(fullPath, StandardCharsets.UTF_8)) {
+        // try (Reader reader = new FileReader(fullPath, StandardCharsets.UTF_8)) {  //为了用 Java8,暂时注释掉
+        try (Reader reader = new FileReader(fullPath)) {
             char[] buffer = new char[1000];
             int n;
             while ((n = reader.read(buffer)) != -1) {
@@ -390,12 +392,14 @@ public class IOPoc {
          */
         System.out.println("In the writerEntry");
         String fullPath = getMiscDir() + File.separator + "writer_test.txt";
-        try (Writer writer = new FileWriter(fullPath, StandardCharsets.UTF_8)) {
+        // try (Writer writer = new FileWriter(fullPath, StandardCharsets.UTF_8)) { //为了用 Java8,暂时注释掉
+        try (Writer writer = new FileWriter(fullPath)) { //为了用 Java8,暂时注释掉
             writer.write('H');                // 写入单个字符
             writer.write("Hello".toCharArray()); // 写入char[]
             writer.write("Hello");           // 写入String
         }
-        try(Reader reader = new FileReader(fullPath, StandardCharsets.UTF_8)){
+        // try(Reader reader = new FileReader(fullPath, StandardCharsets.UTF_8)){  //为了用 Java8,暂时注释掉
+        try(Reader reader = new FileReader(fullPath)){
             char[] cha = new char[5];
             int n;
             while((n = reader.read(cha)) != -1) {
