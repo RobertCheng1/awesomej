@@ -122,7 +122,6 @@ class Handler extends Thread {
         }
     }
 
-
     // Case1: 手写 socket 通信的后端, 所以客户端也应该用 socket（详情参考 socketpoc 工程）,数据流的格式或内容都是自定义的
     // private void handle(InputStream input, OutputStream output) throws IOException {
     //     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
