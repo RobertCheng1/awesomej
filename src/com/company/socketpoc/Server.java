@@ -38,8 +38,8 @@ public class Server {
 
     public void runServer() throws IOException {
         System.out.println("In the myServer");
-        // String type = "tcp";
-        String type = "udp";
+        String type = "tcp";
+        // String type = "udp";
 
         if (type.equals("tcp")){
             tcpServer();
@@ -122,19 +122,59 @@ class Handler extends Thread {
         }
     }
 
+
+    // Case1: 手写 socket 通信的后端, 所以客户端也应该用 socket（详情参考 socketpoc 工程）,数据流的格式或内容都是自定义的
+    // private void handle(InputStream input, OutputStream output) throws IOException {
+    //     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
+    //     BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
+    //     writer.write("hello\n");
+    //     writer.flush();
+    //     for (;;) {
+    //         String s = reader.readLine();  //该 server 端是一读读一行，所以需要客户端发送 行分隔符
+    //         if (s.equals("bye")) {
+    //             writer.write("bye\n");
+    //             writer.flush();
+    //             break;
+    //         }
+    //         writer.write("ok: " + s + "\n");
+    //         writer.flush();
+    //     }
+    // }
+    // Case2: 手写解析 HTTP 协议的后端，所以客户端是浏览器即在浏览器中访问 http://127.0.0.1:8090/,数据流的格式或内容是符合 HTTP 协议的
+    //        ===根据代码的解析逻辑，可以直击WEB HTTP 协议本身和网络通信的本质===
     private void handle(InputStream input, OutputStream output) throws IOException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-        writer.write("hello\n");
-        writer.flush();
-        for (;;) {
-            String s = reader.readLine();  //该 server 端是一读读一行，所以需要客户端发送 行分隔符
-            if (s.equals("bye")) {
-                writer.write("bye\n");
-                writer.flush();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
+        // 读取 HTTP 请求: 就是按照 HTTP 协议解析字符流
+        boolean requestOk = false;
+        String first = reader.readLine();
+        if (first.startsWith("GET / HTTP/1.")){
+            requestOk = true;
+        }
+        for(;;){
+            String header = reader.readLine();
+            if(header.isEmpty()){
                 break;
             }
-            writer.write("ok: " + s + "\n");
+            System.out.println(header);
+        }
+        System.out.println(requestOk ? "Response OK" : "Response Error");
+        if (!requestOk){
+            // 发送失败响应
+            writer.write("HTTP/1.1 404 Not Found\r\n");
+            writer.write("Content-Length:0\r\n");
+            writer.write("\r\n");
+            writer.flush();
+        } else {
+            // 发送成功响应:
+            String data = "<html><body><h1>Hello, world!</h1></body></html>";
+            int length = data.getBytes("UTF-8").length;
+            writer.write("HTTP/1.0 200 OK\r\n");
+            writer.write("Connection: close\r\n");
+            writer.write("Content-Type: text/html\r\n");
+            writer.write("Content-Length: " + length + "\r\n");
+            writer.write("\r\n"); // 空行标识Header和Body的分隔
+            writer.write(data);
             writer.flush();
         }
     }

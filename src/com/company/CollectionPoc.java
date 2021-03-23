@@ -305,7 +305,7 @@ public class CollectionPoc {
          *      # 自动保存文件的时间间隔:
          *      auto_save_interval=60
          * 配置文件的特点是，它的Key-Value一般都是String-String类型的，因此我们完全可以用Map<String, String>来表示它。
-         * 因为配置文件非常常用，所以Java集合库提供了一个Properties来表示一组“配置”。===注意名词的精确使用===
+         * 因为配置文件非常常用，所以Java集合库提供了一个Properties来表示一组“配置”。===术语注意名词的精确使用===
          * Properties 设计的目的是存储 String 类型的 key－value，但 Properties 实际上是从 Hashtable 派生的，它的设计实际上是有问题的，
          * 但是为了保持兼容性，现在已经没法修改了。 除了getProperty()和setProperty()方法外，还有从Hashtable继承下来的get()和put()方法，
          * 这些方法的参数签名是 Object，我们在使用Properties的时候，不要去调用这些从 Hashtable 继承下来的方法。

@@ -12,6 +12,7 @@ import java.util.ConcurrentModificationException;
       以String类为例，当JVM加载String类时，它首先读取String.class文件到内存，然后，为String类创建一个Class实例并关联起来：
             Class cls = new Class(String);
       这个Class实例是JVM内部创建的，如果我们查看JDK源码，可以发现 Class类的构造方法是 private，只有JVM能创建Class实例，
+      ===联想Web开发--Servlet中提到的:无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例===
       我们自己的Java程序是无法创建Class实例的。所以，JVM持有的每个Class实例都指向一个数据类型（class或interface）
 
 

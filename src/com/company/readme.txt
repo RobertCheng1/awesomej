@@ -51,6 +51,7 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
         默认自动import当前package的其他class；
         默认自动import java.lang.*。
     注意：自动导入的是java.lang包，但类似 java.lang.reflect 这些包仍需要手动导入。
+    要特别注意：包没有父子关系。java.util和java.util.zip是不同的包，两者没有任何继承关系。 from:面向对象编程--面向对象基础--包
 
     一个.java文件只能包含一个 public 类，但可以包含多个非 public 类。如果有 public 类，文件名必须和 public 类的名字相同。
 

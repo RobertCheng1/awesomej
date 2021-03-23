@@ -194,9 +194,41 @@ public class Main {
         io.printStreamAndprintWriterEntry();
         io.filesEntry();
 
-        // 测试网络通信
+        // 测试网络通信：重点讲的是 socket
+        // Server server = new Server();
+        // server.runServer();
+
+        // 测试web开发：重点讲的是 http 协议
+        // JavaEE看作是在JavaSE的基础上，开发的一系列基于服务器的组件、API标准和通用架构
+        // 编写服务器程序来处理客户端请求通常就称之为Web开发。
+        /**
+         * Maven 的 pom 文件：
+         * <scope>指定为provided，表示编译时使用，但不会打包到.war文件中，因为运行期Web服务器本身已经提供了Servlet API相关的jar包。
+         *
+         * 实际上，类似Tomcat这样的服务器也是Java编写的，启动Tomcat服务器实际上是启动Java虚拟机，执行Tomcat的main()方法，
+         * 然后由Tomcat负责加载我们的.war文件，并创建一个HelloServlet实例，最后以多线程的模式来处理HTTP请求。
+         * 如果Tomcat服务器收到的请求路径是 /（假定部署文件为ROOT.war），就转发到HelloServlet并传入 HttpServletRequest和 HttpServletResponse两个对象。
+         * 因为我们编写的Servlet并不是直接运行，而是由Web服务器加载后创建实例运行，所以，类似Tomcat这样的Web服务器也称为Servlet容器。===术语===
+         * 在Servlet容器中运行的Servlet具有如下特点：
+         *      无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例； ===联想反射中提到的类的实例只能由JVM创建===
+         *      Servlet容器只会给每个Servlet类创建唯一实例；
+         *      Servlet容器会使用多线程执行doGet()或doPost()方法。
+         * 复习一下 Java 多线程的内容，我们可以得出结论：
+         *      在 Servlet 中定义的实例变量会被多个线程同时访问，要注意线程安全；
+         *      HttpServletRequest和 HttpServletResponse实例是由 Servlet 容器传入的局部变量，它们只能被当前线程访问，不存在多个线程访问的问题；
+         *      在doGet()或doPost()方法中，如果使用了ThreadLocal，但没有清理，那么它的状态很可能会影响到下次的某个请求，因为Servlet容器很可能用线程池实现线程复用。
+         * 因此，正确编写Servlet，要清晰理解Java的多线程模型，需要同步访问的必须同步。
+         *
+         * 因为Tomcat实际上也是一个Java程序，我们看看Tomcat的启动流程：
+         *     启动JVM并执行Tomcat的main()方法；
+         *     加载war并初始化Servlet；
+         *     正常服务。
+         * 启动Tomcat无非就是设置好classpath并执行Tomcat某个jar包的main()方法，
+         * 我们完全可以把Tomcat的jar包全部引入进来，然后自己编写一个main()方法，先启动Tomcat，然后让它加载我们的webapp就行。
+         */
         Server server = new Server();
         server.runServer();
+
     }
 }
 
