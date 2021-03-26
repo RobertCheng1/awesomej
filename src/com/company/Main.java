@@ -217,13 +217,29 @@ public class Main {
          *      在 Servlet 中定义的实例变量会被多个线程同时访问，要注意线程安全；
          *      HttpServletRequest和 HttpServletResponse实例是由 Servlet 容器传入的局部变量，它们只能被当前线程访问，不存在多个线程访问的问题；
          *      在doGet()或doPost()方法中，如果使用了ThreadLocal，但没有清理，那么它的状态很可能会影响到下次的某个请求，因为Servlet容器很可能用线程池实现线程复用。
-         * 因此，正确编写Servlet，要清晰理解Java的多线程模型，需要同步访问的必须同步。
+         * 因此，正确编写Servlet，要清晰理解Java的多线程模型，需要同步访问的必须同步。 from: Web开发--Servlet入门
          *
+         * Servlet多线程模型: from: Web开发--Servlet进阶
+         * 一个Servlet类在服务器中只有一个实例，但对于每个HTTP请求，Web服务器会使用多线程执行请求。因此，一个Servlet的doGet()、doPost()等处理请求的方法是多线程并发执行的。如果Servlet中定义了字段，要注意多线程并发访问的问题：
+         *      public class HelloServlet extends HttpServlet {
+         *          private Map<String, String> map = new ConcurrentHashMap<>();
+         *
+         *          protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+         *              // 注意读写map字段是多线程并发的:
+         *              this.map.put(key, value);
+         *          }
+         *      }
+         * 对于每个请求，Web服务器会创建唯一的HttpServletRequest和HttpServletResponse实例，
+         * 因此，HttpServletRequest和HttpServletResponse实例只有在当前处理线程中有效，它们总是局部变量，不存在多线程共享的问题。
+         *
+         *
+         *
+         * 许多初学者经常卡在如何在IDE中启动Tomcat并加载webapp，更不要说断点调试了。我们需要一种简单可靠，能直接在IDE中启动并调试webapp的方法。
          * 因为Tomcat实际上也是一个Java程序，我们看看Tomcat的启动流程：
          *     启动JVM并执行Tomcat的main()方法；
          *     加载war并初始化Servlet；
          *     正常服务。
-         * 启动Tomcat无非就是设置好classpath并执行Tomcat某个jar包的main()方法，
+         * 启动 Tomcat 无非就是设置好classpath并执行Tomcat某个jar包的main()方法，
          * 我们完全可以把Tomcat的jar包全部引入进来，然后自己编写一个main()方法，先启动Tomcat，然后让它加载我们的webapp就行。
          */
         Server server = new Server();

@@ -181,6 +181,7 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
         }
     }
 
+
 在 Java 中 int 貌似不是类, 执行下面的代码得到异常：这个灵感来自泛型，
     // 第一个元素是 String, 第二个元素是 Integer， 这居然是可以的，想想也是 String 和 Integer 都继承自 Object
     Object[] tmp = new Object[10];
@@ -194,6 +195,74 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
     }
     System.out.println(aaa.getClass()); // java: 无法取消引用int
 
+
+Servlet多线程模型: from: Web开发--Servlet进阶
+    一个Servlet类在服务器中只有一个实例，但对于每个HTTP请求，Web服务器会使用多线程执行请求。因此，一个Servlet的doGet()、doPost()等处理请求的方法是多线程并发执行的。如果Servlet中定义了字段，要注意多线程并发访问的问题：
+         public class HelloServlet extends HttpServlet {
+             private Map<String, String> map = new ConcurrentHashMap<>();
+    
+             protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                 // 注意读写map字段是多线程并发的:
+                 this.map.put(key, value);
+             }
+         }
+    对于每个请求，Web服务器会创建唯一的HttpServletRequest和HttpServletResponse实例，
+    因此，HttpServletRequest和HttpServletResponse实例只有在当前处理线程中有效，它们总是局部变量，不存在多线程共享的问题。
+     
+使用Session和Cookie: from: Web开发--Servlet进阶--使用Session和Cookie
+    在使用多台服务器构成集群时，使用Session会遇到一些额外的问题。通常，多台服务器集群使用反向代理作为网站入口：
+                                             ┌────────────┐
+                                        ┌───>│Web Server 1│
+                                        │    └────────────┘
+        ┌───────┐     ┌─────────────┐   │    ┌────────────┐
+        │Browser│────>│Reverse Proxy│───┼───>│Web Server 2│
+        └───────┘     └─────────────┘   │    └────────────┘
+                                        │    ┌────────────┐
+                                        └───>│Web Server 3│
+                                             └────────────┘
+    如果多台Web Server采用无状态集群，那么反向代理总是以轮询方式将请求依次转发给每台Web Server，这会造成一个用户在Web Server 1存储的Session信息，
+    在Web Server 2和3上并不存在，即从Web Server 1登录后，如果后续请求被转发到Web Server 2或3，那么用户看到的仍然是未登录状态。
+    要解决这个问题:
+    方案一是在所有Web Server之间进行Session复制，但这样会严重消耗网络带宽，并且，每个Web Server的内存均存储所有用户的Session，内存使用率很低。
+    方案二是采用粘滞会话（Sticky Session）机制，即反向代理在转发请求的时候，总是根据JSESSIONID的值判断，相同的JSESSIONID总是转发到固定的Web Server，但这需要反向代理的支持。
+    无论采用何种方案，使用Session机制，会使得Web Server的集群很难扩展，
+    因此，Session适用于中小型Web应用程序。对于大型Web应用程序来说，通常需要避免使用Session机制。
+
+
+IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设置了 JAVA_HOME 之后进行的
+    "C:\Program Files\Java\jdk1.8.0_281\bin\java.exe"
+    "-javaagent:C:\Program Files\JetBrains\IntelliJ IDEA 2020.2.3\lib\idea_rt.jar=59882:C:\Program Files\JetBrains\IntelliJ IDEA 2020.2.3\bin"
+    -Dfile.encoding=UTF-8
+    -classpath "
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\charsets.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\deploy.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\access-bridge-64.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\cldrdata.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\dnsns.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\jaccess.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\jfxrt.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\localedata.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\nashorn.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunec.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunjce_provider.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunmscapi.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunpkcs11.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\zipfs.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\javaws.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jce.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jfr.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jfxswt.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jsse.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\management-agent.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\plugin.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\resources.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\rt.jar;
+    E:\workspace_java\awesomej\out\production\awesomej;
+    E:\workspace_java\common_jars\commons-logging-1.2.jar"  com.company.Main
+    Hello, world!
+    127
+    Test char a = A
+    Test char zh = 中
 
 /Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
 包作用域和 public 作用域，谁的更宽泛，猜测是public

@@ -85,8 +85,6 @@ public class Server {
             byte[] data = "ACK".getBytes("UTF-8");
             packet.setData(data);
             ds.send(packet);
-
-
         }
     }
 }
@@ -140,7 +138,11 @@ class Handler extends Thread {
     //     }
     // }
     // Case2: 手写解析 HTTP 协议的后端，所以客户端是浏览器即在浏览器中访问 http://127.0.0.1:8090/,数据流的格式或内容是符合 HTTP 协议的
-    //        ===根据代码的解析逻辑，可以直击WEB HTTP 协议本身和网络通信的本质===
+    // ===根据代码的解析逻辑，可以直击WEB HTTP 协议本身和网络通信的本质，真是满满的细节===
+    // from: Web开发--Web基础，但是要编写一个完善的HTTP服务器就太麻烦了，
+    // 在JavaEE平台上，处理TCP连接，解析HTTP协议这些底层工作统统扔给现成的Web服务器去做，我们只需要把自己的应用程序跑在Web服务器上。
+    // 为了实现这一目的，JavaEE提供了Servlet API，我们使用Servlet API编写自己的Servlet来处理HTTP请求，
+    // Web服务器实现Servlet API接口，实现底层功能（详情参考 mavenpoc 工程）
     private void handle(InputStream input, OutputStream output) throws IOException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
         BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
