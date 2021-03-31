@@ -138,11 +138,20 @@ class Handler extends Thread {
     //     }
     // }
     // Case2: 手写解析 HTTP 协议的后端，所以客户端是浏览器即在浏览器中访问 http://127.0.0.1:8090/,数据流的格式或内容是符合 HTTP 协议的
-    // ===根据代码的解析逻辑，可以直击WEB HTTP 协议本身和网络通信的本质，真是满满的细节===
-    // from: Web开发--Web基础，但是要编写一个完善的HTTP服务器就太麻烦了，
+    // ===根据代码的解析逻辑，可以直击 WEB HTTP 协议本身和网络通信的本质，真是满满的细节===
+    // 在下面代码中，我们看到，编写HTTP服务器其实是非常简单的，只需要先编写基于多线程的TCP服务，然后在一个TCP连接中读取HTTP请求，发送HTTP响应即可。
+    // 但是，要编写一个完善的HTTP服务器，以HTTP/1.1为例，需要考虑的包括：
+    //      识别正确和错误的HTTP请求；
+    //      识别正确和错误的HTTP头；
+    //      复用TCP连接；
+    //      复用线程；
+    //      IO异常处理；
+    //      ...
+    // 这些基础工作需要耗费大量的时间，并且经过长期测试才能稳定运行。如果我们只需要输出一个简单的HTML页面，就不得不编写上千行底层代码，那就根本无法做到高效而可靠地开发。
     // 在JavaEE平台上，处理TCP连接，解析HTTP协议这些底层工作统统扔给现成的Web服务器去做，我们只需要把自己的应用程序跑在Web服务器上。
-    // 为了实现这一目的，JavaEE提供了Servlet API，我们使用Servlet API编写自己的Servlet来处理HTTP请求，
-    // Web服务器实现Servlet API接口，实现底层功能（详情参考 mavenpoc 工程）
+    // 为了实现这一目的，JavaEE提供了Servlet API，我们使用 Servlet API编写自己的Servlet来处理HTTP请求，
+    // Web服务器实现 Servlet API接口，实现底层功能（详情参考 mavenpoc 工程）
+    // from: Web开发--Web基础 和 Servlet 入门
     private void handle(InputStream input, OutputStream output) throws IOException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
         BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
@@ -180,3 +189,4 @@ class Handler extends Thread {
         }
     }
 }
+

@@ -116,7 +116,8 @@ public class Main {
 
         byte[] b1 = "abc".getBytes("UTF-8");
         for(byte i:b1){
-            System.out.println(i);
+            System.out.println("i = " + i);
+            System.out.printf("%02x\n", i); //用十六进制输出
         }
         String s6 = new String(b1);
 

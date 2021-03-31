@@ -86,7 +86,7 @@ public class CollectionPoc {
         for (String s : list) {
             System.out.println(s);
         }
-        // List和Array转换:
+        // List和Array转换: 给 toArray(T[]) 传入一个类型相同的Array，List内部自动把元素复制到传入的Array中：
         System.out.println("List和Array转换");
         String[] array = list.toArray(new String[3]);
         // String[] array = list.toArray(String[]::new); // ToDO：这种函数式写法我们会在后续讲到，这是第一次看到::的用法。
@@ -334,7 +334,7 @@ public class CollectionPoc {
             f = "src/com/company/msic/setting.properties";
         }
         props.load(new java.io.FileInputStream(f)); //关于读写文件即IO流的操作，请参考 classpathResourceEntry() of IOPoc.Java
-        // 也可以从 classpath 读取.properties文件:
+        // 也可以从 classpath 读取.properties文件:(另外IO--读取classpath资源也提到了 getResourceAsStream)
         // 因为load(InputStream)方法接收一个InputStream实例，表示一个字节流，它不一定是文件流，也可以是从jar包中读取的资源流
         // props.load(getClass().getResourceAsStream("/common/setting.properties"));
         // 从内存读取一个字节流:
