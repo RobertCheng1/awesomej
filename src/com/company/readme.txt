@@ -264,6 +264,13 @@ IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设�
     Test char a = A
     Test char zh = 中
 
+Java 中提到过的 scope:
+    注解中提到过 scope;
+    Maven的 pom.xml 也提到过 scope;
+    Spring的IoC容器也提到过scope from:Spring开发--定制Bean
+ServletContext: 参考web-servlet-embeded工程 中的 listener目录下的 AppListener
+ApplicationContext:参考springpoc工程中的:IoC容器--装配Bean
+
 /Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
 包作用域和 public 作用域，谁的更宽泛，猜测是public
 

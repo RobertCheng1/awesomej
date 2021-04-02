@@ -155,7 +155,7 @@ public class GenericPoc {
          * 泛型的好处是使用时不必对类型进行强制转换，它通过编译器对类型进行检查；
          *
          * 使用泛型：
-         * 使用泛型时，把  泛型参数<T>替换为需要的class类型，例如：ArrayList<String>，ArrayList<Number>等，
+         * 使用泛型时，把泛型参数<T>替换为需要的class类型，例如：ArrayList<String>，ArrayList<Number>等，
          * ===ArrayList<Farmer>也是可以的,比如 List<Farmer> farmers = new ArrayList<Farmer>(); 这个扩展太棒了===
          * 使用ArrayList时，如果不定义泛型类型时，泛型类型实际上就是Object：
          *      // 编译器警告:
@@ -260,21 +260,24 @@ public class GenericPoc {
          * 在继承了泛型类型的情况下，子类可以获取父类的泛型类型。例如：IntPair可以获取到父类的泛型类型Integer
          *
          * 擦拭法决定了泛型<T>：
-         *     不能是基本类型，例如：int；因为实际类型是Object，Object类型无法持有基本类型
-         *     不能获取带泛型类型的Class，例如：Pair<String>.class；
-         *     不能判断带泛型类型的类型，例如：x instanceof Pair<String>；
-         *     不能实例化T类型，例如：new T()。这和下文提到的 借助Class<T>来创建泛型数组 是相呼应的。
+         *      不能是基本类型，例如：int；因为实际类型是Object，Object类型无法持有基本类型; Pair<int> p = new Pair<>(1, 2); //compile error!
+         *      不能获取带泛型类型的Class，例如：Pair<String>.class；
+         *      不能判断带泛型类型的类型，例如：x instanceof Pair<String>；
+         *      不能实例化T类型，例如：new T()。===这和下文提到的 借助Class<T>来创建泛型数组 是相呼应的。===
          */
-        // 无法取得带泛型的Class
+        // 1. 无法取得带泛型的Class
         System.out.println("In the typeErasureGeneric");
         Pair<String> p1 = new Pair<>("Hello", "world");
         Pair<Integer> p2 = new Pair<>(123, 456);
         Class c1 = p1.getClass();
         Class c2 = p2.getClass();
+        // 因为T是Object，我们对Pair<String>和Pair<Integer>类型获取Class时，获取到的是同一个Class，也就是Pair类的Class
+        // ===泛型类和其他的业务类其实本质都一样，就是一个类嘛，只不过泛型类支持泛型而已
+        // 换句话说，所有泛型实例，无论T的类型是什么，getClass()返回同一个Class实例，因为编译后它们全部都是Pair<Object>。
         System.out.println(c1==c2); // true
         System.out.println(c1==Pair.class); // true
         /**
-         * 不能实例化T类型：
+         * 2. 不能实例化T类型：
          *      public class Pair<T> {
          *          private T first;
          *          private T last;
@@ -302,7 +305,7 @@ public class GenericPoc {
          *      Pair<String> pair = new Pair<>(String.class);
          * 因为传入了Class<String>的实例，所以我们借助 String.class 就可以实例化String类型。参考反射一节提到的 cls.newInstance()
          */
-        // 在继承了泛型类型的情况下，子类可以获取父类的泛型类型：
+        // 3. 在继承了泛型类型的情况下，子类可以获取父类的泛型类型：
         Class<IntPair> clazz = IntPair.class;
         Type t = clazz.getGenericSuperclass();
         if (t instanceof ParameterizedType) {
