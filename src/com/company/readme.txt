@@ -268,6 +268,10 @@ Java 中提到过的 scope:
     注解中提到过 scope;
     Maven的 pom.xml 也提到过 scope;
     Spring的IoC容器也提到过scope from:Spring开发--定制Bean
+Java 中提到过的 Filter:
+    IO--Filter模式;
+    Web开发--使用Filter;
+    Spring开发--开发Web应用--集成Filter
 ServletContext: 参考web-servlet-embeded工程 中的 listener目录下的 AppListener
 ApplicationContext:参考springpoc工程中的:IoC容器--装配Bean
 
