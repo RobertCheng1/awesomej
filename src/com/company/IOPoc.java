@@ -23,9 +23,9 @@ public class IOPoc {
     public String getMiscDir(){
         String os = System.getProperty("os.name");
         if (os.contains("Windows")){
-            return "src\\com\\company\\msic";
+            return "src\\com\\company\\misc";
         } else {
-            return "src/com/company/msic";
+            return "src/com/company/misc";
         }
     }
 
@@ -236,7 +236,7 @@ public class IOPoc {
          */
         System.out.println("In the classpathResourceEntry");
         System.out.println(getClass());
-        try (InputStream input = getClass().getResourceAsStream("/com/company/msic/setting.properties")) {
+        try (InputStream input = getClass().getResourceAsStream("/com/company/misc/setting.properties")) {
             if (input != null) {
                 System.out.println("Find the setting.properties");
             } else {

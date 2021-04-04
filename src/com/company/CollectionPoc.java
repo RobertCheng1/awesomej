@@ -329,9 +329,9 @@ public class CollectionPoc {
         String f = "";
         String os = System.getProperty("os.name");
         if (os.contains("Windows")){
-            f = "src\\com\\company\\msic\\setting.properties";
+            f = "src\\com\\company\\misc\\setting.properties";
         } else {
-            f = "src/com/company/msic/setting.properties";
+            f = "src/com/company/misc/setting.properties";
         }
         props.load(new java.io.FileInputStream(f)); //关于读写文件即IO流的操作，请参考 classpathResourceEntry() of IOPoc.Java
         // 也可以从 classpath 读取.properties文件:(另外IO--读取classpath资源也提到了 getResourceAsStream)
