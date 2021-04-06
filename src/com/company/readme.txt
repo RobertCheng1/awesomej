@@ -228,6 +228,35 @@ Servlet多线程模型: from: Web开发--Servlet进阶
     无论采用何种方案，使用Session机制，会使得Web Server的集群很难扩展，
     因此，Session适用于中小型Web应用程序。对于大型Web应用程序来说，通常需要避免使用Session机制。
 
+Java 类的成员变量的初始化本质：from:Spring开发--使用AOP--AOP避坑指南
+    那么最终的问题来了：proxy实例的成员变量，也就是从UserService继承的zoneId，它的值是null。
+    原因在于，UserService成员变量的初始化：
+            public class UserService {
+                public final ZoneId zoneId = ZoneId.systemDefault();
+                ...
+            }
+    在UserService$$EnhancerBySpringCGLIB中，并未执行。原因是，没必要初始化proxy的成员变量，因为proxy的目的是代理方法。===proxy 的本质===
+    实际上，成员变量的初始化是在构造方法中完成的。这是我们看到的代码：
+            public class UserService {
+                public final ZoneId zoneId = ZoneId.systemDefault();
+                public UserService() {
+                }
+            }
+    这是编译器实际编译的代码：===Java 类的成员变量的初始化本质===
+            public class UserService {
+                public final ZoneId zoneId;
+                public UserService() {
+                    super(); // 构造方法的第一行代码总是调用super()
+                    zoneId = ZoneId.systemDefault(); // 继续初始化成员变量
+                }
+            }
+    然而，对于Spring通过CGLIB动态创建的UserService$$EnhancerBySpringCGLIB代理类，它的构造方法中，并未调用super()，
+    因此，从父类继承的成员变量，包括final类型的成员变量，统统都没有初始化。
+    有的童鞋会问：Java语言规定，任何类的构造方法，第一行必须调用super()，如果没有，编译器会自动加上，怎么Spring的CGLIB就可以搞特殊？
+    这是因为自动加super()的功能是Java编译器实现的，它发现你没加，就自动给加上，发现你加错了，就报编译错误。
+    但实际上，如果直接构造字节码，一个类的构造方法中，不一定非要调用super()。
+    Spring使用CGLIB构造的Proxy类，是直接生成字节码，并没有源码-编译-字节码这个步骤，
+    因此：Spring通过CGLIB创建的代理类，不会初始化代理类自身继承的任何成员变量，包括final类型的成员变量！
 
 IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设置了 JAVA_HOME 之后进行的
     "C:\Program Files\Java\jdk1.8.0_281\bin\java.exe"
@@ -266,7 +295,8 @@ IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设�
 
 Java 中提到过的 scope:
     注解中提到过 scope;
-    Maven的 pom.xml 也提到过 scope;
+    Maven的 pom.xml 也提到过 scope; provided依赖表示编译时需要，但运行时不需要。
+                                  最典型的provided依赖是Servlet API，编译的时候需要，但是运行时，Servlet服务器内置了相关的jar，所以运行期不需要：
     Spring的IoC容器也提到过scope from:Spring开发--定制Bean
 Java 中提到过的 Filter:
     IO--Filter模式;
