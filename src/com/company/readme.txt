@@ -265,7 +265,7 @@ Java 类的成员变量的初始化本质：from:Spring开发--使用AOP--AOP避
     Spring使用CGLIB构造的Proxy类，是直接生成字节码，并没有源码-编译-字节码这个步骤，
     因此：Spring通过CGLIB创建的代理类，不会初始化代理类自身继承的任何成员变量，包括final类型的成员变量！
 
-    为什么Spring刻意不初始化Proxy继承的字段？来自下面的评估
+    为什么Spring刻意不初始化Proxy继承的字段？来自下面的评论
     1. 因为你初始化的时候很可能会用到注入的其他类：
         @Component
         public class MailService {
