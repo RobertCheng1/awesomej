@@ -228,6 +228,13 @@ Servlet多线程模型: from: Web开发--Servlet进阶
     无论采用何种方案，使用Session机制，会使得Web Server的集群很难扩展，
     因此，Session适用于中小型Web应用程序。对于大型Web应用程序来说，通常需要避免使用Session机制。
 
+
+JDBC编程--JDBC查询：
+    JDBC是一套接口规范，它在哪呢？
+    就在Java的标准库java.sql里放着，不过这里面大部分都是接口。接口并不能直接实例化，而是必须实例化对应的实现类，然后通过接口引用这个实例。
+    JDBC接口的实现类在哪？
+    因为JDBC接口并不知道我们要使用哪个数据库，所以，用哪个数据库，我们就去使用哪个数据库的“实现类”，我们把某个数据库实现了JDBC接口的jar包称为JDBC驱动。
+
 Java 类的成员变量的初始化本质：from:Spring开发--使用AOP--AOP避坑指南
     那么最终的问题来了：proxy实例的成员变量，也就是从UserService继承的zoneId，它的值是null。
     原因在于，UserService成员变量的初始化：
@@ -257,6 +264,38 @@ Java 类的成员变量的初始化本质：from:Spring开发--使用AOP--AOP避
     但实际上，如果直接构造字节码，一个类的构造方法中，不一定非要调用super()。
     Spring使用CGLIB构造的Proxy类，是直接生成字节码，并没有源码-编译-字节码这个步骤，
     因此：Spring通过CGLIB创建的代理类，不会初始化代理类自身继承的任何成员变量，包括final类型的成员变量！
+
+    为什么Spring刻意不初始化Proxy继承的字段？来自下面的评估
+    1. 因为你初始化的时候很可能会用到注入的其他类：
+        @Component
+        public class MailService {
+            @Value("${smtp.from:xxx}")
+            String mailFrom;
+
+            SmtpSender sender;
+
+            @PostConstruct
+            public void init() {
+                sender = new SmtpSender(mailFrom, ...);
+            }
+
+            public void sentMail(String to) {
+                ...
+            }
+        }
+    你看，MailService的字段sender初始化需要依赖其他注入，并且已经初始化了一次，proxy类没法正确初始化sender
+    主要原因就是spring无法在逻辑上正常初始化proxy的字段，所以干脆不初始化，并通过NPE直接暴露出来
+    2. 还有一个原因是如果对字段进行修改，proxy的字段其实根本没改：
+        @Component
+        public class MailService {
+            String status = "init";
+
+            public void sentMail(String to) {
+                this.status = "sent";
+            }
+        }
+    因为只有原始Bean的方法会对自己的字段进行修改，他无法改proxy的字段
+
 
 IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设置了 JAVA_HOME 之后进行的
     "C:\Program Files\Java\jdk1.8.0_281\bin\java.exe"
