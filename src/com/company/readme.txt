@@ -228,7 +228,6 @@ Servlet多线程模型: from: Web开发--Servlet进阶
     无论采用何种方案，使用Session机制，会使得Web Server的集群很难扩展，
     因此，Session适用于中小型Web应用程序。对于大型Web应用程序来说，通常需要避免使用Session机制。
 
-
 JDBC编程--JDBC查询：
     JDBC是一套接口规范，它在哪呢？
     就在Java的标准库java.sql里放着，不过这里面大部分都是接口。接口并不能直接实例化，而是必须实例化对应的实现类，然后通过接口引用这个实例。
@@ -332,10 +331,13 @@ IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设�
     Test char a = A
     Test char zh = 中
 
+Java 提到过的创建：
+    反射中提到:Class实例是JVM内部创建的，如果我们查看JDK源码，可以发现 Class类的构造方法是 private，只有JVM能创建Class实例
+    Web开发--Servlet入门:无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例
+    Spring开发--IoC容器--IoC原理、定制 Bean:因为IoC容器要负责实例化所有的组件，因此，有必要告诉容器如何创建组件，以及各组件的依赖关系。容器初始化时创建Bean，容器关闭前销毁Bean。
 Java 中提到过的 scope:
     注解中提到过 scope;
-    Maven的 pom.xml 也提到过 scope; provided依赖表示编译时需要，但运行时不需要。
-                                  最典型的provided依赖是Servlet API，编译的时候需要，但是运行时，Servlet服务器内置了相关的jar，所以运行期不需要：
+    Maven的 pom.xml 也提到过 scope; provided依赖表示编译时需要，但运行时不需要。最典型的provided依赖是Servlet API，编译的时候需要，但是运行时，Servlet服务器内置了相关的jar，所以运行期不需要：
     Spring的IoC容器也提到过scope from:Spring开发--定制Bean
 Java 中提到过的 Filter:
     IO--Filter模式;

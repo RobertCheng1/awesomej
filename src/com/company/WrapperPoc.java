@@ -43,6 +43,7 @@ public class WrapperPoc {
         System.out.println("In the int2Integer");
         // 因为int和Integer可以互相转换：
         int i = 100;
+        Integer tmpn = null; //这种赋值居然是可以的，因为Integer是引用类型，来自该节内容
         Integer n = Integer.valueOf(i);
         int x = n.intValue();
         // 所以，Java编译器可以帮助我们自动在int和Integer之间转型：

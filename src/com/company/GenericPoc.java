@@ -305,7 +305,7 @@ public class GenericPoc {
          *      Pair<String> pair = new Pair<>(String.class);
          * 因为传入了Class<String>的实例，所以我们借助 String.class 就可以实例化String类型。参考反射一节提到的 cls.newInstance()
          */
-        // 3. 在继承了泛型类型的情况下，子类可以获取父类的泛型类型：
+        // 3. 泛型继承：在继承了泛型类型的情况下，子类可以获取父类的泛型类型：
         Class<IntPair> clazz = IntPair.class;
         Type t = clazz.getGenericSuperclass();
         if (t instanceof ParameterizedType) {
