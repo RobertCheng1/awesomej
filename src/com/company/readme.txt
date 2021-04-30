@@ -343,8 +343,11 @@ Java 中提到过的 Filter:
     IO--Filter模式;
     Web开发--使用Filter;
     Spring开发--开发Web应用--集成Filter
+应用代码创建不了的:
+    无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例；
+    ===联想反射中提到的Class的实例只能由JVM创建=== from:mavenpoc工程
 ServletContext: 参考web-servlet-embeded工程 中的 listener目录下的 AppListener
-ApplicationContext:参考springpoc工程中的:IoC容器--装配Bean
+ApplicationContext:参考springioc工程中的:IoC容器--装配Bean
 
 /Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
 包作用域和 public 作用域，谁的更宽泛，猜测是public

@@ -127,6 +127,8 @@ public class EntryLevel {
 	     * fmt.Printf("The adrress of array_tmp = %p,  array_tmp = %d\n", &array_tmp, array_tmp)
          *
          * Java 中：
+         * 最基本的定义： int[] ns = new int[5];
+         *
          * int[] ns;
          * ns = new int[] {68, 79, 91, 85, 62};
          * ns = new int[] {61，62 }; //居然还能再赋值,根据这个写法猜测Java的机制就当这是一个数组对象(和自定义的类 Student 没区别)而已

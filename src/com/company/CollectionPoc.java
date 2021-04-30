@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.util.*;
 import java.time.DayOfWeek;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class Worker{
     private String name;
@@ -594,6 +595,40 @@ public class CollectionPoc {
         for (String s : rlist) {
             System.out.println(s);
         }
+    }
+
+    public void streamEntry(){
+        /**
+         * Stream 作为 Java 8 的一大亮点，它与 java.io 包里的 InputStream 和 OutputStream 是完全不同的概念。
+         * 它也不同于 StAX 对 XML 解析的 Stream，也不是 Amazon Kinesis 对大数据实时处理的 Stream。
+         * Java 8 中的 Stream 是对集合（Collection）对象功能的增强，
+         * 它专注于对集合对象进行各种非常便利、高效的聚合操作（aggregate operation），或者大批量数据操作 (bulk data operation)。
+         * Stream API 借助于同样新出现的 Lambda 表达式，极大的提高编程效率和程序可读性。同时它提供串行和并行两种模式进行汇聚操作，
+         * 并发模式能够充分利用多核处理器的优势，使用 fork/join 并行方式来拆分任务和加速处理过程。通常编写并行代码很难而且容易出错,
+         * 但使用 Stream API 无需编写一行多线程的代码，就可以很方便地写出高性能的并发程序。
+         * 所以说，Java 8 中首次出现的 java.util.stream 是一个函数式语言+多核时代综合影响的产物。
+         *
+         * 流的操作类型分为两种：
+         * Intermediate：
+         *      map (mapToInt, flatMap 等)、 filter、 distinct、 sorted、
+         *      peek、 limit、 skip、 parallel、 sequential、 unordered
+         *      一个流可以后面跟随零个或多个 intermediate 操作。其目的主要是打开流，做出某种程度的数据映射/过滤，
+         *      然后返回一个新的流，交给下一个操作使用。这类操作都是惰性化的（lazy），就是说，仅仅调用到这类方法，并没有真正开始流的遍历。
+         * Terminal：
+         *      forEach、 forEachOrdered、 toArray、 reduce、 collect、 min、 max、 count、
+         *      anyMatch、 allMatch、 noneMatch、 findFirst、 findAny、 iterator
+         *      一个流只能有一个 terminal 操作，当这个操作执行后，流就被使用“光”了，无法再被操作。所以这必定是流的最后一个操作。
+         *      Terminal 操作的执行，才会真正开始流的遍历，并且会生成一个结果，或者一个 side effect。
+         * 在对于一个 Stream 进行多次转换操作 (Intermediate 操作)，每次都对 Stream 的每个元素进行转换，而且是执行多次，
+         * 这样时间复杂度就是 N（转换次数）个 for 循环里把所有操作都做掉的总和吗？其实不是这样的，转换操作都是 lazy 的，
+         * 多个转换操作只会在 Terminal 操作的时候融合起来，一次循环完成。我们可以这样简单的理解，Stream 里有个操作函数的集合，
+         * 每次转换操作就是把转换函数放入这个集合中，在 Terminal 操作的时候循环 Stream 对应的集合，然后对每个元素执行所有的函数。
+         * 请参考 https://blog.csdn.net/a13662080711/article/details/84928181 
+         */
+        System.out.println("In the streamEntry");
+        List<Integer> nums = Arrays.asList(1, 2, 3, 4);
+        List<Integer> squareNums = nums.stream().map(n -> n * n).collect(Collectors.toList());
+        System.out.println(squareNums);
     }
 }
 

@@ -180,6 +180,8 @@ public class Main {
         cp.dequeueEntry();
         cp.stackEntry();
         cp.iteratorEntry();
+        cp.streamEntry(); //这个很高阶
+
 
         // 测试 IO
         IOPoc io = new IOPoc();
