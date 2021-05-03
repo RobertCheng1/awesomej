@@ -331,6 +331,30 @@ IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设�
     Test char a = A
     Test char zh = 中
 
+一个使用Maven管理的普通的Java项目，它的目录结构默认如下：from:Maven基础--Maven介绍
+        a-maven-project
+        ├── pom.xml
+        ├── src
+        │   ├── main
+        │   │   ├── java
+        │   │   └── resources
+        │   └── test
+        │       ├── java
+        │       └── resources
+        └── target
+    项目的根目录a-maven-project是项目名，它有一个项目描述文件pom.xml，
+    存放Java源码的目录是src/main/java，
+    存放资源文件的目录是src/main/resources，  //Spring开发--IoC容器--使用Resource 和 注入配置 也都提到了这一点
+    存放测试源码的目录是src/test/java，存放测试资源的目录是src/test/resources，
+    最后，所有编译、打包生成的文件都放在target目录里。这些就是一个Maven项目的标准目录结构。
+    所有的目录结构都是约定好的标准结构，我们千万不要随意修改目录结构。使用标准结构不需要做任何配置，Maven就可以正常使用。
+
+    我们还需要在工程目录下创建一个web.xml描述文件，放到src/main/webapp/WEB-INF目录下（固定目录结构，不要修改路径，注意大小写）//from:Web开发--Servlet入门
+    我们还硬性规定: 模板必须放在 webapp/WEB-INF/templates目录下，静态文件必须放在webapp/static目录下     //from: Web开发--MVC高级开发
+    把所有的静态资源文件放入/static/目录，在开发阶段，有些Web服务器会自动为我们加一个专门负责处理静态文件的Servlet，但如果IndexServlet映射路径为/，会屏蔽掉处理静态文件的Servlet映射  //from: Web开发--部署
+    在Java程序中，我们经常会读取配置文件、资源文件等。使用Spring容器时，我们也可以把“文件”注入进来，方便程序读取。//from: Spring开发--IoC容器--使用Resource
+
+
 Java 提到过的创建：
     反射中提到:Class实例是JVM内部创建的，如果我们查看JDK源码，可以发现 Class类的构造方法是 private，只有JVM能创建Class实例
     Web开发--Servlet入门:无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例
@@ -346,9 +370,51 @@ Java 中提到过的 Filter:
 应用代码创建不了的:
     无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例；
     ===联想反射中提到的Class的实例只能由JVM创建=== from:mavenpoc工程
-ServletContext: 参考web-servlet-embeded工程 中的 listener目录下的 AppListener
+
+    Spring提供的容器又称为IoC容器，什么是IoC？ from: IoC容器--装配Bean
+	我们需要创建一个Spring的IoC容器实例，然后加载配置文件，让Spring容器为我们创建并装配好配置文件中指定的所有Bean，这只需要一行代码：
+        ApplicationContext context = new ClassPathXmlApplicationContext("application.xml");
+    可以看到 Spring容器就是ApplicationContext，它是一个接口，有很多实现类，这里我们选择ClassPathXmlApplicationContext，表示它会自动从 classpath 中查找指定的XML配置文件。
+    我们从创建 Spring容器的代码：可以看到，Spring(自己加的IoC)容器就是 ApplicationContext，它是一个接口，有很多实现类，
+    这里我们选择 ClassPathXmlApplicationContext，表示它会自动从classpath中查找指定的XML配置文件。
+    获得了 ApplicationContext 的实例，就获得了IoC容器的引用。===这简直太一针见血了, 印证了 springioc_annotation工程中猜测===
+
+	对于Spring容器来说，当我们把一个Bean标记为 @Component 后，它就会自动为我们创建一个单例（Singleton），即容器初始化时创建Bean，容器关闭前销毁Bean。
+	在容器运行期间，我们调用getBean(Class)获取到的Bean总是同一个实例。还有一种Bean，我们每次调用getBean(Class)，容器都返回一个新的实例，这种Bean称为Prototype（原型）.
+
+    Spring容器会对上述Bean做如下初始化流程： from:Spring开发--IoC容器--定制Bean 强调的是 PostConstruct
+        调用构造方法创建MailService实例；
+        根据@Autowired进行注入；
+        调用标记有 @PostConstruct 的init()方法进行初始化。
+    当Servlet容器创建当前Servlet实例后，会自动调用init(ServletConfig)方法(居然不需要注解 @PostConstruct) from:廖雪峰源码web-mvc 的 DispatcherServlet
+ServletContext: 参考web-servlet-embeded工程 中的 listener目录下的 AppListener from:Web开发--使用Listener
 ApplicationContext:参考springioc工程中的:IoC容器--装配Bean
 
 /Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
 包作用域和 public 作用域，谁的更宽泛，猜测是public
 
+
+两种用法都可以:
+    @PropertySource("classpath:/jdbc.properties")  // from:spring-web-mvc工程
+    @PropertySource("app.properties") // 表示读取classpath的app.properties  //from:springioc_annotation工程
+
+开发 Web 应用: 使用Spring MVC:
+    和普通Spring配置一样，我们编写正常的AppConfig后，只需加上@EnableWebMvc注解，就“激活”了Spring MVC
+    除了创建DataSource、JdbcTemplate、PlatformTransactionManager外，AppConfig需要额外创建几个用于Spring MVC的Bean：
+    1. WebMvcConfigurer并不是必须的，但我们在这里创建一个默认的WebMvcConfigurer，只覆写addResourceHandlers()，目的是让Spring MVC自动处理静态文件，并且映射路径为/static/**。
+    2. 另一个必须要创建的Bean是ViewResolver，因为Spring MVC允许集成任何模板引擎，使用哪个模板引擎，就实例化一个对应的ViewResolver
+
+    在Web应用中，除了需要使用MVC给用户显示页面外，还有一类API接口，我们称之为REST，通常输入输出都是JSON，便于第三方调用或者使用页面JavaScript与之交互。
+    如果我们想接收JSON，输出JSON，那么可以这样写：
+        @PostMapping(value = "/rest",
+                     consumes = "application/json;charset=UTF-8",
+                     produces = "application/json;charset=UTF-8")
+        @ResponseBody
+        public String rest(@RequestBody User user) {
+            return "{\"restSupport\":true}";
+        }
+    注意到@PostMapping使用consumes声明能接收的类型，使用produces声明输出的类型，
+    并且额外加了@ResponseBody表示返回的String无需额外处理，直接作为输出内容写入HttpServletResponse。
+    输入的 JSON 则根据注解 @RequestBody 直接被Spring反序列化为User这个JavaBean（这是怎么做到的,猜测应该是根据 JavaBean 的 setXxx 方法吧）。
+    直接用 Spring 的 Controller 配合一大堆注解写REST太麻烦了，因此Spring还额外提供了一个 @RestController 注解，
+    使用@RestController替代@Controller后，每个方法自动变成API接口方法。我们还是以实际代码举例，编写ApiController
