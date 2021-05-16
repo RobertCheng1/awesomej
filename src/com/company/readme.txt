@@ -344,7 +344,9 @@ IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设�
         └── target
     项目的根目录a-maven-project是项目名，它有一个项目描述文件pom.xml，
     存放Java源码的目录是src/main/java，
-    存放资源文件的目录是src/main/resources，  //Spring开发--IoC容器--使用Resource 和 注入配置 也都提到了这一点
+    存放资源文件的目录是src/main/resources，
+        //Spring开发--IoC容器--使用Resource 和 注入配置 也都提到了这一点
+        //Spring开发--开发Web应用--使用Spring MVC中提到:在src/main/resources目录中存放的是Java程序读取的 classpath 资源文件，除了JDBC的配置文件jdbc.properties外，我们又新增了一个logback.xml，这是Logback的默认查找的配置文件
     存放测试源码的目录是src/test/java，存放测试资源的目录是src/test/resources，
     最后，所有编译、打包生成的文件都放在target目录里。这些就是一个Maven项目的标准目录结构。
     所有的目录结构都是约定好的标准结构，我们千万不要随意修改目录结构。使用标准结构不需要做任何配置，Maven就可以正常使用。
@@ -354,6 +356,9 @@ IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设�
     把所有的静态资源文件放入/static/目录，在开发阶段，有些Web服务器会自动为我们加一个专门负责处理静态文件的Servlet，但如果IndexServlet映射路径为/，会屏蔽掉处理静态文件的Servlet映射  //from: Web开发--部署
     在Java程序中，我们经常会读取配置文件、资源文件等。使用Spring容器时，我们也可以把“文件”注入进来，方便程序读取。//from: Spring开发--IoC容器--使用Resource
 
+    两种用法都可以:
+        @PropertySource("classpath:/jdbc.properties")  // from:spring-web-mvc工程
+        @PropertySource("app.properties") // 表示读取classpath的app.properties  //from:springioc_annotation工程
 
 Java 提到过的创建：
     反射中提到:Class实例是JVM内部创建的，如果我们查看JDK源码，可以发现 Class类的构造方法是 private，只有JVM能创建Class实例
@@ -393,17 +398,25 @@ ApplicationContext:参考springioc工程中的:IoC容器--装配Bean
 /Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
 包作用域和 public 作用域，谁的更宽泛，猜测是public
 
-
-两种用法都可以:
-    @PropertySource("classpath:/jdbc.properties")  // from:spring-web-mvc工程
-    @PropertySource("app.properties") // 表示读取classpath的app.properties  //from:springioc_annotation工程
-
-开发 Web 应用: 使用Spring MVC:
+Spring开发--开发 Web 应用:
+使用Spring MVC:
     和普通Spring配置一样，我们编写正常的AppConfig后，只需加上@EnableWebMvc注解，就“激活”了Spring MVC
     除了创建DataSource、JdbcTemplate、PlatformTransactionManager外，AppConfig需要额外创建几个用于Spring MVC的Bean：
-    1. WebMvcConfigurer并不是必须的，但我们在这里创建一个默认的WebMvcConfigurer，只覆写addResourceHandlers()，目的是让Spring MVC自动处理静态文件，并且映射路径为/static/**。
-    2. 另一个必须要创建的Bean是ViewResolver，因为Spring MVC允许集成任何模板引擎，使用哪个模板引擎，就实例化一个对应的ViewResolver
+    1. WebMvcConfigurer 并不是必须的，但我们在这里创建一个默认的 WebMvcConfigurer，只覆写addResourceHandlers()，目的是让Spring MVC自动处理静态文件，并且映射路径为/static/**。
+    2. 另一个必须要创建的Bean是ViewResolver，因为Spring MVC允许集成任何模板引擎，使用哪个模板引擎，就实例化一个对应的 ViewResolver
 
+    Spring提供的是一个IoC容器，所有的Bean，包括Controller，都在Spring IoC容器中被初始化，
+    而Servlet容器由JavaEE服务器提供（如Tomcat），Servlet容器对Spring一无所知，他们之间到底依靠什么进行联系，又是以何种顺序初始化的？
+    在web.xml中配置Spring MVC提供的DispatcherServlet
+    使用Spring MVC时，整个Web应用程序按如下顺序启动：
+        1. 启动Tomcat服务器；
+        2. Tomcat读取web.xml并初始化DispatcherServlet；
+        3. DispatcherServlet创建IoC容器并自动注册到ServletContext中。
+    编写Controller:
+    接收的HTTP参数以@RequestParam()标注，可以设置默认值。
+    如果方法参数需要传入HttpServletRequest、HttpServletResponse或者HttpSession，直接添加这个类型的参数即可，Spring MVC会自动按类型传入。
+
+使用REST:
     在Web应用中，除了需要使用MVC给用户显示页面外，还有一类API接口，我们称之为REST，通常输入输出都是JSON，便于第三方调用或者使用页面JavaScript与之交互。
     如果我们想接收JSON，输出JSON，那么可以这样写：
         @PostMapping(value = "/rest",
@@ -418,3 +431,69 @@ ApplicationContext:参考springioc工程中的:IoC容器--装配Bean
     输入的 JSON 则根据注解 @RequestBody 直接被Spring反序列化为User这个JavaBean（这是怎么做到的,猜测应该是根据 JavaBean 的 setXxx 方法吧）。
     直接用 Spring 的 Controller 配合一大堆注解写REST太麻烦了，因此Spring还额外提供了一个 @RestController 注解，
     使用@RestController替代@Controller后，每个方法自动变成API接口方法。我们还是以实际代码举例，编写ApiController
+
+集成 Filter:
+    如果要在Spring MVC中使用Filter，应该怎么做？
+    在Spring中创建的这个AuthFilter是一个普通Bean，Servlet容器并不知道，所以它不会起作用。
+    如果我们直接在 web.xml 中声明这个AuthFilter，注意到AuthFilter的实例将由Servlet容器而不是Spring容器初始化，因此，@Autowire根本不生效，用于登录的UserService成员变量永远是null。
+    所以，得通过一种方式，让Servlet容器实例化的Filter，间接引用Spring容器实例化的AuthFilter。===有点承上启下的意思了===
+    Spring MVC提供了一个DelegatingFilterProxy，专门来干这个事情：
+        <web-app>
+            <filter>
+                <filter-name>authFilter</filter-name>
+                <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+            </filter>
+
+            <filter-mapping>
+                <filter-name>authFilter</filter-name>
+                <url-pattern>/*</url-pattern>
+            </filter-mapping>
+            ...
+        </web-app>
+    我们来看实现原理：
+        1. Servlet容器从web.xml中读取配置，实例化DelegatingFilterProxy，注意命名是authFilter；
+        2. Spring容器通过扫描@Component实例化AuthFilter。
+
+    当 DelegatingFilterProxy 生效后，它会自动查找注册在 ServletContext 上的Spring容器，
+    再试图从容器中查找名为authFilter的Bean，也就是我们用@Component声明的AuthFilter。===高度串联了 ServletContext、Spring容器、和Filter===
+        ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐ ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+          ┌─────────────────────┐        ┌───────────┐   │
+        │ │DelegatingFilterProxy│─│─│─ ─>│AuthFilter │
+          └─────────────────────┘        └───────────┘   │
+        │ ┌─────────────────────┐ │ │    ┌───────────┐
+          │  DispatcherServlet  │─ ─ ─ ─>│Controllers│   │
+        │ └─────────────────────┘ │ │    └───────────┘
+                                                         │
+        │    Servlet Container    │ │  Spring Container
+         ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+
+使用Interceptor:
+    Interceptor的拦截范围其实就是 Controller 方法，它实际上就相当于基于AOP的方法拦截。
+    因为Interceptor只拦截 Controller 方法，所以要注意，返回ModelAndView后，后续对View的渲染就脱离了Interceptor的拦截范围。
+    使用Interceptor的好处是 Interceptor 本身是Spring管理的Bean，因此注入任意Bean都非常简单。
+    此外，可以应用多个Interceptor，并通过简单的@Order指定顺序。
+
+    一个Interceptor必须实现HandlerInterceptor接口，可以选择实现preHandle()、postHandle()和afterCompletion()方法。
+        preHandle()是Controller方法调用前执行，
+        postHandle()是Controller方法正常返回后执行，
+        afterCompletion()无论Controller方法是否抛异常都会执行，参数ex就是Controller方法抛出的异常（未抛出异常是null）。
+    在preHandle()中，也可以直接处理响应，然后返回false表示无需调用Controller方法继续处理了，通常在认证或者安全检查失败时直接返回错误响应。
+    在postHandle()中，因为捕获了Controller方法返回的ModelAndView，所以可以继续往ModelAndView里添加一些通用数据，
+    很多页面需要的全局数据如Copyright信息等都可以放到这里，无需在每个Controller方法中重复添加。
+    注意: 要让拦截器生效，我们在WebMvcConfigurer中注册所有的Interceptor；如果拦截器没有生效，请检查是否忘了在 WebMvcConfigurer 中注册。
+
+    处理异常:在Controller中，Spring MVC还允许定义基于 @ExceptionHandler 注解的异常处理方法。我们来看具体的示例代码：
+        @Controller
+        public class UserController {
+            @ExceptionHandler(RuntimeException.class)
+            public ModelAndView handleUnknowException(Exception ex) {
+                return new ModelAndView("500.html", Map.of("error", ex.getClass().getSimpleName(), "message", ex.getMessage()));
+            }
+            ...
+        }
+    异常处理方法没有固定的方法签名，可以传入Exception、HttpServletRequest等，返回值可以是void，也可以是ModelAndView，
+    上述代码通过@ExceptionHandler(RuntimeException.class)表示当发生RuntimeException的时候，就自动调用此方法处理。
+    注意到我们返回了一个新的ModelAndView，这样在应用程序内部如果发生了预料之外的异常，可以给用户显示一个出错页面，而不是简单的500 Internal Server Error或404 Not Found。
+
+集成JMS:
+    JMS是一组接口定义，如果我们要使用JMS，还需要选择一个具体的JMS产品。常用的JMS服务器有开源的ActiveMQ，商业服务器如WebLogic、WebSphere等也内置了JMS支持
