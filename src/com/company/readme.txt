@@ -360,6 +360,38 @@ IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设�
         @PropertySource("classpath:/jdbc.properties")  // from:spring-web-mvc工程
         @PropertySource("app.properties") // 表示读取classpath的app.properties  //from:springioc_annotation工程
 
+Spring Boot的标准目录结构，它完全是一个基于Java应用的普通Maven项目:
+        springboot-hello
+        ├── pom.xml
+        ├── src
+        │   └── main
+        │       ├── java
+        |       |   └── com
+        |       |       └── itranswarp
+        |       |           └── learnjava
+        |       |               ├── Application.java
+        |       |               ├── entity
+        |       |               │   └── User.java
+        |       |               ├── service
+        |       |               │   └── UserService.java
+        |       |               └── web
+        |       |                   └── UserController.java
+        │       └── resources
+        │           ├── application.yml
+        │           ├── logback-spring.xml
+        │           ├── static
+        │           └── templates
+        └── target
+    static是静态文件目录，templates是模板文件目录，
+    注意它们不再存放在src/main/webapp下，而是直接放到src/main/resources这个classpath目录，因为在Spring Boot中已经不需要专门的webapp目录了。
+    在存放源码的src/main/java目录中，Spring Boot对Java包的层级结构有一个要求。
+    注意到我们的根package是com.itranswarp.learnjava，下面还有entity、service、web等子package。
+    Spring Boot要求main()方法所在的启动类必须放到根package下，命名不做要求，这里我们以Application.java命名，
+
+    pom.xml: 使用Spring Boot时，强烈推荐从spring-boot-starter-parent继承，因为这样就可以引入Spring Boot的预置配置。紧接着，
+    我们引入了依赖spring-boot-starter-web和spring-boot-starter-jdbc，它们分别引入了Spring MVC相关依赖和Spring JDBC相关依赖，
+    无需指定版本号，因为引入的<parent>内已经指定了，只有我们自己引入的某些第三方jar包需要指定版本号。
+
 Java 提到过的创建：
     反射中提到:Class实例是JVM内部创建的，如果我们查看JDK源码，可以发现 Class类的构造方法是 private，只有JVM能创建Class实例
     Web开发--Servlet入门:无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例
@@ -394,106 +426,288 @@ Java 中提到过的 Filter:
     当Servlet容器创建当前Servlet实例后，会自动调用init(ServletConfig)方法(居然不需要注解 @PostConstruct) from:廖雪峰源码web-mvc 的 DispatcherServlet
 ServletContext: 参考web-servlet-embeded工程 中的 listener目录下的 AppListener from:Web开发--使用Listener
 ApplicationContext:参考springioc工程中的:IoC容器--装配Bean
+用到切面 AOP 的场景:
+    Spring对一个声明式事务的方法，如何开启事务支持？原理仍然是AOP代理，即通过自动创建Bean的Proxy实现。 from:Spring开发--访问数据库--使用声明式事务
+    Interceptor 的拦截范围其实就是Controller方法，它实际上就相当于基于AOP的方法拦截。 from:Spring开发--开发Web应用--使用Interceptor
+注解 @Configuration 的使用场景：
+    1.  @Configuration //表示该类是一个配置类，因为我们创建ApplicationContext时，使用的实现类是AnnotationConfigApplicationContext，必须传入一个标注了@Configuration的类名。
+        public class AppConfig {
+            // AppConfig标注了@Configuration，表示它是一个配置类，因为我们创建ApplicationContext时：
+            // ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+            // 使用的实现类是AnnotationConfigApplicationContext，必须传入一个标注了@Configuration的类名。
+            // 此外，AppConfig还标注了@ComponentScan，
+            // 它告诉容器，自动搜索当前类所在的包以及子包，把所有标注为@Component的Bean自动创建出来，并根据@Autowired进行装配。
+            ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+            ...
+        }
+    2. 在1springboot-configuration 工程里的 StorageConfiguration 类上
+
 
 /Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
 包作用域和 public 作用域，谁的更宽泛，猜测是public
 
 Spring开发--开发 Web 应用:
-使用Spring MVC:
-    和普通Spring配置一样，我们编写正常的AppConfig后，只需加上@EnableWebMvc注解，就“激活”了Spring MVC
-    除了创建DataSource、JdbcTemplate、PlatformTransactionManager外，AppConfig需要额外创建几个用于Spring MVC的Bean：
-    1. WebMvcConfigurer 并不是必须的，但我们在这里创建一个默认的 WebMvcConfigurer，只覆写addResourceHandlers()，目的是让Spring MVC自动处理静态文件，并且映射路径为/static/**。
-    2. 另一个必须要创建的Bean是ViewResolver，因为Spring MVC允许集成任何模板引擎，使用哪个模板引擎，就实例化一个对应的 ViewResolver
+    使用Spring MVC:
+        和普通Spring配置一样，我们编写正常的AppConfig后，只需加上@EnableWebMvc注解，就“激活”了Spring MVC
+        除了创建DataSource、JdbcTemplate、PlatformTransactionManager外，AppConfig需要额外创建几个用于Spring MVC的Bean：
+        1. WebMvcConfigurer 并不是必须的，但我们在这里创建一个默认的 WebMvcConfigurer，只覆写addResourceHandlers()，目的是让Spring MVC自动处理静态文件，并且映射路径为/static/**。
+        2. 另一个必须要创建的Bean是ViewResolver，因为Spring MVC允许集成任何模板引擎，使用哪个模板引擎，就实例化一个对应的 ViewResolver
+        3. 剩下的Bean都是普通的@Component，但Controller必须标记为@Controller
 
-    Spring提供的是一个IoC容器，所有的Bean，包括Controller，都在Spring IoC容器中被初始化，
-    而Servlet容器由JavaEE服务器提供（如Tomcat），Servlet容器对Spring一无所知，他们之间到底依靠什么进行联系，又是以何种顺序初始化的？
-    在web.xml中配置Spring MVC提供的DispatcherServlet
-    使用Spring MVC时，整个Web应用程序按如下顺序启动：
-        1. 启动Tomcat服务器；
-        2. Tomcat读取web.xml并初始化DispatcherServlet；
-        3. DispatcherServlet创建IoC容器并自动注册到ServletContext中。
-    编写Controller:
-    接收的HTTP参数以@RequestParam()标注，可以设置默认值。
-    如果方法参数需要传入HttpServletRequest、HttpServletResponse或者HttpSession，直接添加这个类型的参数即可，Spring MVC会自动按类型传入。
+        Spring提供的是一个IoC容器，所有的Bean，包括Controller，都在Spring IoC容器中被初始化，
+        而Servlet容器由JavaEE服务器提供（如Tomcat），Servlet容器对Spring一无所知，他们之间到底依靠什么进行联系，又是以何种顺序初始化的？
+        在web.xml中配置Spring MVC提供的DispatcherServlet
+        使用Spring MVC时，整个Web应用程序按如下顺序启动：
+            1. 启动Tomcat服务器；
+            2. Tomcat读取web.xml并初始化DispatcherServlet；
+            3. DispatcherServlet创建IoC容器并自动注册到ServletContext中。
+        编写Controller:
+        接收的HTTP参数以@RequestParam()标注，可以设置默认值。
+        如果方法参数需要传入HttpServletRequest、HttpServletResponse或者HttpSession，直接添加这个类型的参数即可，Spring MVC会自动按类型传入。
 
-使用REST:
-    在Web应用中，除了需要使用MVC给用户显示页面外，还有一类API接口，我们称之为REST，通常输入输出都是JSON，便于第三方调用或者使用页面JavaScript与之交互。
-    如果我们想接收JSON，输出JSON，那么可以这样写：
-        @PostMapping(value = "/rest",
-                     consumes = "application/json;charset=UTF-8",
-                     produces = "application/json;charset=UTF-8")
-        @ResponseBody
-        public String rest(@RequestBody User user) {
-            return "{\"restSupport\":true}";
-        }
-    注意到@PostMapping使用consumes声明能接收的类型，使用produces声明输出的类型，
-    并且额外加了@ResponseBody表示返回的String无需额外处理，直接作为输出内容写入HttpServletResponse。
-    输入的 JSON 则根据注解 @RequestBody 直接被Spring反序列化为User这个JavaBean（这是怎么做到的,猜测应该是根据 JavaBean 的 setXxx 方法吧）。
-    直接用 Spring 的 Controller 配合一大堆注解写REST太麻烦了，因此Spring还额外提供了一个 @RestController 注解，
-    使用@RestController替代@Controller后，每个方法自动变成API接口方法。我们还是以实际代码举例，编写ApiController
-
-集成 Filter:
-    如果要在Spring MVC中使用Filter，应该怎么做？
-    在Spring中创建的这个AuthFilter是一个普通Bean，Servlet容器并不知道，所以它不会起作用。
-    如果我们直接在 web.xml 中声明这个AuthFilter，注意到AuthFilter的实例将由Servlet容器而不是Spring容器初始化，因此，@Autowire根本不生效，用于登录的UserService成员变量永远是null。
-    所以，得通过一种方式，让Servlet容器实例化的Filter，间接引用Spring容器实例化的AuthFilter。===有点承上启下的意思了===
-    Spring MVC提供了一个DelegatingFilterProxy，专门来干这个事情：
-        <web-app>
-            <filter>
-                <filter-name>authFilter</filter-name>
-                <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-            </filter>
-
-            <filter-mapping>
-                <filter-name>authFilter</filter-name>
-                <url-pattern>/*</url-pattern>
-            </filter-mapping>
-            ...
-        </web-app>
-    我们来看实现原理：
-        1. Servlet容器从web.xml中读取配置，实例化DelegatingFilterProxy，注意命名是authFilter；
-        2. Spring容器通过扫描@Component实例化AuthFilter。
-
-    当 DelegatingFilterProxy 生效后，它会自动查找注册在 ServletContext 上的Spring容器，
-    再试图从容器中查找名为authFilter的Bean，也就是我们用@Component声明的AuthFilter。===高度串联了 ServletContext、Spring容器、和Filter===
-        ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐ ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
-          ┌─────────────────────┐        ┌───────────┐   │
-        │ │DelegatingFilterProxy│─│─│─ ─>│AuthFilter │
-          └─────────────────────┘        └───────────┘   │
-        │ ┌─────────────────────┐ │ │    ┌───────────┐
-          │  DispatcherServlet  │─ ─ ─ ─>│Controllers│   │
-        │ └─────────────────────┘ │ │    └───────────┘
-                                                         │
-        │    Servlet Container    │ │  Spring Container
-         ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
-
-使用Interceptor:
-    Interceptor的拦截范围其实就是 Controller 方法，它实际上就相当于基于AOP的方法拦截。
-    因为Interceptor只拦截 Controller 方法，所以要注意，返回ModelAndView后，后续对View的渲染就脱离了Interceptor的拦截范围。
-    使用Interceptor的好处是 Interceptor 本身是Spring管理的Bean，因此注入任意Bean都非常简单。
-    此外，可以应用多个Interceptor，并通过简单的@Order指定顺序。
-
-    一个Interceptor必须实现HandlerInterceptor接口，可以选择实现preHandle()、postHandle()和afterCompletion()方法。
-        preHandle()是Controller方法调用前执行，
-        postHandle()是Controller方法正常返回后执行，
-        afterCompletion()无论Controller方法是否抛异常都会执行，参数ex就是Controller方法抛出的异常（未抛出异常是null）。
-    在preHandle()中，也可以直接处理响应，然后返回false表示无需调用Controller方法继续处理了，通常在认证或者安全检查失败时直接返回错误响应。
-    在postHandle()中，因为捕获了Controller方法返回的ModelAndView，所以可以继续往ModelAndView里添加一些通用数据，
-    很多页面需要的全局数据如Copyright信息等都可以放到这里，无需在每个Controller方法中重复添加。
-    注意: 要让拦截器生效，我们在WebMvcConfigurer中注册所有的Interceptor；如果拦截器没有生效，请检查是否忘了在 WebMvcConfigurer 中注册。
-
-    处理异常:在Controller中，Spring MVC还允许定义基于 @ExceptionHandler 注解的异常处理方法。我们来看具体的示例代码：
-        @Controller
-        public class UserController {
-            @ExceptionHandler(RuntimeException.class)
-            public ModelAndView handleUnknowException(Exception ex) {
-                return new ModelAndView("500.html", Map.of("error", ex.getClass().getSimpleName(), "message", ex.getMessage()));
+    使用REST:
+        在Web应用中，除了需要使用MVC给用户显示页面外，还有一类API接口，我们称之为REST，通常输入输出都是JSON，便于第三方调用或者使用页面JavaScript与之交互。
+        如果我们想接收JSON，输出JSON，那么可以这样写：
+            @PostMapping(value = "/rest",
+                         consumes = "application/json;charset=UTF-8",
+                         produces = "application/json;charset=UTF-8")
+            @ResponseBody
+            public String rest(@RequestBody User user) {
+                return "{\"restSupport\":true}";
             }
+        注意到@PostMapping使用consumes声明能接收的类型，使用produces声明输出的类型，
+        并且额外加了@ResponseBody表示返回的String无需额外处理，直接作为输出内容写入HttpServletResponse。
+        输入的 JSON 则根据注解 @RequestBody 直接被Spring反序列化为User这个JavaBean（这是怎么做到的,猜测应该是根据 JavaBean 的 setXxx 方法吧）。
+        直接用 Spring 的 Controller 配合一大堆注解写REST太麻烦了，因此Spring还额外提供了一个 @RestController 注解，
+        使用@RestController替代@Controller后，每个方法自动变成API接口方法。我们还是以实际代码举例，编写ApiController
+
+    集成 Filter:
+        如果要在Spring MVC中使用Filter，应该怎么做？
+        在Spring中创建的这个AuthFilter是一个普通Bean，Servlet容器并不知道，所以它不会起作用。
+        如果我们直接在 web.xml 中声明这个AuthFilter，注意到AuthFilter的实例将由Servlet容器而不是Spring容器初始化，因此，@Autowire根本不生效，用于登录的UserService成员变量永远是null。
+        所以，得通过一种方式，让Servlet容器实例化的Filter，间接引用Spring容器实例化的AuthFilter。===有点承上启下的意思了===
+        Spring MVC提供了一个DelegatingFilterProxy，专门来干这个事情：
+            <web-app>
+                <filter>
+                    <filter-name>authFilter</filter-name>
+                    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+                </filter>
+
+                <filter-mapping>
+                    <filter-name>authFilter</filter-name>
+                    <url-pattern>/*</url-pattern>
+                </filter-mapping>
+                ...
+            </web-app>
+        我们来看实现原理：
+            1. Servlet容器从web.xml中读取配置，实例化DelegatingFilterProxy，注意命名是authFilter；
+            2. Spring容器通过扫描@Component实例化AuthFilter。
+
+        当 DelegatingFilterProxy 生效后，它会自动查找注册在 ServletContext 上的Spring容器，
+        再试图从容器中查找名为authFilter的Bean，也就是我们用@Component声明的AuthFilter。===高度串联了 ServletContext、Spring容器、和Filter===
+            ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐ ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+              ┌─────────────────────┐        ┌───────────┐   │
+            │ │DelegatingFilterProxy│─│─│─ ─>│AuthFilter │
+              └─────────────────────┘        └───────────┘   │
+            │ ┌─────────────────────┐ │ │    ┌───────────┐
+              │  DispatcherServlet  │─ ─ ─ ─>│Controllers│   │
+            │ └─────────────────────┘ │ │    └───────────┘
+                                                             │
+            │    Servlet Container    │ │  Spring Container
+             ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+
+    使用Interceptor:
+        Interceptor的拦截范围其实就是 Controller 方法，它实际上就相当于基于AOP的方法拦截。
+        因为Interceptor只拦截 Controller 方法，所以要注意，返回ModelAndView后，后续对View的渲染就脱离了Interceptor的拦截范围。
+        使用Interceptor的好处是 Interceptor 本身是Spring管理的Bean，因此注入任意Bean都非常简单。
+        此外，可以应用多个Interceptor，并通过简单的@Order指定顺序。
+
+        一个Interceptor必须实现HandlerInterceptor接口，可以选择实现preHandle()、postHandle()和afterCompletion()方法。
+            preHandle()是Controller方法调用前执行，
+            postHandle()是Controller方法正常返回后执行，
+            afterCompletion()无论Controller方法是否抛异常都会执行，参数ex就是Controller方法抛出的异常（未抛出异常是null）。
+        在preHandle()中，也可以直接处理响应，然后返回false表示无需调用Controller方法继续处理了，通常在认证或者安全检查失败时直接返回错误响应。
+        在postHandle()中，因为捕获了Controller方法返回的ModelAndView，所以可以继续往ModelAndView里添加一些通用数据，
+        很多页面需要的全局数据如Copyright信息等都可以放到这里，无需在每个Controller方法中重复添加。
+        注意: 要让拦截器生效，我们在WebMvcConfigurer中注册所有的Interceptor；如果拦截器没有生效，请检查是否忘了在 WebMvcConfigurer 中注册。
+
+        处理异常:在Controller中，Spring MVC还允许定义基于 @ExceptionHandler 注解的异常处理方法。我们来看具体的示例代码：
+            @Controller
+            public class UserController {
+                @ExceptionHandler(RuntimeException.class)
+                public ModelAndView handleUnknowException(Exception ex) {
+                    return new ModelAndView("500.html", Map.of("error", ex.getClass().getSimpleName(), "message", ex.getMessage()));
+                }
+                ...
+            }
+        异常处理方法没有固定的方法签名，可以传入Exception、HttpServletRequest等，返回值可以是void，也可以是ModelAndView，
+        上述代码通过@ExceptionHandler(RuntimeException.class)表示当发生RuntimeException的时候，就自动调用此方法处理。
+        注意到我们返回了一个新的ModelAndView，这样在应用程序内部如果发生了预料之外的异常，可以给用户显示一个出错页面，而不是简单的500 Internal Server Error或404 Not Found。
+
+    集成JMS:
+        JMS是一组接口定义，如果我们要使用JMS，还需要选择一个具体的JMS产品。常用的JMS服务器有开源的ActiveMQ，商业服务器如WebLogic、WebSphere等也内置了JMS支持
+
+
+Spring Boot开发--第一个SpringBoot应用:
+    application.yml: 是Spring Boot默认的配置文件，它采用YAML格式而不是.properties格式，文件名必须是application.yml而不是其他名称。
+        使用环境变量: ${DB_HOST:localhost}意思是，首先从环境变量查找DB_HOST，如果环境变量定义了，那么使用环境变量的值，否则，使用默认值localhost。
+        这使得我们在开发和部署时更加方便，因为开发时无需设定任何环境变量，直接使用默认值即本地数据库，而实际线上运行的时候，只需要传入环境变量即可：
+        $ DB_HOST=10.0.1.123 DB_USER=prod DB_PASSWORD=xxxx java -jar xxx.jar  ===原来这就是定义环境变量呀===
+    logback-spring.xml: 这是Spring Boot的logback配置文件名称（也可以使用logback.xml），一个标准的写法如下：
+        它主要通过 <include resource="..." /> 引入了Spring Boot的一个缺省配置，这样我们就可以引用类似${CONSOLE_LOG_PATTERN}这样的变量。
+    pom.xml: 使用Spring Boot时，强烈推荐从spring-boot-starter-parent继承，因为这样就可以引入Spring Boot的预置配置。紧接着，
+        我们引入了依赖spring-boot-starter-web和spring-boot-starter-jdbc，它们分别引入了Spring MVC相关依赖和Spring JDBC相关依赖，
+        无需指定版本号，因为引入的<parent>内已经指定了，只有我们自己引入的某些第三方jar包需要指定版本号。
+
+    存放源码的src/main/java目录中，Spring Boot对Java包的层级结构有一个要求。注意到我们的根package是com.itranswarp.learnjava，下面还有entity、service、web等子package。
+    Spring Boot要求main()方法所在的启动类必须放到根package下，命名不做要求，这里我们以Application.java命名，它的内容如下：
+        @SpringBootApplication
+        public class Application {
+            public static void main(String[] args) throws Exception {
+                SpringApplication.run(Application.class, args);
+            }
+
+            @Bean // 映射路径`/static/`到classpath路径:
+            WebMvcConfigurer createWebMvcConfigurer(@Autowired HandlerInterceptor[] interceptors) {
+                return new WebMvcConfigurer() {
+                    @Override
+                    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                        // 映射路径`/static/`到classpath路径:
+                        registry.addResourceHandler("/static/**")
+                                .addResourceLocations("classpath:/static/");
+                    }
+                };
+            }
+        }
+    启动Spring Boot应用程序只需要一行代码加上一个注解@SpringBootApplication，该注解实际上又包含了：
+        @SpringBootConfiguration
+            @Configuration
+        @EnableAutoConfiguration
+            @AutoConfigurationPackage
+        @ComponentScan
+    这样一个注解就相当于启动了自动配置和自动扫描。 ===一针见血指出了Spring Boot的工作原理===
+
+    Spring Boot自动启动了嵌入式Tomcat，当看到Started Application in xxx seconds时，Spring Boot应用启动成功。
+    现在，我们在浏览器输入localhost:8080就可以直接访问页面。那么问题来了：
+    前面我们定义的数据源、声明式事务、JdbcTemplate在哪创建的？怎么就可以直接注入到自己编写的UserService中呢？
+    这些自动创建的Bean就是Spring Boot的特色：AutoConfiguration。
+    当我们引入 spring-boot-starter-jdbc 时，启动时会自动扫描所有的XxxAutoConfiguration：
+        DataSourceAutoConfiguration：自动创建一个DataSource，其中配置项从application.yml的spring.datasource读取；
+        DataSourceTransactionManagerAutoConfiguration：自动创建了一个基于JDBC的事务管理器；
+        JdbcTemplateAutoConfiguration：自动创建了一个JdbcTemplate。
+        因此，我们自动得到了一个 DataSource、一个 DataSourceTransactionManager 和一个JdbcTemplate。
+    类似的，当我们引入 spring-boot-starter-web 时，自动创建了：
+        ServletWebServerFactoryAutoConfiguration：自动创建一个嵌入式Web服务器，默认是Tomcat；
+        DispatcherServletAutoConfiguration：自动创建一个DispatcherServlet；
+        HttpEncodingAutoConfiguration：自动创建一个CharacterEncodingFilter；
+        WebMvcAutoConfiguration：自动创建若干与MVC相关的Bean。
+        ...
+    引入第三方pebble-spring-boot-starter时，自动创建了：
+        PebbleAutoConfiguration：自动创建了一个PebbleViewResolver。
+
+    Spring Boot大量使用XxxAutoConfiguration来使得许多组件被自动化配置并创建，而这些创建过程又大量使用了Spring的 Conditional 功能。
+    例如，我们观察 JdbcTemplateAutoConfiguration，它的代码如下：
+        @Configuration(proxyBeanMethods = false)
+        @ConditionalOnClass({ DataSource.class, JdbcTemplate.class })
+        @ConditionalOnSingleCandidate(DataSource.class)
+        @AutoConfigureAfter(DataSourceAutoConfiguration.class)
+        @EnableConfigurationProperties(JdbcProperties.class)
+        @Import({ JdbcTemplateConfiguration.class, NamedParameterJdbcTemplateConfiguration.class })
+        public class JdbcTemplateAutoConfiguration {
             ...
         }
-    异常处理方法没有固定的方法签名，可以传入Exception、HttpServletRequest等，返回值可以是void，也可以是ModelAndView，
-    上述代码通过@ExceptionHandler(RuntimeException.class)表示当发生RuntimeException的时候，就自动调用此方法处理。
-    注意到我们返回了一个新的ModelAndView，这样在应用程序内部如果发生了预料之外的异常，可以给用户显示一个出错页面，而不是简单的500 Internal Server Error或404 Not Found。
+    当满足条件：
+        @ConditionalOnClass：在classpath中能找到DataSource和JdbcTemplate；
+        @ConditionalOnSingleCandidate(DataSource.class)：在当前Bean的定义中能找到唯一的DataSource；
+    该 JdbcTemplateAutoConfiguration 就会起作用。实际创建由导入的 JdbcTemplateConfiguration 完成：
+        @Configuration(proxyBeanMethods = false)
+        @ConditionalOnMissingBean(JdbcOperations.class)
+        class JdbcTemplateConfiguration {
+            @Bean
+            @Primary
+            JdbcTemplate jdbcTemplate(DataSource dataSource, JdbcProperties properties) {
+                JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+                JdbcProperties.Template template = properties.getTemplate();
+                jdbcTemplate.setFetchSize(template.getFetchSize());
+                jdbcTemplate.setMaxRows(template.getMaxRows());
+                if (template.getQueryTimeout() != null) {
+                    jdbcTemplate.setQueryTimeout((int) template.getQueryTimeout().getSeconds());
+                }
+                return jdbcTemplate;
+            }
+        }
+    创建JdbcTemplate之前，要满足@ConditionalOnMissingBean(JdbcOperations.class)，即不存在JdbcOperations的Bean。
+    如果我们自己创建了一个JdbcTemplate，例如，在Application中自己写个方法：
+        @SpringBootApplication
+        public class Application {
+            ...
+            @Bean
+            JdbcTemplate createJdbcTemplate(@Autowired DataSource dataSource) {
+                return new JdbcTemplate(dataSource);
+            }
+        }
+    那么根据条件@ConditionalOnMissingBean(JdbcOperations.class)，Spring Boot就不会再创建一个重复的JdbcTemplate（因为JdbcOperations是JdbcTemplate的父类）。
+    可见，Spring Boot自动装配功能是通过自动扫描+条件装配实现的，这一套机制在默认情况下工作得很好，但是，如果我们要手动控制某个Bean的创建，
+    就需要详细地了解Spring Boot自动创建的原理，很多时候还要跟踪XxxAutoConfiguration，以便设定条件使得某个Bean不会被自动创建。
 
-集成JMS:
-    JMS是一组接口定义，如果我们要使用JMS，还需要选择一个具体的JMS产品。常用的JMS服务器有开源的ActiveMQ，商业服务器如WebLogic、WebSphere等也内置了JMS支持
+    Spring Boot是一个基于Spring提供了开箱即用的一组套件，它可以让我们基于很少的配置和代码快速搭建出一个完整的应用程序。
+    Spring Boot有非常强大的AutoConfiguration功能，它是通过自动扫描+条件装配实现的。
+
+Spring Boot开发--使用开发者工具:
+    Spring Boot提供了一个开发阶段非常有用的spring-boot-devtools，能自动检测classpath路径上文件修改并自动重启。
+    默认配置下，针对/static、/public和/templates目录中的文件修改，不会自动重启，因为禁用缓存后，这些文件的修改可以实时更新。
+
+Spring Boot开发--打包Spring Boot应用:
+    Spring Boot的这款插件(spring-boot-maven-plugin)会自动定位应用程序的入口Class，我们执行以下Maven命令即可打包：
+
+Spring Boot开发--使用Actuator:
+    在生产环境中，需要对应用程序的状态进行监控。前面我们已经介绍了使用JMX对Java应用程序包括JVM进行监控，使用JMX需要把一些监控信息以MBean的形式暴露给JMX Server，而Spring Boot已经内置了一个监控功能，它叫Actuator。
+
+Spring Boot开发--使用Profiles:
+    Spring Boot允许在一个配置文件中针对不同Profile进行配置；
+    Spring Boot在未指定Profile时默认为default。
+
+Spring Boot开发--使用Conditional:
+    @ConditionalOnProperty：如果有指定的配置，条件生效；
+    @ConditionalOnBean：如果有指定的Bean，条件生效；
+    @ConditionalOnMissingBean：如果没有指定的Bean，条件生效；
+    @ConditionalOnMissingClass：如果没有指定的Class，条件生效；
+    @ConditionalOnWebApplication：在Web环境中条件生效；
+    @ConditionalOnExpression：根据表达式判断条件是否生效。
+    Spring Boot提供了几个非常有用的条件装配注解，可实现灵活的条件装配。
+
+Spring Boot开发--加载配置文件: ===和 Spring开发--IoC容器--注入配置 遥相呼应===
+    为了更好地管理配置，Spring Boot允许创建一个Bean，持有一组配置，并由Spring Boot自动注入。
+    假设我们在application.yml中添加了如下配置：
+        storage:
+          local:
+            # 文件存储根目录:
+            root-dir: ${STORAGE_LOCAL_ROOT:/var/storage}
+            # 最大文件大小，默认100K:
+            max-size: ${STORAGE_LOCAL_MAX_SIZE:102400}
+            # 是否允许空文件:
+            allow-empty: false
+            # 允许的文件类型:
+            allow-types: jpg, png, gif
+    可以首先定义一个Java Bean，持有该组配置：
+        @Configuration //这个注解居然还可以用在这里
+        @ConfigurationProperties("storage.local")
+        public class StorageConfiguration {
+            private String rootDir;
+            private int maxSize;
+            private boolean allowEmpty;
+            private List<String> allowTypes;
+            // getters and setters
+            ...
+        }
+    @ConfigurationProperties("storage.local")表示将从配置项storage.local读取该项的所有子项配置，并且，
+    @Configuration 表示 StorageConfiguration 也是一个Spring管理的Bean，可直接注入到其他Bean中
+    ===注解 @Configuration  居然还可以这么用===
+    ===Spring Boot开发--集成第三方组件--访问Reids提到的:如果在RedisConfiguration中标注 @Configuration，则可通过Spring Boot的自动扫描机制自动加载，否则，使用@Import手动加载。===
+    ToDo: 保证Java Bean的属性名称与配置一致即可，这句话具体怎么理解？
+          配置文件 application.yml 中的 里的 root-dir 是怎么和 Bean StorageConfiguration 里的属性名称 rootDir 对应起来的，两个字符串不完全一样？廖老师回答这就是 spring boot注入的规则
+
+Spring Boot开发--禁用自动配置:
+    可以通过@EnableAutoConfiguration(exclude = {...})指定禁用的自动配置；
+    可以通过@Import({...})导入自定义配置。
+
