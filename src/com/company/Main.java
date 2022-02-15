@@ -12,6 +12,7 @@ import java.util.Scanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.company.socketpoc.Server;
+import org.omg.PortableInterceptor.Interceptor;
 
 public class Main {
     /**
@@ -144,7 +145,7 @@ public class Main {
 
         // 测试注解:正好也用到了反射的知识
         AnnotationPoc annpoc = new AnnotationPoc("BeiJing");
-        annpoc.fieldCheck();
+        System.out.printf("annpoc.address = %s\n", annpoc.address);
         AnnotationRep annrep = new AnnotationRep();
         annrep.touchAnnoRep();
 
@@ -245,8 +246,10 @@ public class Main {
          * 对于每个请求，Web服务器会创建唯一的HttpServletRequest和HttpServletResponse实例，
          * 因此，HttpServletRequest和HttpServletResponse实例只有在当前处理线程中有效，它们总是局部变量，不存在多线程共享的问题。
          */
-        Server server = new Server();
-        server.runServer();
+        // Server server = new Server();
+        // server.runServer();
+        ConcurrentPoc concurrentPoc = new ConcurrentPoc();
+        concurrentPoc.threadPool();
     }
 }
 

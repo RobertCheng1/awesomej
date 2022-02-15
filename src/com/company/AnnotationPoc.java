@@ -40,7 +40,6 @@ public class AnnotationPoc {
     public String address;
 
     public void fieldCheck() throws java.lang.IllegalAccessException, IllegalArgumentException{
-        // 这个例子稍微有点不恰当：正常来讲应该先检查值，如果符合要求则再复制，而这里是赋值后再利用注解检测，哈哈哈
         System.out.println("In the fieldCheck");
         // 遍历所有Field:
         for (Field field : this.getClass().getFields()) {
@@ -65,6 +64,8 @@ public class AnnotationPoc {
 
     AnnotationPoc(String address) throws Exception{
         this.address = address;
+        // 在构造方法中，根据注解来检查参数的合法性
+        this.fieldCheck();
     }
 }
 
@@ -93,6 +94,8 @@ class AnnotationRep {
     public void touchAnnoRep(){
         System.out.println("In the AnnotationRep");
         System.out.println(this.getClass().isAnnotationPresent(Reports.class));
+        // Report report = this.getClass().getAnnotation(Report.class);
+        // System.out.println(report);
         Reports reports = this.getClass().getAnnotation(Reports.class);
         System.out.println(reports);
     }

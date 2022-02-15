@@ -35,8 +35,10 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
 面向对象编程--面向对象基础--包和作用域两章:
     https://www.liaoxuefeng.com/wiki/1252599548343744/1260467032946976
     https://www.liaoxuefeng.com/wiki/1252599548343744/1260466215676512
+    https://blog.csdn.net/cpxsxn/article/details/122744367
     在 Java中，我们使用package来解决名字冲突:
     Java定义了一种名字空间，称之为包：package。一个类总是属于某个包，类名（比如Person）只是一个简写，真正的完整类名是包名.类名。
+    在定义class的时候，我们需要在第一行声明这个class属于哪个包。
     要特别注意：包没有父子关系。java.util 和 java.util.zip 是不同的包，两者没有任何继承关系。
 
     Java编译器最终编译出的.class文件只使用完整类名，因此，在代码中，当编译器遇到一个class名称时：
@@ -60,11 +62,22 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
     用法: java [-options] class [args...]  (执行类)
     或  java [-options] -jar jarfile [args...]  (执行 jar 文件)
 
+    在IDE中运行Java程序，IDE自动传入的-cp参数是当前工程的bin目录和引入的jar包。
+    假设我们有一个编译后的Hello.class，它的包名是com.example，当前目录是C:\work，那么，目录结构必须如下：
+        C:\work
+        └─ com
+           └─ example
+              └─ Hello.class
+    运行这个Hello.class必须在当前目录下使用如下命令： C:\work> java -cp . com.example.Hello
+    JVM根据classpath设置的.在当前目录下查找com.example.Hello，即实际搜索文件必须位于com/example/Hello.class。
+    如果指定的.class文件不存在，或者目录结构和包名对不上，均会报错
+
     如果我们要执行一个jar包的class，就可以把jar包放到classpath中：
         java -cp ./hello.jar abc.xyz.Hello   这样JVM会自动在hello.jar文件里去搜索某个类。
     jar包还可以包含一个特殊的/META-INF/MANIFEST.MF文件，MANIFEST.MF是纯文本，可以指定Main-Class和其它信息。
     JVM会自动读取这个MANIFEST.MF文件，如果存在Main-Class，我们就不必在命令行指定启动的类名，而是用更方便的命令：
         java -jar hello.jar
+    Spring Boot的插件(spring-boot-maven-plugin)会自动定位应用程序的入口Class，我们执行以下Maven命令即可打包：mvn clean package//from:打包SpringBoot应用
 
     在Java 9之前，一个大型Java程序会生成自己的jar文件，同时引用依赖的第三方jar文件，
     而JVM自带的Java标准库，实际上也是以jar文件形式存放的，这个文件叫rt.jar，一共有60多M。
@@ -196,8 +209,46 @@ Java简介--第一个Java程序https://www.liaoxuefeng.com/wiki/1252599548343744
     System.out.println(aaa.getClass()); // java: 无法取消引用int
 
 
-Servlet多线程模型: from: Web开发--Servlet进阶
-    一个Servlet类在服务器中只有一个实例，但对于每个HTTP请求，Web服务器会使用多线程执行请求。因此，一个Servlet的doGet()、doPost()等处理请求的方法是多线程并发执行的。如果Servlet中定义了字段，要注意多线程并发访问的问题：
+JDBC编程--JDBC简介、JDBC查询：
+    一个MySQL的JDBC的驱动就是一个jar包，它本身也是纯Java编写的。我们自己编写的代码只需要引用Java标准库提供的java.sql包下面的相关接口，
+    由此再间接地通过MySQL驱动的jar包通过网络访问MySQL服务器，所有复杂的网络通讯都被封装到JDBC驱动中，
+    因此，Java程序本身只需要引入一个MySQL驱动的jar包就可以正常访问MySQL服务器：
+
+    JDBC是一套接口规范，它在哪呢？
+    就在Java的标准库java.sql里放着，不过这里面大部分都是接口。接口并不能直接实例化，而是必须实例化对应的实现类，然后通过接口引用这个实例。
+    JDBC接口的实现类在哪？
+    因为JDBC接口并不知道我们要使用哪个数据库，所以，用哪个数据库，我们就去使用哪个数据库的“实现类”，我们把某个数据库实现了JDBC接口的jar包称为JDBC驱动。
+    JDBC DEMO:
+        // JDBC连接的URL, 不同数据库有不同的格式: (URL是由数据库厂商指定的格式)
+        String JDBC_URL = "jdbc:mysql://localhost:3306/test";
+        String JDBC_USER = "root";
+        String JDBC_PASSWORD = "password";
+        // 获取连接:
+        Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+        // 访问数据库 xxx
+        // 关闭连接:
+        conn.close();
+    核心代码是DriverManager提供的静态方法getConnection()。
+    DriverManager会自动扫描classpath，找到所有的JDBC驱动，然后根据我们传入的URL自动挑选一个合适的驱动。
+
+
+Servlet多线程模型: from: Web开发--Servlet入门和Servlet进阶
+    现在问题又来了：我们应该如何运行这个war文件？
+    普通的Java程序是通过启动JVM，然后执行main()方法开始运行。但是Web应用程序有所不同，
+    我们无法直接运行war文件，必须先启动Web服务器，再由Web服务器加载我们编写的HelloServlet，这样就可以让HelloServlet处理浏览器发送的请求。
+
+    因为我们编写的Servlet并不是直接运行，而是由Web服务器加载后创建实例运行，所以，类似Tomcat这样的Web服务器也称为Servlet容器。===术语===
+    在Servlet容器中运行的Servlet具有如下特点：
+        1. 无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例；
+        2. Servlet容器只会给每个Servlet类创建唯一实例；
+        3. Servlet容器会使用多线程执行doGet()或doPost()方法。
+    复习一下Java多线程的内容，我们可以得出结论：
+        在Servlet中定义的实例变量会被多个线程同时访问，要注意线程安全；
+        HttpServletRequest和HttpServletResponse实例是由Servlet容器传入的局部变量，它们只能被当前线程访问，不存在多个线程访问的问题；
+        在doGet()或doPost()方法中，如果使用了ThreadLocal，但没有清理，那么它的状态很可能会影响到下次的某个请求，因为Servlet容器很可能用线程池实现线程复用。
+
+    一个Servlet类在服务器中只有一个实例，但对于每个HTTP请求，Web服务器会使用多线程执行请求。
+    因此，一个Servlet的doGet()、doPost()等处理请求的方法是多线程并发执行的。如果Servlet中定义了字段，要注意多线程并发访问的问题：
          public class HelloServlet extends HttpServlet {
              private Map<String, String> map = new ConcurrentHashMap<>();
     
@@ -208,7 +259,15 @@ Servlet多线程模型: from: Web开发--Servlet进阶
          }
     对于每个请求，Web服务器会创建唯一的HttpServletRequest和HttpServletResponse实例，
     因此，HttpServletRequest和HttpServletResponse实例只有在当前处理线程中有效，它们总是局部变量，不存在多线程共享的问题。
-     
+
+    ServletContext: 一个Web服务器可以运行一个或多个WebApp，对于每个WebApp，Web服务器都会为其创建一个全局唯一的 ServletContext 实例，//from: Web开发--使用Listener
+    ServletRequest、HttpSession等很多对象也提供 getServletContext() 方法获取到同一个ServletContext实例。
+    ServletContext实例最大的作用就是设置和共享全局信息。
+
+    过Listener我们可以监听Web应用程序的生命周期，获取HttpSession等创建和销毁的事件；
+    ServletContext是一个WebApp运行期的全局唯一实例，可用于设置和共享配置信息。
+
+
 使用Session和Cookie: from: Web开发--Servlet进阶--使用Session和Cookie
     在使用多台服务器构成集群时，使用Session会遇到一些额外的问题。通常，多台服务器集群使用反向代理作为网站入口：
                                              ┌────────────┐
@@ -228,11 +287,6 @@ Servlet多线程模型: from: Web开发--Servlet进阶
     无论采用何种方案，使用Session机制，会使得Web Server的集群很难扩展，
     因此，Session适用于中小型Web应用程序。对于大型Web应用程序来说，通常需要避免使用Session机制。
 
-JDBC编程--JDBC查询：
-    JDBC是一套接口规范，它在哪呢？
-    就在Java的标准库java.sql里放着，不过这里面大部分都是接口。接口并不能直接实例化，而是必须实例化对应的实现类，然后通过接口引用这个实例。
-    JDBC接口的实现类在哪？
-    因为JDBC接口并不知道我们要使用哪个数据库，所以，用哪个数据库，我们就去使用哪个数据库的“实现类”，我们把某个数据库实现了JDBC接口的jar包称为JDBC驱动。
 
 Java 类的成员变量的初始化本质：from:Spring开发--使用AOP--AOP避坑指南
     那么最终的问题来了：proxy实例的成员变量，也就是从UserService继承的zoneId，它的值是null。
@@ -296,155 +350,56 @@ Java 类的成员变量的初始化本质：from:Spring开发--使用AOP--AOP避
     因为只有原始Bean的方法会对自己的字段进行修改，他无法改proxy的字段
 
 
-IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设置了 JAVA_HOME 之后进行的
-    "C:\Program Files\Java\jdk1.8.0_281\bin\java.exe"
-    "-javaagent:C:\Program Files\JetBrains\IntelliJ IDEA 2020.2.3\lib\idea_rt.jar=59882:C:\Program Files\JetBrains\IntelliJ IDEA 2020.2.3\bin"
-    -Dfile.encoding=UTF-8
-    -classpath "
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\charsets.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\deploy.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\access-bridge-64.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\cldrdata.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\dnsns.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\jaccess.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\jfxrt.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\localedata.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\nashorn.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunec.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunjce_provider.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunmscapi.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunpkcs11.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\zipfs.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\javaws.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jce.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jfr.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jfxswt.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jsse.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\management-agent.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\plugin.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\resources.jar;
-    C:\Program Files\Java\jdk1.8.0_281\jre\lib\rt.jar;
-    E:\workspace_java\awesomej\out\production\awesomej;
-    E:\workspace_java\common_jars\commons-logging-1.2.jar"  com.company.Main
-    Hello, world!
-    127
-    Test char a = A
-    Test char zh = 中
+Spring开发--IoC容器/使用AOP
+    Spring的核心就是提供了一个IoC容器，它可以管理所有轻量级的JavaBean组件，
+    提供的底层服务包括组件的生命周期管理、配置和组装服务、AOP支持，以及建立在AOP基础上的声明式事务服务等。
 
-一个使用Maven管理的普通的Java项目，它的目录结构默认如下：from:Maven基础--Maven介绍
-        a-maven-project
-        ├── pom.xml
-        ├── src
-        │   ├── main
-        │   │   ├── java
-        │   │   └── resources
-        │   └── test
-        │       ├── java
-        │       └── resources
-        └── target
-    项目的根目录a-maven-project是项目名，它有一个项目描述文件pom.xml，
-    存放Java源码的目录是src/main/java，
-    存放资源文件的目录是src/main/resources，
-        //Spring开发--IoC容器--使用Resource 和 注入配置 也都提到了这一点
-        //Spring开发--开发Web应用--使用Spring MVC中提到:在src/main/resources目录中存放的是Java程序读取的 classpath 资源文件，除了JDBC的配置文件jdbc.properties外，我们又新增了一个logback.xml，这是Logback的默认查找的配置文件
-    存放测试源码的目录是src/test/java，存放测试资源的目录是src/test/resources，
-    最后，所有编译、打包生成的文件都放在target目录里。这些就是一个Maven项目的标准目录结构。
-    所有的目录结构都是约定好的标准结构，我们千万不要随意修改目录结构。使用标准结构不需要做任何配置，Maven就可以正常使用。
-
-    我们还需要在工程目录下创建一个web.xml描述文件，放到src/main/webapp/WEB-INF目录下（固定目录结构，不要修改路径，注意大小写）//from:Web开发--Servlet入门
-    我们还硬性规定: 模板必须放在 webapp/WEB-INF/templates目录下，静态文件必须放在webapp/static目录下     //from: Web开发--MVC高级开发
-    把所有的静态资源文件放入/static/目录，在开发阶段，有些Web服务器会自动为我们加一个专门负责处理静态文件的Servlet，但如果IndexServlet映射路径为/，会屏蔽掉处理静态文件的Servlet映射  //from: Web开发--部署
-    在Java程序中，我们经常会读取配置文件、资源文件等。使用Spring容器时，我们也可以把“文件”注入进来，方便程序读取。//from: Spring开发--IoC容器--使用Resource
-
-    两种用法都可以:
-        @PropertySource("classpath:/jdbc.properties")  // from:spring-web-mvc工程
-        @PropertySource("app.properties") // 表示读取classpath的app.properties  //from:springioc_annotation工程
-
-Spring Boot的标准目录结构，它完全是一个基于Java应用的普通Maven项目:
-        springboot-hello
-        ├── pom.xml
-        ├── src
-        │   └── main
-        │       ├── java
-        |       |   └── com
-        |       |       └── itranswarp
-        |       |           └── learnjava
-        |       |               ├── Application.java
-        |       |               ├── entity
-        |       |               │   └── User.java
-        |       |               ├── service
-        |       |               │   └── UserService.java
-        |       |               └── web
-        |       |                   └── UserController.java
-        │       └── resources
-        │           ├── application.yml
-        │           ├── logback-spring.xml
-        │           ├── static
-        │           └── templates
-        └── target
-    static是静态文件目录，templates是模板文件目录，
-    注意它们不再存放在src/main/webapp下，而是直接放到src/main/resources这个classpath目录，因为在Spring Boot中已经不需要专门的webapp目录了。
-    在存放源码的src/main/java目录中，Spring Boot对Java包的层级结构有一个要求。
-    注意到我们的根package是com.itranswarp.learnjava，下面还有entity、service、web等子package。
-    Spring Boot要求main()方法所在的启动类必须放到根package下，命名不做要求，这里我们以Application.java命名，
-
-    pom.xml: 使用Spring Boot时，强烈推荐从spring-boot-starter-parent继承，因为这样就可以引入Spring Boot的预置配置。紧接着，
-    我们引入了依赖spring-boot-starter-web和spring-boot-starter-jdbc，它们分别引入了Spring MVC相关依赖和Spring JDBC相关依赖，
-    无需指定版本号，因为引入的<parent>内已经指定了，只有我们自己引入的某些第三方jar包需要指定版本号。
-
-Java 提到过的创建：
-    反射中提到:Class实例是JVM内部创建的，如果我们查看JDK源码，可以发现 Class类的构造方法是 private，只有JVM能创建Class实例
-    Web开发--Servlet入门:无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例
-    Spring开发--IoC容器--IoC原理、定制 Bean:因为IoC容器要负责实例化所有的组件，因此，有必要告诉容器如何创建组件，以及各组件的依赖关系。容器初始化时创建Bean，容器关闭前销毁Bean。
-Java 中提到过的 scope:
-    注解中提到过 scope;
-    Maven的 pom.xml 也提到过 scope; provided依赖表示编译时需要，但运行时不需要。最典型的provided依赖是Servlet API，编译的时候需要，但是运行时，Servlet服务器内置了相关的jar，所以运行期不需要：
-    Spring的IoC容器也提到过scope from:Spring开发--定制Bean
-Java 中提到过的 Filter:
-    IO--Filter模式;
-    Web开发--使用Filter;
-    Spring开发--开发Web应用--集成Filter
-应用代码创建不了的:
-    无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例；
-    ===联想反射中提到的Class的实例只能由JVM创建=== from:mavenpoc工程
-
-    Spring提供的容器又称为IoC容器，什么是IoC？ from: IoC容器--装配Bean
-	我们需要创建一个Spring的IoC容器实例，然后加载配置文件，让Spring容器为我们创建并装配好配置文件中指定的所有Bean，这只需要一行代码：
+    在Spring的IoC容器中，我们把所有组件统称为JavaBean，即配置一个组件就是配置一个Bean。from:IoC容器--IoC原理
+    Spring提供的容器又称为IoC容器，什么是IoC？ (解决了什么问题?) from: Spring开发--IoC容器--装配Bean
+        我们需要创建一个Spring的IoC容器实例，然后加载配置文件，让Spring容器为我们创建并装配好配置文件中指定的所有Bean，这只需要一行代码：
         ApplicationContext context = new ClassPathXmlApplicationContext("application.xml");
-    可以看到 Spring容器就是ApplicationContext，它是一个接口，有很多实现类，这里我们选择ClassPathXmlApplicationContext，表示它会自动从 classpath 中查找指定的XML配置文件。
-    我们从创建 Spring容器的代码：可以看到，Spring(自己加的IoC)容器就是 ApplicationContext，它是一个接口，有很多实现类，
-    这里我们选择 ClassPathXmlApplicationContext，表示它会自动从classpath中查找指定的XML配置文件。
-    获得了 ApplicationContext 的实例，就获得了IoC容器的引用。===这简直太一针见血了, 印证了 springioc_annotation工程中猜测===
+        可以看到 Spring容器就是ApplicationContext，它是一个接口，有很多实现类，这里我们选择ClassPathXmlApplicationContext，表示它会自动从 classpath 中查找指定的XML配置文件。
+        我们从创建 Spring容器的代码：可以看到，Spring(自己加的IoC)容器就是 ApplicationContext，它是一个接口，有很多实现类，
+        这里我们选择 ClassPathXmlApplicationContext，表示它会自动从classpath中查找指定的XML配置文件。
+        获得了 ApplicationContext 的实例，就获得了IoC容器的引用。===这简直太一针见血了, 印证了 springioc_annotation工程中猜测===
 
-	对于Spring容器来说，当我们把一个Bean标记为 @Component 后，它就会自动为我们创建一个单例（Singleton），即容器初始化时创建Bean，容器关闭前销毁Bean。
-	在容器运行期间，我们调用getBean(Class)获取到的Bean总是同一个实例。还有一种Bean，我们每次调用getBean(Class)，容器都返回一个新的实例，这种Bean称为Prototype（原型）.
+    可以理解为IoC是AOP的基础, 没有IoC就没有AOP: 会在 用CGLIB自动创建的 代理类中注入原始的类
+    在IoC容器--使用Annotation配置:@ComponentScan，它告诉容器，自动搜索当前类所在的包以及子包，把所有标注为@Component的Bean自动创建出来，并根据@Autowired进行装配
+    在使用AOP--使用 AOP: 既然SecurityCheckBookService的代码都是标准的Proxy样板代码，不如把权限检查视作一种切面（Aspect），把日志、事务也视为切面，
+                       然后，以某种自动化的方式，把切面织入到核心逻辑中，实现Proxy模式。===最终也是实现Proxy模式，只不过是自动化的===
+    在使用AOP--装配 AOP: Spring的IoC容器看到该注解(@EnableAspectJAutoProxy)，就会自动查找带有 @Aspect 的Bean，然后根据每个方法的@Before、@Around等注解把AOP注入到特定的Bean中
+                       Spring容器启动时为我们自动创建的注入了Aspect的子类，它取代了原始的UserService（原始的UserService实例作为内部变量隐藏在UserServiceAopProxy中）。
+                       如果我们打印从Spring容器获取的UserService实例类型，它类似UserService$$EnhancerBySpringCGLIB$$1f44e01c，实际上是Spring使用CGLIB动态创建的子类，但对于调用方来说，感觉不到任何区别。
+                       Spring对接口类型使用JDK动态代理，对普通类使用CGLIB创建子类。如果一个Bean的class是final，Spring将无法为其创建子类。
+    在使用AOP--使用注解装配 AOP:我们在使用AOP时，要注意到虽然Spring容器可以把指定的方法通过AOP规则装配到指定的Bean的指定方法前后，但是，
+                            如果自动装配时，因为不恰当的范围，容易导致意想不到的结果，即很多不需要AOP代理的Bean也被自动代理了，并且，后续新增的Bean，如果不清楚现有的AOP装配规则，容易被强迫装配。
+                            使用AOP时，被装配的Bean最好自己能清清楚楚地知道自己被安排了。
+                            例如，Spring提供的@Transactional就是一个非常好的例子。如果我们自己写的Bean希望在一个数据库事务中被调用，就标注上@Transactional, 当然还需要在public class AppConfig 上增加注解@EnableTransactionManagement 和定义Bean PlatformTransactionManager
+                            扩展：“性能监控例子”中自定义的注解MetricTime类似使用声明式事务中的 @Transactional注解;
+                                 “性能监控例子”中@ComponentScan 和 带有@Aspect和@Component的Bean MetricAspect的配合 类似 声明式事务中的@EnableTransactionManagement注解和Bean PlatformTransactionManager的配合
+                                  声明了@EnableTransactionManagement后，不必额外添加@EnableAspectJAutoProxy。from:使用AOP--装配 AOP
+    无论是使用AspectJ(即@Before、@Around等拦截器)语法，还是配合Annotation，
+    使用AOP，实际上就是让Spring自动为我们创建一个Proxy，使得调用方能无感知地调用指定方法，
+    但运行期却动态“织入”了其他逻辑，因此，AOP本质上就是一个代理模式。因为Spring使用了CGLIB来实现运行期动态创建Proxy。 from:使用AOP--AOP避坑指南
 
-    Spring容器会对上述Bean做如下初始化流程： from:Spring开发--IoC容器--定制Bean 强调的是 PostConstruct
-        调用构造方法创建MailService实例；
-        根据@Autowired进行注入；
-        调用标记有 @PostConstruct 的init()方法进行初始化。
-    当Servlet容器创建当前Servlet实例后，会自动调用init(ServletConfig)方法(居然不需要注解 @PostConstruct) from:廖雪峰源码web-mvc 的 DispatcherServlet
-ServletContext: 参考web-servlet-embeded工程 中的 listener目录下的 AppListener from:Web开发--使用Listener
-ApplicationContext:参考springioc工程中的:IoC容器--装配Bean
-用到切面 AOP 的场景:
-    Spring对一个声明式事务的方法，如何开启事务支持？原理仍然是AOP代理，即通过自动创建Bean的Proxy实现。 from:Spring开发--访问数据库--使用声明式事务
-    Interceptor 的拦截范围其实就是Controller方法，它实际上就相当于基于AOP的方法拦截。 from:Spring开发--开发Web应用--使用Interceptor
-注解 @Configuration 的使用场景：
-    1.  @Configuration //表示该类是一个配置类，因为我们创建ApplicationContext时，使用的实现类是AnnotationConfigApplicationContext，必须传入一个标注了@Configuration的类名。
-        public class AppConfig {
-            // AppConfig标注了@Configuration，表示它是一个配置类，因为我们创建ApplicationContext时：
-            // ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-            // 使用的实现类是AnnotationConfigApplicationContext，必须传入一个标注了@Configuration的类名。
-            // 此外，AppConfig还标注了@ComponentScan，
-            // 它告诉容器，自动搜索当前类所在的包以及子包，把所有标注为@Component的Bean自动创建出来，并根据@Autowired进行装配。
-            ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+    Spring对一个声明式事务的方法，如何开启事务支持？原理仍然是AOP代理，即通过自动创建Bean的Proxy实现：from:访问数据库--使用声明式事务
+        public class UserService$$EnhancerBySpringCGLIB extends UserService {   // 该类是Spring通过CGLIB动态创建的代理类,该话术来自: 使用AOP--AOP避坑指南
+            UserService target = ...
+            PlatformTransactionManager txManager = ...
+
+            public User register(String email, String password, String name) {
+                TransactionStatus tx = null;
+                try {
+                    tx = txManager.getTransaction(new DefaultTransactionDefinition());
+                    target.register(email, password, name);
+                    txManager.commit(tx);
+                } catch (RuntimeException e) {
+                    txManager.rollback(tx);
+                    throw e;
+                }
+            }
             ...
         }
-    2. 在1springboot-configuration 工程里的 StorageConfiguration 类上
-
-
-/Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
-包作用域和 public 作用域，谁的更宽泛，猜测是public
 
 Spring开发--开发 Web 应用:
     使用Spring MVC:
@@ -452,15 +407,25 @@ Spring开发--开发 Web 应用:
         除了创建DataSource、JdbcTemplate、PlatformTransactionManager外，AppConfig需要额外创建几个用于Spring MVC的Bean：
         1. WebMvcConfigurer 并不是必须的，但我们在这里创建一个默认的 WebMvcConfigurer，只覆写addResourceHandlers()，目的是让Spring MVC自动处理静态文件，并且映射路径为/static/**。
         2. 另一个必须要创建的Bean是ViewResolver，因为Spring MVC允许集成任何模板引擎，使用哪个模板引擎，就实例化一个对应的 ViewResolver
-        3. 剩下的Bean都是普通的@Component，但Controller必须标记为@Controller
-
+        3. 剩下的Bean都是普通的@Component，但Controller必须标记为@Controller (且可以)正常使用@Autowired注入(其他Bean)
+        对(使用Spring的)Web应用程序：Spring容器应该由谁创建？ from:Spring开发--开发Web应用--使用SpringMVC
+        如果是普通的(使用Spring的)Java应用程序，我们通过main()方法可以很简单地创建一个Spring容器的实例===和上面的一针见血注释遥相呼应===：
+            public static void main(String[] args) {
+                ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+            }
+            ---充分说明了 Spring 并不是非得是 web 程序,这很一针见血---
+        但是问题来了，现在是Web应用程序，而Web应用程序总是由Servlet容器创建(和 Web开发--Servlet入门遥相呼应)，那么，
+        Spring容器应该由谁创建？在什么时候创建？Spring容器中的Controller又是如何通过Servlet调用的？
         Spring提供的是一个IoC容器，所有的Bean，包括Controller，都在Spring IoC容器中被初始化，
-        而Servlet容器由JavaEE服务器提供（如Tomcat），Servlet容器对Spring一无所知，他们之间到底依靠什么进行联系，又是以何种顺序初始化的？
-        在web.xml中配置Spring MVC提供的DispatcherServlet
+        Servlet容器由JavaEE服务器提供（如Tomcat），Servlet容器(Tomcat)对Spring一无所知，他们之间到底依靠什么进行联系，又是以何种顺序初始化的？
+        答: 在web.xml中配置Spring MVC提供的 DispatcherServlet(注意是谁提供 DispatcherServlet )
         使用Spring MVC时，整个Web应用程序按如下顺序启动：
             1. 启动Tomcat服务器；
             2. Tomcat读取web.xml并初始化DispatcherServlet；
-            3. DispatcherServlet创建IoC容器并自动注册到ServletContext中。
+            3. DispatcherServlet 创建IoC容器并自动注册到ServletContext中。
+            Servlet容器为每个Web应用程序自动创建一个唯一的ServletContext实例，这个实例就代表了Web应用程序本身。
+            因为DispatcherServlet持有IoC容器，能从IoC容器中获取所有@Controller的Bean，因此，DispatcherServlet接收到所有HTTP请求后，
+            根据Controller方法配置的路径，就可以正确地把请求转发到指定方法，并根据返回的ModelAndView决定如何渲染页面。
         编写Controller:
         接收的HTTP参数以@RequestParam()标注，可以设置默认值。
         如果方法参数需要传入HttpServletRequest、HttpServletResponse或者HttpSession，直接添加这个类型的参数即可，Spring MVC会自动按类型传入。
@@ -550,7 +515,8 @@ Spring开发--开发 Web 应用:
 
 Spring Boot开发--第一个SpringBoot应用:
     application.yml: 是Spring Boot默认的配置文件，它采用YAML格式而不是.properties格式，文件名必须是application.yml而不是其他名称。
-        使用环境变量: ${DB_HOST:localhost}意思是，首先从环境变量查找DB_HOST，如果环境变量定义了，那么使用环境变量的值，否则，使用默认值localhost。
+        使用环境变量: ${DB_HOST:localhost}意思是，
+        首先从环境变量查找DB_HOST，如果环境变量定义了，那么使用环境变量的值，否则，使用默认值localhost。
         这使得我们在开发和部署时更加方便，因为开发时无需设定任何环境变量，直接使用默认值即本地数据库，而实际线上运行的时候，只需要传入环境变量即可：
         $ DB_HOST=10.0.1.123 DB_USER=prod DB_PASSWORD=xxxx java -jar xxx.jar  ===原来这就是定义环境变量呀===
     logback-spring.xml: 这是Spring Boot的logback配置文件名称（也可以使用logback.xml），一个标准的写法如下：
@@ -559,7 +525,8 @@ Spring Boot开发--第一个SpringBoot应用:
         我们引入了依赖spring-boot-starter-web和spring-boot-starter-jdbc，它们分别引入了Spring MVC相关依赖和Spring JDBC相关依赖，
         无需指定版本号，因为引入的<parent>内已经指定了，只有我们自己引入的某些第三方jar包需要指定版本号。
 
-    存放源码的src/main/java目录中，Spring Boot对Java包的层级结构有一个要求。注意到我们的根package是com.itranswarp.learnjava，下面还有entity、service、web等子package。
+    存放源码的src/main/java目录中，Spring Boot对Java包的层级结构有一个要求。
+    注意到我们的根package是com.itranswarp.learnjava，下面还有entity、service、web等子package。
     Spring Boot要求main()方法所在的启动类必须放到根package下，命名不做要求，这里我们以Application.java命名，它的内容如下：
         @SpringBootApplication
         public class Application {
@@ -658,7 +625,7 @@ Spring Boot开发--使用开发者工具:
     默认配置下，针对/static、/public和/templates目录中的文件修改，不会自动重启，因为禁用缓存后，这些文件的修改可以实时更新。
 
 Spring Boot开发--打包Spring Boot应用:
-    Spring Boot的这款插件(spring-boot-maven-plugin)会自动定位应用程序的入口Class，我们执行以下Maven命令即可打包：
+    Spring Boot的这款插件(spring-boot-maven-plugin)会自动定位应用程序的入口Class，我们执行以下Maven命令即可打包：mvn clean package
 
 Spring Boot开发--使用Actuator:
     在生产环境中，需要对应用程序的状态进行监控。前面我们已经介绍了使用JMX对Java应用程序包括JVM进行监控，使用JMX需要把一些监控信息以MBean的形式暴露给JMX Server，而Spring Boot已经内置了一个监控功能，它叫Actuator。
@@ -711,3 +678,173 @@ Spring Boot开发--禁用自动配置:
     可以通过@EnableAutoConfiguration(exclude = {...})指定禁用的自动配置；
     可以通过@Import({...})导入自定义配置。
 
+================================================================================
+一个使用Maven管理的普通的Java项目，它的目录结构默认如下：from:Maven基础--Maven介绍
+        a-maven-project
+        ├── pom.xml
+        ├── src
+        │   ├── main
+        │   │   ├── java
+        │   │   └── resources
+        │   └── test
+        │       ├── java
+        │       └── resources
+        └── target
+    项目的根目录a-maven-project是项目名，它有一个项目描述文件pom.xml，
+    存放Java源码的目录是src/main/java，
+    存放资源文件的目录是src/main/resources，
+        //Spring开发--IoC容器--使用Resource 和 注入配置 也都提到了这一点
+        //Spring开发--开发Web应用--使用Spring MVC中提到:在src/main/resources目录中存放的是Java程序读取的 classpath 资源文件，除了JDBC的配置文件jdbc.properties外，我们又新增了一个logback.xml，这是Logback的默认查找的配置文件
+    存放测试源码的目录是src/test/java，存放测试资源的目录是src/test/resources，
+    最后，所有编译、打包生成的文件都放在target目录里。这些就是一个Maven项目的标准目录结构。
+    所有的目录结构都是约定好的标准结构，我们千万不要随意修改目录结构。使用标准结构不需要做任何配置，Maven就可以正常使用。
+
+    我们还需要在工程目录下创建一个web.xml描述文件，放到src/main/webapp/WEB-INF目录下（固定目录结构，不要修改路径，注意大小写）//from:Web开发--Servlet入门
+    我们还硬性规定: 模板必须放在 webapp/WEB-INF/templates目录下，静态文件必须放在webapp/static目录下     //from: Web开发--MVC高级开发
+    把所有的静态资源文件放入/static/目录，在开发阶段，有些Web服务器会自动为我们加一个专门负责处理静态文件的Servlet，但如果IndexServlet映射路径为/，会屏蔽掉处理静态文件的Servlet映射  //from: Web开发--部署
+    src/main/webapp是标准web目录，WEB-INF存放web.xml，编译的class，第三方jar，以及不允许浏览器直接访问的View模版，static目录存放所有静态文件
+    (Spring项目还是用 webapp 目录的, 但是 springboot 就不用了)。 from:Spring开发--开发Web应用--使用SpringMVC
+    在Java程序中，我们经常会读取配置文件、资源文件等。使用Spring容器时，我们也可以把“文件”注入进来，方便程序读取。//from: Spring开发--IoC容器--使用Resource
+
+    两种用法都可以:
+        @PropertySource("classpath:/jdbc.properties")  // from:spring-web-mvc工程
+        @PropertySource("app.properties") // 表示读取classpath的app.properties  //from:springioc_annotation工程
+
+Spring Boot的标准目录结构，它完全是一个基于Java应用的普通Maven项目:
+        springboot-hello
+        ├── pom.xml
+        ├── src
+        │   └── main
+        │       ├── java
+        |       |   └── com
+        |       |       └── itranswarp
+        |       |           └── learnjava
+        |       |               ├── Application.java
+        |       |               ├── entity
+        |       |               │   └── User.java
+        |       |               ├── service
+        |       |               │   └── UserService.java
+        |       |               └── web
+        |       |                   └── UserController.java
+        │       └── resources
+        │           ├── application.yml
+        │           ├── logback-spring.xml
+        │           ├── static
+        │           └── templates
+        └── target
+    static是静态文件目录，templates是模板文件目录，
+    注意它们不再存放在src/main/webapp下，而是直接放到src/main/resources这个classpath目录，因为在Spring Boot中已经不需要专门的webapp目录了。
+    在存放源码的src/main/java目录中，Spring Boot对Java包的层级结构有一个要求。
+    注意到我们的根package是com.itranswarp.learnjava，下面还有entity、service、web等子package。
+    Spring Boot要求main()方法所在的启动类必须放到根package下，命名不做要求，这里我们以Application.java命名，
+
+    pom.xml: 使用Spring Boot时，强烈推荐从spring-boot-starter-parent继承，因为这样就可以引入Spring Boot的预置配置。紧接着，
+    我们引入了依赖spring-boot-starter-web和spring-boot-starter-jdbc，它们分别引入了Spring MVC相关依赖和Spring JDBC相关依赖，
+    无需指定版本号，因为引入的<parent>内已经指定了，只有我们自己引入的某些第三方jar包需要指定版本号。
+
+    Spring Boot的这款插件(spring-boot-maven-plugin)会自动定位应用程序的入口Class，我们执行以下Maven命令即可打包：mvn clean package//from:打包SpringBoot应用
+
+Java 提到过的创建：
+    反射中提到:Class实例是JVM内部创建的，如果我们查看JDK源码，可以发现 Class类的构造方法是 private，只有JVM能创建Class实例
+    Web开发--Servlet入门:无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例
+    Spring开发--IoC容器--IoC原理、定制 Bean:因为IoC容器要负责实例化所有的组件，因此，有必要告诉容器如何创建组件，以及各组件的依赖关系。容器初始化时创建Bean，容器关闭前销毁Bean。
+Java 中提到过的 scope:
+    注解中提到过 scope;
+    Maven的 pom.xml 也提到过 scope; provided依赖表示编译时需要，但运行时不需要。最典型的provided依赖是Servlet API，编译的时候需要，但是运行时，Servlet服务器内置了相关的jar，所以运行期不需要：
+    Spring的IoC容器也提到过scope from:Spring开发--定制Bean
+Java 中提到过的 Filter:
+    IO--Filter模式;
+    Web开发--使用Filter;
+    Spring开发--开发Web应用--集成Filter
+应用代码创建不了的:
+    无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例；
+    ===联想反射中提到的Class的实例只能由JVM创建=== from:mavenpoc工程
+
+    任何标注为@WebListener，且实现了特定接口的类会被Web服务器自动初始化。 //from: Web开发--使用Listener
+
+    如果数据库表的结构恰好和JavaBean的属性名称一致，那么(Spring提供的)BeanPropertyRowMapper就可以直接把一行记录按列名转换为JavaBean。//from: Spring开发--访问数据库--使用JDBC
+    类似User、Book这样的用于ORM的Java Bean，我们通常称之为Entity Bean;
+    使用JdbcTemplate配合RowMapper可以看作是最原始的ORM。如果要实现更自动化的ORM，可以选择成熟的ORM框架，例如Hibernate //from: Spring开发--访问数据库--集成Hibernate
+
+    PersistenceContext: 还是以UserService为例，除了标注@Component和@Transactional外，我们需要注入一个EntityManager，
+    但是不要使用Autowired，而是@PersistenceContext(===居然可以不用 Autowired 注入===) ;
+    Spring遇到标注了@PersistenceContext的EntityManager会自动注入代理，该代理会在必要的时候自动打开EntityManager。
+    换句话说，多线程引用的EntityManager虽然是同一个代理类，但该代理类内部针对不同线程会创建不同的EntityManager实例。//from:Spring开发--访问数据库--集成JPA
+    剩下的Bean都是普通的@Component，但Controller必须标记为@Controller (且可以)正常使用@Autowired注入(其他Bean) //from:Spring开发--开发Web应用--使用SpringMVC
+    @ConfigurationProperties("storage.local")表示将从配置项storage.local读取该项的所有子项配置，
+    并且，@Configuration表示StorageConfiguration也是一个Spring管理的Bean，可直接注入到其他Bean中。 //from:Spring Boot开发--加载配置文件
+    这和 Spring容器还提供了一个更简单的@PropertySource来自动读取配置文件 有类似作用。// from:Spring开发--IoC容器--注入配置
+
+	对于Spring容器来说，当我们把一个Bean标记为 @Component 后，它就会自动为我们创建一个单例（Singleton），即容器初始化时创建Bean，容器关闭前销毁Bean。
+	在容器运行期间，我们调用getBean(Class)获取到的Bean总是同一个实例。还有一种Bean，我们每次调用getBean(Class)，容器都返回一个新的实例，这种Bean称为Prototype（原型）.
+
+    Spring容器会对上述Bean做如下初始化流程： from:Spring开发--IoC容器--定制Bean 强调的是 PostConstruct
+        调用构造方法创建MailService实例；
+        根据@Autowired进行注入；
+        调用标记有 @PostConstruct 的init()方法进行初始化。而销毁时，容器会首先调用标记有@PreDestroy的shutdown()方法。
+    当Servlet容器创建当前Servlet实例后，会自动调用init(ServletConfig)方法(居然不需要注解 @PostConstruct) from:廖雪峰源码工程 web-mvc 的 DispatcherServlet
+DispatcherServlet: 我们在web.xml中配置Spring MVC提供的 DispatcherServlet, 有了这个配置，Servlet容器(Tomcat)会首先初始化Spring MVC的DispatcherServlet，
+                   在DispatcherServlet启动时，它根据配置AppConfig创建了一个类型是WebApplicationContext的IoC容器，完成所有Bean的初始化，
+                   并将容器绑到 ServletContext上。 from: Spring开发--开发Web应用--使用Spring MVC
+ServletContext: 一个Web服务器可以运行一个或多个WebApp，对于每个WebApp，Web服务器都会为其创建一个全局唯一的ServletContext实例。 from:Web开发--使用Listener 参考web-servlet-embeded工程中的listener目录下的 AppListener文件
+                注意区分比理解:一个Servlet类在服务器中只有一个实例，但对于每个HTTP请求，Web服务器会使用多线程执行请求。因此，
+                一个Servlet的doGet()、doPost()等处理请求的方法是多线程并发执行的。如果Servlet中定义了字段，要注意多线程并发访问的问题。//from: Web开发--Servlet进阶
+ApplicationContext: 本质就是一个Spring容器的实例， 参考springioc工程中的:IoC容器--装配Bean
+PersistenceContext: 参考上方提到的
+JdbcOperations是JdbcTemplate的父类: 根据条件@ConditionalOnMissingBean(JdbcOperations.class)，Spring Boot就不会再创建一个重复的JdbcTemplate（因为JdbcOperations是JdbcTemplate的父类）。from:SpringBoot开发--第一个SpringBoot应用
+用到切面 AOP 的场景:
+    AOP是一种新的编程方式，它和OOP不同，OOP把系统看作多个对象的交互，AOP把系统分解为不同的关注点，或者称之为切面（Aspect）。
+    Spring对一个声明式事务的方法，如何开启事务支持？原理仍然是AOP代理，即通过自动创建Bean的Proxy实现。 from:Spring开发--访问数据库--使用声明式事务
+    Interceptor 的拦截范围其实就是Controller方法，它实际上就相当于基于AOP的方法拦截。 from:Spring开发--开发Web应用--使用Interceptor
+注解 @Configuration 的使用场景：
+    1.  @Configuration //表示该类是一个配置类，因为我们创建ApplicationContext时，使用的实现类是AnnotationConfigApplicationContext，必须传入一个标注了@Configuration的类名。
+        public class AppConfig {
+            // AppConfig标注了@Configuration，表示它是一个配置类，因为我们创建ApplicationContext时：
+            // ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+            // 使用的实现类是AnnotationConfigApplicationContext，必须传入一个标注了@Configuration的类名。
+            // 此外，AppConfig还标注了@ComponentScan，
+            // 它告诉容器，自动搜索当前类所在的包以及子包，把所有标注为@Component的Bean自动创建出来，并根据@Autowired进行装配。
+            ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+            ...
+        }
+    2. 在1springboot-configuration 工程里的 StorageConfiguration 类上
+
+
+
+IDEA 运行 Main 的完全命令行: 这个输出是在安装完 Apache 时设置了 JAVA_HOME 之后进行的
+    "C:\Program Files\Java\jdk1.8.0_281\bin\java.exe"
+    "-javaagent:C:\Program Files\JetBrains\IntelliJ IDEA 2020.2.3\lib\idea_rt.jar=59882:C:\Program Files\JetBrains\IntelliJ IDEA 2020.2.3\bin"
+    -Dfile.encoding=UTF-8
+    -classpath "
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\charsets.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\deploy.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\access-bridge-64.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\cldrdata.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\dnsns.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\jaccess.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\jfxrt.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\localedata.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\nashorn.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunec.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunjce_provider.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunmscapi.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\sunpkcs11.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\ext\zipfs.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\javaws.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jce.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jfr.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jfxswt.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\jsse.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\management-agent.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\plugin.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\resources.jar;
+    C:\Program Files\Java\jdk1.8.0_281\jre\lib\rt.jar;
+    E:\workspace_java\awesomej\out\production\awesomej;
+    E:\workspace_java\common_jars\commons-logging-1.2.jar"  com.company.Main
+    Hello, world!
+    127
+    Test char a = A
+    Test char zh = 中
+
+/Library/Java/JavaVirtualMachines/jdk-15.0.1.jdk/Contents/Home/bin/java -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50357:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -classpath /Users/chengpengxing/workspace_java/awesomej/out/production/awesomej com.company.Main
+包作用域和 public 作用域，谁的更宽泛，猜测是public
