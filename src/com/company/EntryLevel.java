@@ -131,8 +131,9 @@ public class EntryLevel {
          *
          * int[] ns;
          * ns = new int[] {68, 79, 91, 85, 62};
-         * ns = new int[] {61，62 }; //居然还能再赋值,根据这个写法猜测Java的机制就当这是一个数组对象(和自定义的类 Student 没区别)而已
-         * System.out.println(ns.length); // 5
+         * ns = new int[] {61, 62 }; //居然还能再次赋值,根据这个写法猜测Java的机制就当这是一个数组对象(和自定义的类 Student 没区别)而已
+         *                           //这一点和 golang 是一样的，参考 array_poc.go
+         * System.out.println(ns.length); // 2
          * int[] nb = new int[] { 1, 2, 3 };
          * ns = nb;
          * System.out.println(ns.length); // 3

@@ -233,6 +233,20 @@ JDBC编程--JDBC简介、JDBC查询：
 
 
 Servlet多线程模型: from: Web开发--Servlet入门和Servlet进阶
+    上一节知道:编写HTTP服务器其实是非常简单的，只需要先编写基于多线程的TCP服务，然后在一个TCP连接中读取HTTP请求，发送HTTP响应即可。
+    但是，要编写一个完善的HTTP服务器，以HTTP/1.1为例，需要考虑的包括：
+        识别正确和错误的HTTP请求； 识别正确和错误的HTTP头；  复用TCP连接； 复用线程； IO异常处理；...
+    这些基础工作需要耗费大量的时间，并且经过长期测试才能稳定运行。
+    如果我们只需要输出一个简单的HTML页面，就不得不编写上千行底层代码，那就根本无法做到高效而可靠地开发。
+    因此，在JavaEE平台上，处理TCP连接，解析HTTP协议这些底层工作统统扔给现成的Web服务器去做，我们只需要把自己的应用程序跑在Web服务器上。
+    为了实现这一目的，JavaEE提供了Servlet API，我们使用Servlet API编写自己的Servlet来处理HTTP请求，Web服务器实现Servlet API接口，实现底层功能：
+                         ┌───────────┐
+                         │My Servlet │
+                         ├───────────┤
+                         │Servlet API│
+        ┌───────┐  HTTP  ├───────────┤
+        │Browser│<──────>│Web Server │
+        └───────┘        └───────────┘
     现在问题又来了：我们应该如何运行这个war文件？
     普通的Java程序是通过启动JVM，然后执行main()方法开始运行。但是Web应用程序有所不同，
     我们无法直接运行war文件，必须先启动Web服务器，再由Web服务器加载我们编写的HelloServlet，这样就可以让HelloServlet处理浏览器发送的请求。
@@ -246,6 +260,16 @@ Servlet多线程模型: from: Web开发--Servlet入门和Servlet进阶
         在Servlet中定义的实例变量会被多个线程同时访问，要注意线程安全；
         HttpServletRequest和HttpServletResponse实例是由Servlet容器传入的局部变量，它们只能被当前线程访问，不存在多个线程访问的问题；
         在doGet()或doPost()方法中，如果使用了ThreadLocal，但没有清理，那么它的状态很可能会影响到下次的某个请求，因为Servlet容器很可能用线程池实现线程复用。
+
+    内嵌 Tomcat: 通过main()方法启动Tomcat服务器并加载我们自己的webapp有如下好处：
+        启动简单，无需下载Tomcat或安装任何IDE插件；
+        调试方便，可在IDE中使用断点调试；
+        使用Maven创建war包后，也可以正常部署到独立的Tomcat服务器中。
+    对SpringBoot有所了解的童鞋可能知道，SpringBoot也支持在main()方法中一行代码直接启动Tomcat，并且还能方便地更换成Jetty等其他服务器。
+    评论中提到: 如果我在main 中自己写了启动Tomcat 的代码，本地调试确实是没问题，但是如果打WAR 以后在放到 容器里是不是重复， 是要在打包的时候删除MAIN 的代码吗？
+    廖老师回答：容器直接读web.xml找servlet，容器不会管哪个class里有main方法
+              事实上你引用的很多第三方jar包里面也有main方法，那就是一个普通方法，不是说定义了一个main方法它就肯定是入口。
+
 
     一个Servlet类在服务器中只有一个实例，但对于每个HTTP请求，Web服务器会使用多线程执行请求。
     因此，一个Servlet的doGet()、doPost()等处理请求的方法是多线程并发执行的。如果Servlet中定义了字段，要注意多线程并发访问的问题：
@@ -363,10 +387,25 @@ Spring开发--IoC容器/使用AOP
         这里我们选择 ClassPathXmlApplicationContext，表示它会自动从classpath中查找指定的XML配置文件。
         获得了 ApplicationContext 的实例，就获得了IoC容器的引用。===这简直太一针见血了, 印证了 springioc_annotation工程中猜测===
 
+    定制Bean:
+        默认情况下，当我们标记了一个@Autowired后，Spring如果没有找到对应类型的Bean，它会抛出NoSuchBeanDefinitionException异常。
+        可以给@Autowired增加一个required = false的参数：
+            @Component
+            public class MailService {
+                @Autowired(required = false)
+                ZoneId zoneId = ZoneId.systemDefault();
+                ...
+            }
+        这个参数告诉Spring容器，如果找到一个类型为ZoneId的Bean，就注入，如果找不到，就忽略。
+        这种方式非常适合有定义就使用定义，没有就使用默认值的情况。
+
+        默认情况下，对一种类型的Bean，容器只创建一个实例。但有些时候，我们需要对一种类型的Bean创建多个实例。
+        例如，同时连接多个数据库，就必须创建多个DataSource实例，这时可以用@Bean("name")指定别名，也可以用@Bean+@Qualifier("name")指定别名
+
     可以理解为IoC是AOP的基础, 没有IoC就没有AOP: 会在 用CGLIB自动创建的 代理类中注入原始的类
     在IoC容器--使用Annotation配置:@ComponentScan，它告诉容器，自动搜索当前类所在的包以及子包，把所有标注为@Component的Bean自动创建出来，并根据@Autowired进行装配
     在使用AOP--使用 AOP: 既然SecurityCheckBookService的代码都是标准的Proxy样板代码，不如把权限检查视作一种切面（Aspect），把日志、事务也视为切面，
-                       然后，以某种自动化的方式，把切面织入到核心逻辑中，实现Proxy模式。===最终也是实现Proxy模式，只不过是自动化的===
+                       然后，以某种自动化的方式，把切面织入到核心逻辑中，实现(这个词很一针见血)Proxy模式。===最终也是实现Proxy模式，只不过是自动化的===
     在使用AOP--装配 AOP: Spring的IoC容器看到该注解(@EnableAspectJAutoProxy)，就会自动查找带有 @Aspect 的Bean，然后根据每个方法的@Before、@Around等注解把AOP注入到特定的Bean中
                        Spring容器启动时为我们自动创建的注入了Aspect的子类，它取代了原始的UserService（原始的UserService实例作为内部变量隐藏在UserServiceAopProxy中）。
                        如果我们打印从Spring容器获取的UserService实例类型，它类似UserService$$EnhancerBySpringCGLIB$$1f44e01c，实际上是Spring使用CGLIB动态创建的子类，但对于调用方来说，感觉不到任何区别。
@@ -418,14 +457,41 @@ Spring开发--开发 Web 应用:
         Spring容器应该由谁创建？在什么时候创建？Spring容器中的Controller又是如何通过Servlet调用的？
         Spring提供的是一个IoC容器，所有的Bean，包括Controller，都在Spring IoC容器中被初始化，
         Servlet容器由JavaEE服务器提供（如Tomcat），Servlet容器(Tomcat)对Spring一无所知，他们之间到底依靠什么进行联系，又是以何种顺序初始化的？
-        答: 在web.xml中配置Spring MVC提供的 DispatcherServlet(注意是谁提供 DispatcherServlet )
+        答: 在Web应用中启动Spring容器有很多种方法，可以通过Listener启动，也可以通过Servlet启动，可以使用XML配置，也可以使用注解配置。
+            这里，我们只介绍一种最简单的启动Spring容器的方式。
+            在web.xml中配置Spring MVC提供的 DispatcherServlet(注意是谁提供 DispatcherServlet),
+            <web-app>
+                <servlet>
+                    <servlet-name>dispatcher</servlet-name>
+                    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+                    <init-param>
+                        <param-name>contextClass</param-name>
+                        <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+                    </init-param>
+                    <init-param>
+                        <param-name>contextConfigLocation</param-name>
+                        <param-value>com.itranswarp.learnjava.AppConfig</param-value>
+                    </init-param>
+                    <load-on-startup>0</load-on-startup>
+                </servlet>
+
+                <servlet-mapping>
+                    <servlet-name>dispatcher</servlet-name>
+                    <url-pattern>/*</url-pattern>
+                </servlet-mapping>
+            </web-app>
+            初始化参数contextClass指定使用注解配置的 AnnotationConfigWebApplicationContext (指定Spring容器 ApplicationContext 的实现类)，
+            配置文件的位置参数 contextConfigLocation 指向 AppConfig的完整类名(指定配置类)，
         使用Spring MVC时，整个Web应用程序按如下顺序启动：
             1. 启动Tomcat服务器；
-            2. Tomcat读取web.xml并初始化DispatcherServlet；
-            3. DispatcherServlet 创建IoC容器并自动注册到ServletContext中。
-            Servlet容器为每个Web应用程序自动创建一个唯一的ServletContext实例，这个实例就代表了Web应用程序本身。
-            因为DispatcherServlet持有IoC容器，能从IoC容器中获取所有@Controller的Bean，因此，DispatcherServlet接收到所有HTTP请求后，
-            根据Controller方法配置的路径，就可以正确地把请求转发到指定方法，并根据返回的ModelAndView决定如何渲染页面。
+            2. Tomcat读取web.xml并初始化DispatcherServlet (在 web.xml中把这个Servlet映射到/*，即(整个工程中只有这一个servlet)处理所有URL)；
+            3. DispatcherServlet (根据web.xml的配置)创建IoC容器并自动注册到ServletContext中。
+            Servlet容器(Tomcat)为每个Web应用程序自动创建一个唯一的ServletContext实例，这个实例就代表了Web应用程序本身。
+            因为DispatcherServlet持有IoC容器，能从IoC容器中获取所有@Controller(注意用词不是web开发章节中的servlet词系)的Bean，
+            因此，DispatcherServlet接收到所有HTTP请求后，根据Controller(注意用词不是web开发章节中的servlet词系)方法配置的路径，
+            就可以正确地把请求转发到指定方法，并根据返回的ModelAndView决定如何渲染页面。
+            当(web.xml中的)DelegatingFilterProxy生效后，它会自动查找注册在ServletContext上的Spring容器(明白为啥注册了吧)，
+            再试图从容器中查找名为 authFilter 的Bean，也就是我们用@Component声明的AuthFilter。//from:Spring开发--开发Web应用--集成Filter
         编写Controller:
         接收的HTTP参数以@RequestParam()标注，可以设置默认值。
         如果方法参数需要传入HttpServletRequest、HttpServletResponse或者HttpSession，直接添加这个类型的参数即可，Spring MVC会自动按类型传入。
@@ -744,6 +810,21 @@ Spring Boot的标准目录结构，它完全是一个基于Java应用的普通Ma
 
     Spring Boot的这款插件(spring-boot-maven-plugin)会自动定位应用程序的入口Class，我们执行以下Maven命令即可打包：mvn clean package//from:打包SpringBoot应用
 
+Web开发--使用Filter:修改请求和修改响应
+    Spring开发--开发Web应用--使用SpringMVC
+    如果在方法内部直接操作HttpServletResponse发送响应，返回null表示无需进一步处理：
+        public ModelAndView download(HttpServletResponse response) {
+            byte[] data = ...
+            response.setContentType("application/octet-stream");
+            OutputStream output = response.getOutputStream();
+            output.write(data);
+            output.flush();
+            return null;
+        }
+
+什么是容器？
+    容器是一种为某种特定组件的运行提供必要支持的一个软件环境。例如，Tomcat就是一个Servlet容器，它可以为Servlet的运行提供运行环境。
+    类似Docker这样的软件也是一个容器，它提供了必要的Linux环境以便运行一个特定的Linux进程。 //from:Spring开发--IoC容器
 Java 提到过的创建：
     反射中提到:Class实例是JVM内部创建的，如果我们查看JDK源码，可以发现 Class类的构造方法是 private，只有JVM能创建Class实例
     Web开发--Servlet入门:无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例
@@ -767,12 +848,13 @@ Java 中提到过的 Filter:
     使用JdbcTemplate配合RowMapper可以看作是最原始的ORM。如果要实现更自动化的ORM，可以选择成熟的ORM框架，例如Hibernate //from: Spring开发--访问数据库--集成Hibernate
 
     PersistenceContext: 还是以UserService为例，除了标注@Component和@Transactional外，我们需要注入一个EntityManager，
-    但是不要使用Autowired，而是@PersistenceContext(===居然可以不用 Autowired 注入===) ;
+    但是不要使用Autowired，而是@PersistenceContext(===居然可以不用 @Autowired 注入===) ;
     Spring遇到标注了@PersistenceContext的EntityManager会自动注入代理，该代理会在必要的时候自动打开EntityManager。
     换句话说，多线程引用的EntityManager虽然是同一个代理类，但该代理类内部针对不同线程会创建不同的EntityManager实例。//from:Spring开发--访问数据库--集成JPA
     剩下的Bean都是普通的@Component，但Controller必须标记为@Controller (且可以)正常使用@Autowired注入(其他Bean) //from:Spring开发--开发Web应用--使用SpringMVC
+    使用Interceptor的好处是Interceptor本身是Spring管理的Bean，因此注入任意Bean都非常简单。//from:Spring开发--开发Web应用--使用Interceptor
     @ConfigurationProperties("storage.local")表示将从配置项storage.local读取该项的所有子项配置，
-    并且，@Configuration表示StorageConfiguration也是一个Spring管理的Bean，可直接注入到其他Bean中。 //from:Spring Boot开发--加载配置文件
+    并且，@Configuration 表示StorageConfiguration也是一个Spring管理的Bean，可直接注入到其他Bean中。 //from:Spring Boot开发--加载配置文件
     这和 Spring容器还提供了一个更简单的@PropertySource来自动读取配置文件 有类似作用。// from:Spring开发--IoC容器--注入配置
 
 	对于Spring容器来说，当我们把一个Bean标记为 @Component 后，它就会自动为我们创建一个单例（Singleton），即容器初始化时创建Bean，容器关闭前销毁Bean。
@@ -783,10 +865,18 @@ Java 中提到过的 Filter:
         根据@Autowired进行注入；
         调用标记有 @PostConstruct 的init()方法进行初始化。而销毁时，容器会首先调用标记有@PreDestroy的shutdown()方法。
     当Servlet容器创建当前Servlet实例后，会自动调用init(ServletConfig)方法(居然不需要注解 @PostConstruct) from:廖雪峰源码工程 web-mvc 的 DispatcherServlet
+Spring还提供另一种IoC容器叫 BeanFactory，使用方式和ApplicationContext类似：
+    BeanFactory factory = new XmlBeanFactory(new ClassPathResource("application.xml"));
+    MailService mailService = factory.getBean(MailService.class);
+BeanFactory和ApplicationContext的区别在于，BeanFactory的实现是按需创建，即第一次获取Bean时才创建这个Bean，而ApplicationContext会一次性创建所有的Bean。
+实际上，ApplicationContext接口是从BeanFactory接口继承而来的，并且，ApplicationContext提供了一些额外的功能，
+包括国际化支持、事件和通知机制等。通常情况下，我们总是使用ApplicationContext，很少会考虑使用BeanFactory。from:Spring开发--IoC容器--装配Bean
+使用FactoryBean: 注意改词 from:Spring开发--IoC容器--定制Bean
 DispatcherServlet: 我们在web.xml中配置Spring MVC提供的 DispatcherServlet, 有了这个配置，Servlet容器(Tomcat)会首先初始化Spring MVC的DispatcherServlet，
                    在DispatcherServlet启动时，它根据配置AppConfig创建了一个类型是WebApplicationContext的IoC容器，完成所有Bean的初始化，
                    并将容器绑到 ServletContext上。 from: Spring开发--开发Web应用--使用Spring MVC
 ServletContext: 一个Web服务器可以运行一个或多个WebApp，对于每个WebApp，Web服务器都会为其创建一个全局唯一的ServletContext实例。 from:Web开发--使用Listener 参考web-servlet-embeded工程中的listener目录下的 AppListener文件
+                Servlet容器(Tomcat)为每个Web应用程序自动创建一个唯一的ServletContext实例，这个实例就代表了Web应用程序本身。from:Spring开发--开发Web应用--使用SpringMVC
                 注意区分比理解:一个Servlet类在服务器中只有一个实例，但对于每个HTTP请求，Web服务器会使用多线程执行请求。因此，
                 一个Servlet的doGet()、doPost()等处理请求的方法是多线程并发执行的。如果Servlet中定义了字段，要注意多线程并发访问的问题。//from: Web开发--Servlet进阶
 ApplicationContext: 本质就是一个Spring容器的实例， 参考springioc工程中的:IoC容器--装配Bean

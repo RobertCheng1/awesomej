@@ -1,5 +1,16 @@
 package com.company;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.type.MapType;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 /* 单继承：
    Java只允许单继承，所有类最终的根类是Object；没有明确写extends的类，编译器会自动加上extends Object, 所以任何类除了Object都会继承自某个类
 

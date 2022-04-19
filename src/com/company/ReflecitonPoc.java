@@ -14,9 +14,11 @@ import java.util.ConcurrentModificationException;
       这个Class实例是JVM内部创建的，如果我们查看JDK源码，可以发现 Class类的构造方法是 private，只有JVM能创建Class实例，
       ===联想Web开发--Servlet入门中提到的:无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例===
       我们自己的Java程序是无法创建Class实例的。所以，JVM持有的每个Class实例都指向一个数据类型（class或interface）
+      由于JVM为每个加载的class创建了对应的Class实例，并在实例中保存了该class的所有信息，包括类名、包名、父类、实现的接口、所有方法、字段等，
+      因此，如果获取了某个Class实例，我们就可以通过这个Class实例获取到该实例对应的class的所有信息。
+      这种通过Class实例获取 class 信息的方法称为反射（Reflection）。
 
-
-   2. 通过Class实例获取 class 信息的方法称为反射（Reflection）。
+   2. 如何获取一个class的Class实例？有三个方法：
       方法一：直接通过一个class的静态变量class获取：
             Class cls = String.class;
       方法二：如果我们有一个实例变量，可以通过该实例变量提供的getClass()方法获取：

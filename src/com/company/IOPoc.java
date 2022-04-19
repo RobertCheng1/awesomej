@@ -1,11 +1,26 @@
 package com.company;
 
 import java.io.*;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.spring.PropertyPreFilters;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import okhttp3.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import lombok.Data;
 
 /**
  * IO流是一种流式的数据输入/输出模型：
@@ -469,7 +484,234 @@ public class IOPoc {
          */
         System.out.println("In the filesEntry");
     }
+
+    public String readJson(){
+        // 参考: https://blog.csdn.net/luopengdlc/article/details/93894954
+        String jsonStr = "";
+        Reader reader = null;
+        try {
+            // File file = new File("src"+File.separator+"com"+File.separator+"company"+File.separator+"misc"+File.separator+"exportdb_native.txt" );
+            File file = new File("src"+File.separator+"com"+File.separator+"company"+File.separator+"misc"+File.separator+"exportdb_dist.txt" );
+            reader = new InputStreamReader(new FileInputStream(file),"Utf-8");
+
+            int ch = 0;
+            StringBuffer sb = new StringBuffer();
+            while ((ch = reader.read()) != -1) {
+                sb.append((char) ch);
+            }
+            reader.close();
+            jsonStr = sb.toString();
+            System.out.printf("jsonStr = %s\n", jsonStr);
+            JSONObject jsonObj = JSONObject.parseObject(jsonStr);
+            DbExport dbExport = JSONObject.parseObject(jsonObj.get("result").toString(), DbExport.class);
+
+            for(Map.Entry<String,String> entry: dbExport.getCtbSqls().entrySet()){
+                System.out.println(entry.getValue());
+            }
+
+            for(DbExport.TableBrief tableBrief: dbExport.getTables()){
+                System.out.println(tableBrief.getTableType());
+                System.out.println(tableBrief.getTableName());
+            }
+            System.out.println(JSONObject.toJSONString(dbExport));
+            System.out.println("-------------序列化-------------------");
+            String[] includeProperties = {"proxyDbInfo", "dbName", "preResource", "ctbSqls"};
+            PropertyPreFilters filters = new PropertyPreFilters();
+            PropertyPreFilters.MySimplePropertyPreFilter includeFilter = filters.addFilter();
+            includeFilter.addIncludes(includeProperties);
+            String simpleStr = JSONObject.toJSONString(dbExport, includeFilter, SerializerFeature.PrettyFormat);
+            System.out.println(simpleStr);
+
+            System.out.println("---------------------");
+            String[] excludeProperties = {"dbType", "srcUrl", "tables"};
+            PropertyPreFilters filters2 = new PropertyPreFilters();
+            PropertyPreFilters.MySimplePropertyPreFilter excludeFilter = filters2.addFilter();
+            excludeFilter.addExcludes(excludeProperties);
+            String simpleStr2 = JSONObject.toJSONString(dbExport, excludeFilter);
+            System.out.println(simpleStr2);
+
+
+
+            // String[] excludeProperties = {"country", "city"};
+            // String[] includeProperties = {"id", "username", "mobile"};
+            // PropertyPreFilters filters = new PropertyPreFilters();
+            // PropertyPreFilters.MySimplePropertyPreFilter excludefilter = filters.addFilter();
+            // excludefilter.addExcludes(excludeProperties);
+            // PropertyPreFilters.MySimplePropertyPreFilter includefilter = filters.addFilter();
+            // includefilter.addIncludes(includeProperties);
+
+
+
+
+
+            return simpleStr;
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            return null;
+        }
+    }
+
+    public String readJson2(){
+        // 参考: https://blog.csdn.net/luopengdlc/article/details/93894954
+        try {
+            String dbName = "TestDb";
+            String tables = "aa,bb,cc";
+            String proxyConsoleUrl = "http://10.222.178.177:8080/";
+            String url = "";
+            if ((tables == null) || (tables.length()==0)) {
+                url = proxyConsoleUrl + "api/stardb/proxy/export?dbName=" + dbName;
+            } else {
+                url = proxyConsoleUrl + "api/stardb/proxy/export?dbName=" + dbName + "&tableNames=" + tables;
+            }
+            String res = OkHttp3Client.get(url, null);
+            System.out.printf("----------------res = %s\n", res);
+            JSONObject resJson = JSON.parseObject(res);
+            System.out.println(resJson.get("success"));
+            if ((boolean)resJson.get("success") == true){
+                DbExport dbExport2 = JSONObject.parseObject(resJson.get("data").toString(), DbExport.class);
+                System.out.println("aaaaaaaaaaa");
+                System.out.println(dbExport2.getCtbSqls());
+                System.out.println(dbExport2.getClusterName());
+                System.out.println(dbExport2.getDbUnits());
+                // class 转 json 字符串
+                String tmp = JSONObject.toJSONString(dbExport2);
+                System.out.println(tmp);
+            } else {
+               System.out.println("bbbbbbbbbbbbbbbbb");
+            }
+        } catch (final IOException ex) {
+            System.out.println("dddddddddddddd");
+        }
+        return "endddddddddd";
+    }
+
 }
+
+@Data
+class DbExport implements Serializable {
+
+    /**
+     * 数据库名称
+     */
+    private String dbName;
+
+    // /**
+    //  * 数据库架构类型(0:原生MySQL;1:分布式架构)
+    //  */
+    // private Integer dbType;
+
+    /**
+     * 集群名称
+     */
+    @JSONField(name="dbName")
+    private String clusterName;
+
+    /**
+     * 数据库链接串
+     */
+    private String srcUrl;
+
+    /**
+     * 数据库链接串
+     */
+
+    private List<NodeBrief> dbUnits;
+
+    /**
+     * 库下的所有表详情
+     */
+    private List<TableBrief> tables;
+
+    /**
+     * 库下所有表的建表语句
+     */
+    private Map<String, String> ctbSqls;
+
+    /**
+     * 建库信息
+     */
+    private ProxyDbInfo proxyDbInfo;
+
+    @Data
+    public static class NodeBrief {
+
+        /**
+         * 实例ip地址
+         */
+        private String ip;
+
+        /**
+         * 实例端口号
+         */
+        private Integer port;
+
+        /**
+         * 实例角色
+         */
+        @JSONField(name="masterOrSlave")
+        private String role;
+    }
+
+
+
+    @Data
+    public static class TableBrief {
+
+        /**
+         * 表名
+         */
+        private String tableName;
+
+        /**
+         * 表类型
+         */
+        private String tableType;
+    }
+
+
+    @Data
+    public static class ProxyDbInfo {
+
+        /**
+         * 逻辑库名
+         */
+        private String dbName;
+
+        /**
+         * 资源个数
+         */
+        private Integer preResource;
+    }
+}
+
+
+class OkHttp3Client {
+
+    private static final MediaType MEDIA_TYPE = MediaType.parse("application/json;charset=utf-8");
+
+    /**
+     * http Get 请求
+     *
+     * @param url url
+     * @return String
+     * @throws IOException io
+     */
+    public static String get(String url, Headers headers) throws IOException {
+        OkHttpClient httpClient = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .headers(headers == null ? new Headers.Builder().build() : headers)
+                .build();
+        Response response = httpClient.newCall(request).execute();
+        if (Objects.isNull(response.body())) {
+            return null;
+        }
+        return Objects.requireNonNull(response.body()).string();
+    }
+
+}
+
+
 
 
 class CountInputStream extends FilterInputStream {

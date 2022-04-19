@@ -34,6 +34,8 @@ package com.company;
  *     enum的构造方法要声明为 private，字段强烈建议声明为 final；(既然是建议说明就不是强制)。 from: 面向对象编程--Java核心类--枚举类
  */
 
+import lombok.Getter;
+
 import java.time.DayOfWeek;
 import java.util.Arrays;
 
@@ -53,7 +55,7 @@ enum Color {
 }
 
 
-
+@Getter
 enum Weekday {
     // ordinal(): 返回定义的常量的顺序，从0开始计数，例如：
     //      int n = Weekday.MON.ordinal(); // 1
@@ -91,6 +93,13 @@ public class EnumPoc{
         Color yanse = Color.RED;
         System.out.println(yanse); //猛一看是直接打印对象，其实是在调用对象的toString()，目的是使输出的信息更有可读性。
         System.out.println(yanse.name()); // 返回常量名 或者说是 常量定义的字符串  from:枚举类
+
+
+        for(Weekday oneDay: Weekday.values()){
+            System.out.println(oneDay.getDayValue());
+            System.out.println(oneDay.getChinese());
+        }
+
     }
 }
 

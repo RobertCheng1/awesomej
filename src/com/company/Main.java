@@ -1,14 +1,20 @@
 package com.company;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
+import java.awt.print.Printable;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.net.Inet4Address;
 import java.sql.SQLSyntaxErrorException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Scanner;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.sun.xml.internal.ws.util.StringUtils;
+import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.company.socketpoc.Server;
@@ -48,7 +54,6 @@ public class Main {
 
         Student stu = new Student("robb", 11, 80);
         System.out.println(stu.getScore());
-        System.out.println(stu.getName());
         /* 测试覆写 Override 和 向上转型 和 向下转型 from: 面向对象编程--继承
            如果Student是从Person继承下来的，那么，一个引用类型为Person的变量，能否指向Student类型的实例？
                 Person p = new Student(); // ???
@@ -197,7 +202,10 @@ public class Main {
         io.writerEntry();
         io.printStreamAndprintWriterEntry();
         io.filesEntry();
-
+        // 联想全局变量
+        MockGlobal mg = new MockGlobal();
+        System.out.printf("模拟全部变量: mg.country = %s\n", mg.country);
+        // io.readJson();
         // 测试网络通信：重点讲的是 socket
         // Server server = new Server();
         // server.runServer();
@@ -248,8 +256,43 @@ public class Main {
          */
         // Server server = new Server();
         // server.runServer();
-        ConcurrentPoc concurrentPoc = new ConcurrentPoc();
-        concurrentPoc.threadPool();
+        // ConcurrentPoc concurrentPoc = new ConcurrentPoc();
+        // concurrentPoc.threadPool();
+        // char[] abc = new char[] {'z', 'h'};
+        // char[] abc = new char[10];
+        // abc[0] = 'z';
+        // abc[1] = 'h';
+        io.readJson();
+        // io.readJson2();
+        List<String> nameList = Arrays.asList("aaa", "bbb");
+        test(nameList);
+        System.out.println("---------------");
+        System.out.println(nameList);
+        System.out.println(nameList.toString());
+
+
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        System.out.println(formatter.format(date));
+
+        new RePoc().baseTest();
+
+    }
+
+    public static boolean test(List<String> nameList){
+        // 不能直接 add:  nameList.add("big"); 报异常 Exception in thread "main" java.lang.UnsupportedOperationException
+        List<String> newNameList = new ArrayList<>(nameList);
+        newNameList.add("big");
+        System.out.println(newNameList);
+
+        try {
+            Integer a = 2;
+            Integer b = 0;
+            Integer c = a/b;
+        } catch (Exception e){
+            return false;
+        }
+        return true;
     }
 }
 

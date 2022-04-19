@@ -63,6 +63,10 @@ public class CollectionPoc {
         // list.add(78); // UnsupportedOperationException
         // List<String> list = List.of("apple", "pear", "banana"); //为了用 Java8,暂时注释掉
         List<String> list = fruitList; //为了用 Java8,暂时这么赋值
+        // 修改 list 也会影响 fruitList，感觉像是传引用
+        list.remove("apple");
+        System.out.println(fruitList.size());
+
         // 遍历 List：
         // 这种方式并不推荐，一是代码复杂，二是因为get(int)方法只有ArrayList的实现是高效的，换成LinkedList后，索引越大，访问速度越慢。
         for (int i = 0; i < list.size(); i++) {
