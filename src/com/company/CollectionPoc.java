@@ -132,6 +132,44 @@ public class CollectionPoc {
     }
 
 
+    public void listStreamPoc() {
+        List<Worker> workers = new ArrayList<>();
+        workers.add(new Worker("Robert", 1000));
+        workers.add( new Worker("Bruce", 2000));
+        List<Worker> newList = workers.stream().filter(worker -> worker.getSalary()>100)
+                .collect(Collectors.toList());
+        for(Worker entry : newList) {
+            System.out.printf("entry.getName() = %s\n", entry.getName());
+        }
+
+        List<String> nameList = workers.stream().filter(worker -> worker.getSalary()>1000)
+                .map(Worker::getName)
+                .collect(Collectors.toList());
+        for(String name : nameList) {
+            System.out.printf("name = %s\n", name);
+        }
+
+
+        List<String> nameList2 = new ArrayList<>();
+        workers.stream().filter(worker -> worker.getSalary()>100)
+                .map(Worker::getName)
+                .forEach(nameList2::add);
+        for(String name2 : nameList2) {
+            System.out.printf("name2 = %s\n", name2);
+        }
+        // dataList 是个 List<Map> 的数据类型
+        // dataList.stream().filter(map -> !MapUtils.isEmpty(map)).map(Map::values).forEach(list::addAll);
+        //
+        //
+        Map<String, List<Worker>> aa = workers.stream().collect(Collectors.groupingBy(Worker::getName));
+        System.out.println(aa);
+
+
+        Map<String, IntSummaryStatistics> bb = workers.stream().collect(Collectors.groupingBy(Worker::getName,
+                Collectors.summarizingInt(Worker::getSalary)));
+        System.out.println(bb);
+    }
+
     public void mapEntry(){
         // Map也是一个接口，最常用的实现类是HashMap。
         System.out.println("In the mapEntry");

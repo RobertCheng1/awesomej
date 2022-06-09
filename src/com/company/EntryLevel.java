@@ -55,6 +55,9 @@ public class EntryLevel {
          */
         float f = 3.14e38f; // 科学计数法表示的3.14x10^38
         System.out.println(f);
+        float result = (float)3/9;
+        System.out.println(result);
+        System.out.println("方式一执行结果： " + (int)(result * 100));
         // 定义变量的时候，如果加上 final 修饰符，这个变量就变成了常量：
         final double PI = 3.14;
         // 有些时候，类型的名字太长，写起来比较麻烦。这时如果想省略变量类型，可以使用 var关键字，
@@ -315,10 +318,12 @@ public class EntryLevel {
         String.valueOf(new Object()); // 类似java.lang.Object@636be97c
         // 要把字符串转换为其他类型，就需要根据情况。例如，把字符串转换为int类型：
         int n1 = Integer.parseInt("666"); // 666
-        int n2 = Integer.parseInt("ff", 16); // 按十六进制转换，255
+        int n2 = Integer.valueOf("666"); // 666
+        int n3 = Integer.parseInt("ff", 16); // 按十六进制转换，255
         // 把字符串转换为boolean类型：
         boolean bo1 = Boolean.parseBoolean("true"); // true
         boolean bo2 = Boolean.parseBoolean("FALSE"); // false
+        boolean bo3 = Boolean.valueOf("FALSE"); // false
 
         // String 和 char[] 类型可以互相转换，方法是：
         char[] cs = "GREAT".toCharArray(); // String -> char[]

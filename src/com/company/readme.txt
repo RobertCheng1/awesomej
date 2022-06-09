@@ -811,7 +811,7 @@ Spring Boot的标准目录结构，它完全是一个基于Java应用的普通Ma
     Spring Boot的这款插件(spring-boot-maven-plugin)会自动定位应用程序的入口Class，我们执行以下Maven命令即可打包：mvn clean package//from:打包SpringBoot应用
 
 Web开发--使用Filter:修改请求和修改响应
-    Spring开发--开发Web应用--使用SpringMVC
+    Spring开发--开发Web应用--使用SpringMVC:
     如果在方法内部直接操作HttpServletResponse发送响应，返回null表示无需进一步处理：
         public ModelAndView download(HttpServletResponse response) {
             byte[] data = ...

@@ -80,7 +80,7 @@ package com.company;
             }
         实际上，因为 interface 的字段只能是 public static final 类型，所以我们可以把这些修饰符都去掉，上述代码可以简写为：
             public interface Person {
-                // 编译器会自动加上public statc final:
+                // 编译器会自动加上public static final:
                 int MALE = 1;
                 int FEMALE = 2;
             }

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.type.MapType;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.Serializable;
 
 /* 单继承：
    Java只允许单继承，所有类最终的根类是Object；没有明确写extends的类，编译器会自动加上extends Object, 所以任何类除了Object都会继承自某个类
@@ -21,7 +22,7 @@ import java.util.Map;
  */
 public class Student extends Person {
     private int score;
-
+    private final String school = "BJSY";
     /* 关于子类的构造方法：
        1. 子类不会继承任何父类的构造方法。子类默认的构造方法是编译器自动生成的，不是继承的。
           原因是如果一个类没有定义构造方法，编译器会自动为我们生成一个默认构造方法。from:继承
@@ -61,6 +62,13 @@ public class Student extends Person {
     @Override
     public void run(){
         System.out.println("In the Student.run");
+    }
+
+    // 虽然向上转型是可以成功的，但是不可以用父类变量调用“只在子类中出现的方法”
+    // Person perstu = new Student("rob", 12, 81);
+    // perstu.study(); // 编译会报错的
+    public void study() {
+        System.out.println("In the Student.study");
     }
 }
 

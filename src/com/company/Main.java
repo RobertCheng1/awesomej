@@ -12,8 +12,18 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.company.practice.MaxSubString;
+import com.company.practice.ZeroOnePackage;
+import com.company.utils.CalenderPoc;
+import com.company.utils.JacksonUtils;
+import com.company.utils.JsonPoc;
 import com.sun.xml.internal.ws.util.StringUtils;
+import jdk.nashorn.internal.objects.annotations.Function;
+import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,6 +64,8 @@ public class Main {
 
         Student stu = new Student("robb", 11, 80);
         System.out.println(stu.getScore());
+        System.out.println(stu);
+        System.out.println("aaaaabbbaaaa");
         /* 测试覆写 Override 和 向上转型 和 向下转型 from: 面向对象编程--继承
            如果Student是从Person继承下来的，那么，一个引用类型为Person的变量，能否指向Student类型的实例？
                 Person p = new Student(); // ???
@@ -76,6 +88,7 @@ public class Main {
          */
         Person perstu = new Student("rob", 12, 81);
         perstu.run();
+        // perstu.study(); // 虽然向上转型是可以成功的，但是不可以用父类变量调用“只在子类中出现的方法”
 
         // 测试抽象类和接口
         // Animal ani = new Animal()  编译报错：'Animal' is abstract; cannot be instantiated
@@ -176,6 +189,7 @@ public class Main {
         CollectionPoc cp = new CollectionPoc();
         cp.listEntry();
         cp.listEquals();
+        cp.listStreamPoc();
         cp.mapEntry();
         cp.mapEquals();
         cp.mapMisc();
@@ -264,35 +278,33 @@ public class Main {
         // abc[1] = 'h';
         io.readJson();
         // io.readJson2();
-        List<String> nameList = Arrays.asList("aaa", "bbb");
-        test(nameList);
-        System.out.println("---------------");
-        System.out.println(nameList);
-        System.out.println(nameList.toString());
+
+        //
+        // cp.listStreamPoc();
+        // new MaxSubString().maxSubString();
+        new ZeroOnePackage().test01Package();
+        // List<String> sqlList = new ArrayList<>();
+        // sqlList.add("select * from t1");
+        // sqlList.add("select * from t2");
+        // new JsonPoc().test();
 
 
-        Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        System.out.println(formatter.format(date));
-
-        new RePoc().baseTest();
-
-    }
-
-    public static boolean test(List<String> nameList){
-        // 不能直接 add:  nameList.add("big"); 报异常 Exception in thread "main" java.lang.UnsupportedOperationException
-        List<String> newNameList = new ArrayList<>(nameList);
-        newNameList.add("big");
-        System.out.println(newNameList);
-
-        try {
-            Integer a = 2;
-            Integer b = 0;
-            Integer c = a/b;
-        } catch (Exception e){
-            return false;
+        List<Worker> workers = new ArrayList<>();
+        workers.add(new Worker("Robert", 1000));
+        workers.add( new Worker("Bruce", 2000));
+        workers.add( new Worker("Robert", 2000));
+        System.out.println(workers.stream().map(Worker::getName).collect(Collectors.toList()));
+        int totalCount = 0;
+        String abc = "[{\"Tables_in_db_rob\":20}]";
+        for (Map map : JSON.parseArray(abc,Map.class)) {
+            totalCount = totalCount + map.values().stream().mapToInt((e)->(int)e).sum();
         }
-        return true;
+        System.out.print(totalCount);
+
+        List<String> aa = new ArrayList<>();
+        aa.add("hello");
+        aa.add("aaaa");
+        System.out.println(aa);
     }
 }
 
