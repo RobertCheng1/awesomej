@@ -213,6 +213,9 @@ public class GenericPoc {
         Pair<String> p = new Pair<String>("Michael", "Jordan");
         System.out.println(p.getFirst());
         System.out.println(p.getLast());
+        Pair<String> pp = Pair.create("bili", "lucy");
+        System.out.println(pp.getFirst());
+        System.out.println(pp.getLast());
 
         /**
          * 多个泛型类型:

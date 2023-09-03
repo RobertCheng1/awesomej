@@ -4,12 +4,16 @@ import java.awt.print.Printable;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.net.Inet4Address;
 import java.sql.SQLSyntaxErrorException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -17,6 +21,7 @@ import java.util.stream.Collectors;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.company.practice.MaxSubString;
+import com.company.practice.StrangePoc;
 import com.company.practice.ZeroOnePackage;
 import com.company.utils.CalenderPoc;
 import com.company.utils.JacksonUtils;
@@ -28,6 +33,7 @@ import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.company.socketpoc.Server;
+import org.apache.logging.log4j.util.Strings;
 import org.omg.PortableInterceptor.Interceptor;
 
 public class Main {
@@ -202,6 +208,10 @@ public class Main {
         cp.iteratorEntry();
         cp.streamEntry(); //这个很高阶
 
+        // 正则表达式的测试
+        RegExpPoc regExpPoc = new RegExpPoc();
+        regExpPoc.regularExpressPoc();
+
 
         // 测试 IO
         IOPoc io = new IOPoc();
@@ -288,23 +298,187 @@ public class Main {
         // sqlList.add("select * from t2");
         // new JsonPoc().test();
 
-
-        List<Worker> workers = new ArrayList<>();
-        workers.add(new Worker("Robert", 1000));
-        workers.add( new Worker("Bruce", 2000));
-        workers.add( new Worker("Robert", 2000));
-        System.out.println(workers.stream().map(Worker::getName).collect(Collectors.toList()));
-        int totalCount = 0;
-        String abc = "[{\"Tables_in_db_rob\":20}]";
-        for (Map map : JSON.parseArray(abc,Map.class)) {
-            totalCount = totalCount + map.values().stream().mapToInt((e)->(int)e).sum();
-        }
-        System.out.print(totalCount);
-
         List<String> aa = new ArrayList<>();
         aa.add("hello");
         aa.add("aaaa");
         System.out.println(aa);
+        ArrayList rob = new ArrayList();
+        rob.add("hello");
+        rob.add(12);
+        System.out.println(rob.get(0));
+        System.out.println(rob.get(1));
+        cp.listStreamPoc();
+
+
+        Calendar cal = Calendar.getInstance();
+        System.out.println(cal);
+
+
+        String dbs = "bt,jt";
+        List<String> oldPrivilegeList1 = Arrays.asList(dbs.split(","));
+        System.out.println(oldPrivilegeList1);
+
+
+        String oldStr = "select,update,insert";
+        List<String> oldPrivilegeList = Arrays.asList(oldStr.split(","));
+
+
+        Set<String> oldPrivilegeSet =  new HashSet<>(oldPrivilegeList);
+
+        List<String> newStrList = new ArrayList<>();
+        newStrList.add("update");
+        newStrList.add("insert");
+        newStrList.add("select");
+        Set<String> newPrivilegeSet = new HashSet<>(newStrList);
+        if (oldPrivilegeSet.equals(newPrivilegeSet)) {
+            System.out.println("1111");
+        }
+        System.out.println(oldPrivilegeList);
+        System.out.println(newPrivilegeSet);
+
+        new StrangePoc().strangeTest();
+        new DatePoc().datePoc();
+        new RegExpPoc().basicExpressPoc();
+        new RegExpPoc().regularExpressPoc();
+        new RegExpPoc().sqlExpressPoc();
+        new RegExpPoc().expressAdvPoc();
+
+        new ThreadLocalPoc().threadLocalPoc();
+
+        Map<String, String> aabc = new HashMap<>();
+        aabc.put("name", "cpx");
+        aabc.put("addr", "china");
+        System.out.println(aabc);
+
+
+        Student s1 = new Student("cpx", 12, 90);
+        Student s2 = new Student("rob", 22, 99);
+        List<Student> studentList = new ArrayList<>();
+        studentList.add(s1);
+        studentList.add(s2);
+
+        for(int i=0; i<studentList.size(); i++) {
+            Student tmp = studentList.get(i);
+            tmp.setName(tmp.getName() + "_good");
+        }
+        for(Student entry: studentList) {
+            System.out.println(entry.getName());
+            System.out.println(entry.getAge());
+            System.out.println(entry.getScore());
+        }
+        List<String> nameList = studentList.stream().map(Student::getName).collect(Collectors.toList());
+        System.out.println(nameList);
+        System.out.println(nameList.size());
+        System.out.println(String.join(",", nameList));
+
+        Biology biology = new Biology() {
+            @Override
+            public void cell() {
+
+            }
+        };
+        int[] phoneSet = {5, 0, 6, 7, 3, 9, 1, 4};
+        int[] phoneIndex = {6, 0, 2, 1,3, 6,7,0,2,5,4};
+        StringBuilder phone = new StringBuilder();
+        for (int i: phoneIndex) {
+            phone.append(phoneSet[i]);
+        }
+        List<String> stus = new ArrayList<>();
+        stus.add("cpx");
+        for(String entry : stus) {
+            System.out.println(entry);
+        }
+        System.out.println(phone);
+
+        int randomSeconds = new Random().nextInt(11) + 22;
+        System.out.println(randomSeconds);
+
+
+        Student s11 = new Student("cpx", 12, 90);
+        List<Student> studentListTmp = new ArrayList<>();
+        studentListTmp.add(s11);
+        System.out.println("-----");
+        System.out.println(studentListTmp.get(0).getName());
+        s11 = new Student("cpx222", 12, 90);
+        System.out.println(studentListTmp.get(0).getName());
+        for (Student entry : studentListTmp) {
+            entry.setName("aoe111");
+            System.out.println(entry.getName());
+        }
+        System.out.println(studentListTmp.get(0).getName());
+        //Scanner in = new Scanner(System.in);
+        //// 注意 hasNext 和 hasNextLine 的区别
+        //while (in.hasNextInt()) { // 注意 while 处理多个 case
+        //    int a = in.nextInt();
+        //    int b = in.nextInt();
+        //    int c = in.nextInt();
+        //    System.out.println(a + b + c);
+        //}
+
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("backupPolicyTemplateName", "name");
+        data.put("backupType", null);
+        System.out.println(data);
+        System.out.println(JSON.toJSONString(data));
+
+        String ccName = "cpx";
+        String sxnName = "cp" + "x";
+        if (ccName.equals(sxnName)) {
+            System.out.println("------");
+        }
+        new DatePoc().datePoc();
+
+
+        Pattern p = Pattern.compile("^[a-zA-Z]+\\w+$");
+        System.out.println(p.matcher("123b").matches());
+
+        Map<String, String> abc = new HashMap<>();
+        abc.put("name", "cpx");
+        System.out.println(abc.get("name"));
+        test(abc);
+        System.out.println(abc.get("name"));
+        new DatePoc().datePoc();
+
+        String abcd = ",PROPERTIES(" + "\"readOnly\"=true)";
+        System.out.println(abcd);
+
+    }
+    public static void test(Map<String, String> stu) {
+        stu.put("name", stu.get("name") + "2");
+    }
+
+    public static String exec(String cmd,int timeOut) throws IOException, InterruptedException {
+        Process p = Runtime.getRuntime().exec(cmd);
+        boolean res = p.waitFor(timeOut, TimeUnit.SECONDS);
+        if(!res) {
+            return "Time out";
+        }
+        String result = "";
+        byte[] data = new byte[256];
+
+        InputStream inputStream = p.getInputStream();
+        while(inputStream.read(data) != -1) {
+            result += new String(data,"GBK");
+        }
+        if (result == "") {
+            InputStream errorStream = p.getErrorStream();
+            while(errorStream.read(data) != -1) {
+                int length = 0;
+                for(byte b : data) {
+                    if( b == 0 ){
+                        break;
+                    }
+                    length++;
+                }
+                result += new String(data,0, length,"GBK");
+            }
+        }
+        System.out.println("---1--");
+        System.out.println(result);
+        System.out.println(data.length);
+        System.out.println("---2---");
+        return result;
     }
 }
 

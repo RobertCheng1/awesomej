@@ -402,7 +402,7 @@ Spring开发--IoC容器/使用AOP
         默认情况下，对一种类型的Bean，容器只创建一个实例。但有些时候，我们需要对一种类型的Bean创建多个实例。
         例如，同时连接多个数据库，就必须创建多个DataSource实例，这时可以用@Bean("name")指定别名，也可以用@Bean+@Qualifier("name")指定别名
 
-    可以理解为IoC是AOP的基础, 没有IoC就没有AOP: 会在 用CGLIB自动创建的 代理类中注入原始的类
+    可以理解为IoC是AOP的基础, 没有IoC就没有AOP: 会在 用CGLIB自动创建的 代理类中注入原始的类；仅仅根据"注入"两字，就得出这个结论是不是有点偏颇
     在IoC容器--使用Annotation配置:@ComponentScan，它告诉容器，自动搜索当前类所在的包以及子包，把所有标注为@Component的Bean自动创建出来，并根据@Autowired进行装配
     在使用AOP--使用 AOP: 既然SecurityCheckBookService的代码都是标准的Proxy样板代码，不如把权限检查视作一种切面（Aspect），把日志、事务也视为切面，
                        然后，以某种自动化的方式，把切面织入到核心逻辑中，实现(这个词很一针见血)Proxy模式。===最终也是实现Proxy模式，只不过是自动化的===
@@ -765,11 +765,12 @@ Spring Boot开发--禁用自动配置:
     最后，所有编译、打包生成的文件都放在target目录里。这些就是一个Maven项目的标准目录结构。
     所有的目录结构都是约定好的标准结构，我们千万不要随意修改目录结构。使用标准结构不需要做任何配置，Maven就可以正常使用。
 
-    我们还需要在工程目录下创建一个web.xml描述文件，放到src/main/webapp/WEB-INF目录下（固定目录结构，不要修改路径，注意大小写）//from:Web开发--Servlet入门
+    我们还需要在工程目录下创建一个web.xml描述文件，放到src/main/webapp/WEB-INF目录下（固定目录结构，不要修改路径，注意大小写），
+    后来教程有更新说： web.xml 配置文件是低版本Servlet必须的，但是高版本Servlet已不再需要，所以无需该配置文件。//from:Web开发--Servlet入门
     我们还硬性规定: 模板必须放在 webapp/WEB-INF/templates目录下，静态文件必须放在webapp/static目录下     //from: Web开发--MVC高级开发
     把所有的静态资源文件放入/static/目录，在开发阶段，有些Web服务器会自动为我们加一个专门负责处理静态文件的Servlet，但如果IndexServlet映射路径为/，会屏蔽掉处理静态文件的Servlet映射  //from: Web开发--部署
     src/main/webapp是标准web目录，WEB-INF存放web.xml，编译的class，第三方jar，以及不允许浏览器直接访问的View模版，static目录存放所有静态文件
-    (Spring项目还是用 webapp 目录的, 但是 springboot 就不用了)。 from:Spring开发--开发Web应用--使用SpringMVC
+    (Spring 的 web 项目还是用 webapp 目录的, 但是 springboot 就不用了)。 from:Spring开发--开发Web应用--使用SpringMVC
     在Java程序中，我们经常会读取配置文件、资源文件等。使用Spring容器时，我们也可以把“文件”注入进来，方便程序读取。//from: Spring开发--IoC容器--使用Resource
 
     两种用法都可以:

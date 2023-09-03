@@ -83,6 +83,12 @@ enum Weekday {
         //覆写toString()的目的是使输出的信息更有可读性。
         return this.chinese;
     }
+
+    public static void output() {
+        for(Weekday entry: values()) {
+            System.out.println(entry);
+        }
+    }
 }
 
 public class EnumPoc{

@@ -17,6 +17,9 @@ class Worker{
         this.name = name;
         this.salary = salary;
     }
+    public void setName(String name){
+        this.name = name;
+    }
     public String getName(){
         return this.name;
     }
@@ -66,7 +69,6 @@ public class CollectionPoc {
         // 修改 list 也会影响 fruitList，感觉像是传引用
         list.remove("apple");
         System.out.println(fruitList.size());
-
         // 遍历 List：
         // 这种方式并不推荐，一是代码复杂，二是因为get(int)方法只有ArrayList的实现是高效的，换成LinkedList后，索引越大，访问速度越慢。
         for (int i = 0; i < list.size(); i++) {
@@ -136,19 +138,36 @@ public class CollectionPoc {
         List<Worker> workers = new ArrayList<>();
         workers.add(new Worker("Robert", 1000));
         workers.add( new Worker("Bruce", 2000));
+        // Case0: 验证传值还是引用
+        Map<String, Worker> workerMap = new HashMap<>();
+        workerMap.put("a", new Worker("Robert", 1000));
+        workerMap.put("b", new Worker("Robert", 1000));
+        //for(String key : workerMap.keySet()) {
+        //    Worker value = workerMap.get(key);
+        //    value.setName(value.getName() + "1");
+        //}
+        for(Worker worker : workerMap.values()) {
+            worker.setName(worker.getName() + "11");
+        }
+
+        for(String key : workerMap.keySet()) {
+            System.out.println(workerMap.get(key).getName());
+        }
+        System.out.println("-----");
+        // Case1： filter
         List<Worker> newList = workers.stream().filter(worker -> worker.getSalary()>100)
                 .collect(Collectors.toList());
         for(Worker entry : newList) {
             System.out.printf("entry.getName() = %s\n", entry.getName());
         }
 
+        // Case2：filter and map
         List<String> nameList = workers.stream().filter(worker -> worker.getSalary()>1000)
                 .map(Worker::getName)
                 .collect(Collectors.toList());
         for(String name : nameList) {
             System.out.printf("name = %s\n", name);
         }
-
 
         List<String> nameList2 = new ArrayList<>();
         workers.stream().filter(worker -> worker.getSalary()>100)
@@ -157,18 +176,71 @@ public class CollectionPoc {
         for(String name2 : nameList2) {
             System.out.printf("name2 = %s\n", name2);
         }
+        // 尝试 mapToInt
+        System.out.println(workers.stream().mapToInt(worker-> worker.getSalary()).sum());
+
+        workers.forEach(entry->entry.setName(entry.getName()+"aaa"));
+        for(Worker worker : workers) {
+            System.out.printf("name2-2 = %s\n", worker.getName());
+        }
         // dataList 是个 List<Map> 的数据类型
         // dataList.stream().filter(map -> !MapUtils.isEmpty(map)).map(Map::values).forEach(list::addAll);
         //
         //
+        // Case3：Collectors.groupingBy
+        // 多个属性 groupBy
+        //Map<String, List<Worker>> aa = workers.stream().collect(Collectors.groupingBy(e->(e.getName() + e.getSalary())));
         Map<String, List<Worker>> aa = workers.stream().collect(Collectors.groupingBy(Worker::getName));
-        System.out.println(aa);
+        for(String key : aa.keySet()) {
+            System.out.printf("key = %s\n", key);
+            List<Worker> value = aa.get(key);
+            for(Worker w: value) {
+                System.out.printf("name3 = %s, salary = %d\n", w.getName(), w.getSalary());
+            }
+        }
+        Set<String> aaadv = workers.stream().collect(Collectors.groupingBy(Worker::getName)).keySet();
+        for(String key : aaadv) {
+            System.out.printf("key = %s\n", key);
+        }
 
+        // Case4：Collectors.toMap
+        Map<String, Worker> bb = workers.stream()
+                .collect(Collectors.toMap(Worker::getName, v -> v, (a, b) -> b));
+        for(String key : bb.keySet()) {
+            Worker w = bb.get(key);
+            System.out.printf("name4 = %s, salary = %d\n", w.getName(), w.getSalary());
+        }
 
-        Map<String, IntSummaryStatistics> bb = workers.stream().collect(Collectors.groupingBy(Worker::getName,
+        Map<String, IntSummaryStatistics> cc = workers.stream().collect(Collectors.groupingBy(Worker::getName,
                 Collectors.summarizingInt(Worker::getSalary)));
-        System.out.println(bb);
+        System.out.println(cc);
     }
+
+    public void List2Array2List() {
+        // 数组转list
+        String[] fruitArray = {"Apple", "Banana", "Coconut", "Apricots"};
+        //List<String> tmp = Arrays.asList(fruitArray); 这样转出来的 list 不能执行 add 等操作
+        //tmp.add("good");
+        List<String> fruitList = new ArrayList<>(Arrays.asList(fruitArray));
+        //List<String> fruitList = new ArrayList<>(Arrays.asList("Apple", "Banana", "Coconut", "Apricots"));
+        Map<String, List<String>> groups = fruitList.stream()
+                .collect(Collectors.groupingBy(s -> s.substring(0, 1), Collectors.toList()));
+        System.out.println(groups);
+        // 数组转list
+        String[] strArray2 = fruitList.toArray(new String[fruitList.size()]);
+        System.out.println(Arrays.toString(strArray2));
+
+        // list 转 set 也可以达到去重的效果
+        List<String> tablesList1 = new ArrayList<>(Arrays.asList("Apple", "Baidu", "Apple"));
+        Set<String> tableSet1 = new HashSet<>(tablesList1);
+        System.out.println(tableSet1);
+        // list 去重复：就不用转set操作了
+        List<String> tableList = new ArrayList<>(Arrays.asList("Apple", "Baidu", "Apple"));
+        List<String> tableSet = tableList.stream().distinct().collect(Collectors.toList());
+        System.out.println(tableList);
+        System.out.println(tableSet);
+    }
+
 
     public void mapEntry(){
         // Map也是一个接口，最常用的实现类是HashMap。
